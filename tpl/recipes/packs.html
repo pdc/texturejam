@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="{{ static }}style/base.css">
+    </head>
+    <body>
+        <section id="banner">
+            <h1>Texturejam</h1>
+            <p id="strap">Remix Minecraft Texture Packs</p>
+        </section>
+        <div id="body">
+            <section id="pack_list">
+                <p>
+                    One day
+                    you will be able to define your own remixed texture packs
+                    and
+                    all will be super.
+                    But I haven’t written that part of the site yet.
+                    Until then here
+                    are some texture packs I prepared earlier.
+                <p>
+                <ul>
+                    {% for pack in recipe_packs %}
+                    <li>
+                        <a href="{% url tpmake pk=pack.pk %}">
+                            {{ pack }}
+                            <small>
+                                Recipe {{ pack.recipe }}
+                                applied to
+                                {% for arg in pack.pack_args.all %}
+                                    {{ arg.source_pack }}
+                                {% endfor %}
+                            </small>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </div>
+        <section id="footer">
+            <p>© 2011 Damian Cugley</p>
+        </section>
+    </body>
+</html>

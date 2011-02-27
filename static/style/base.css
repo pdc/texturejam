@@ -1,0 +1,81 @@
+@import url(http://fonts.googleapis.com/css?family=Luckiest+Guy:regular);
+@import url(http://fonts.googleapis.com/css?family=Kreon);
+
+body {
+    font-size: 13px;
+    background-color: #F90;
+    background-image: -webkit-gradient(radial, 50% 75, 40, 50% 75, 600, from(#FFF), to(rgba(255, 240, 151, 0)), color-stop(90%, #FC3));
+    background-repeat: no-repeat;
+    color: #333;
+    font-family: "Verdana", sans-serif;
+}
+
+#banner {
+    width: 960px;
+    margin: 0 auto 1.25em;
+}
+
+#banner h1 {
+    font-size: 3em;
+    margin: 1em 10px 0.25em;
+
+    font-family: 'Luckiest Guy', serif;
+    text-align: left;
+    color: rgb(19, 81, 101);
+}
+
+#banner p {
+    font-size: 2em;
+    display: block;
+    margin: 0 10px 0;
+
+    text-align: left;
+    color: rgb(19, 81, 101);
+	  font-family: 'Kreon', sans-serif;
+	  text-transform: lowercase;
+}
+
+#body {
+  width: 960px;
+  margin: 0 auto;
+}
+
+section#pack_list {
+  float: left;
+  width: 560px; /* 7u */
+  background: rgba(255, 255, 255, 0.5);
+}
+
+h1, h2 {
+    margin: 1em 10px 0.5em;
+
+    font-family: 'Luckiest Guy', serif;
+    color: rgb(19, 81, 101);
+}
+
+h1 {
+    font-size: 2em;
+}
+
+h2 {
+    font-size: 1.5em;
+}
+
+section:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+section p {
+  margin: 1.25em 10px;
+}
+
+#footer {
+  clear: both;
+  width: 960px;
+  margin: 0 auto;
+  padding: 2.5em 0 0;
+}

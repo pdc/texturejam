@@ -1,0 +1,4 @@
+*.pyc
+dev.db
+foo
+settings.py
