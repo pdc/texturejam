@@ -2,6 +2,7 @@
 
 from StringIO import StringIO
 import yaml
+import re
 
 from django.http import HttpResponse
 from django.template import RequestContext
@@ -24,6 +25,14 @@ def with_template(default_template_name=None):
                     context_instance=RequestContext(request))
         return decorated_func
     return decorator
+
+
+not_word_re = re.compile(r'\W+')
+def name_from_label(s):
+    return '_'.join(not_word_re.split(s.lower()))
+
+###
+
 
 @with_template('recipes/packs.html')
 def recipe_pack_list(request):
@@ -60,5 +69,8 @@ def make_texture_pack(request, pk):
     spec = yaml.load(StringIO(recipe_pack.recipe.spec))
     pack = mixer.make(spec, base='internal:///')
     response = HttpResponse(mimetype="application/zip")
+    response['content-disposition'] = 'attachment; filename={file_name}'.format(
+        file_name=name_from_label(recipe_pack.label) + '.zip'
+    )
     pack.write_to(response)
     return response
