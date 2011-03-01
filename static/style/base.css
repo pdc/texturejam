@@ -3,21 +3,28 @@
 
 body {
     font-size: 13px;
-    background-color: #F90;
-    background-image: -webkit-gradient(radial, 50% 75, 40, 50% 75, 600, from(#FFF), to(rgba(255, 240, 151, 0)), color-stop(90%, #FC3));
-    background-repeat: no-repeat;
+    padding: 0;
+    margin: 0;
+
     color: #333;
     font-family: "Verdana", sans-serif;
+    background: #E82;
 }
 
 #banner {
-    width: 960px;
-    margin: 0 auto 1.25em;
+    width: 100%;
+    margin: 0 0 1.25em;
+    background-color: #F90;
+    background-image: -webkit-gradient(radial, 25% 75, 40, 25% 75, 600,
+    	from(#FFF), color-stop(90%, #E04), to(#A02));
+    background-repeat: no-repeat;
 }
 
 #banner h1 {
     font-size: 3em;
-    margin: 1em 10px 0.25em;
+    width: 940px;
+    padding: 1em 0 0;
+    margin: 0 auto;
 
     font-family: 'Luckiest Guy', serif;
     text-align: left;
@@ -27,7 +34,8 @@ body {
 #banner p {
     font-size: 2em;
     display: block;
-    margin: 0 10px 0;
+    width: 940px;
+    margin: 0 auto 0;
 
     text-align: left;
     color: rgb(19, 81, 101);
@@ -44,6 +52,7 @@ section#pack_list {
   float: left;
   width: 560px; /* 7u */
   background: rgba(255, 255, 255, 0.5);
+  border-radius: 0.5em;
 }
 
 h1, h2 {
@@ -78,4 +87,43 @@ section p {
   width: 960px;
   margin: 0 auto;
   padding: 2.5em 0 0;
+}
+
+#pack_list ul {
+	margin: 1.25em 0 0;
+	padding: 0;
+}
+
+#pack_list li {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+}
+
+#pack_list li a {
+	display: block;
+	padding: 0.5em 10px;
+
+	text-decoration: none;
+	color: inherit;
+  border-radius: 0.5em;
+}
+
+#pack_list li a:hover {
+	background: rgba(255, 255, 255, 0.6);
+	-webkit-box-shadow: rgba(0, 0, 0, 0.25) 2px 2px 3px;
+}
+#pack_list li a:active {
+	background: rgba(255, 255, 255, 0.6);
+	-webkit-box-shadow: rgba(0, 0, 0, 0.25) 1px 1px 2px;
+}
+
+#pack_list li b {
+	display: block;
+}
+
+#pack_list li a:hover b,
+#pack_list li a:active b {
+	text-decoration: underline;
+	color: #06B;
 }

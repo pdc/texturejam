@@ -29,7 +29,7 @@ def with_template(default_template_name=None):
 
 not_word_re = re.compile(r'\W+')
 def name_from_label(s):
-    return '_'.join(not_word_re.split(s.lower()))
+    return '_'.join(w for w in not_word_re.split(s.lower()) if w)
 
 ###
 
