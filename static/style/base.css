@@ -8,7 +8,7 @@ body {
 
     color: #333;
     font-family: "Verdana", sans-serif;
-    background: #E82;
+    background: #975 url(dirt64.png);
 }
 
 #banner {
@@ -17,7 +17,8 @@ body {
     background-color: #F90;
     background-image: -webkit-gradient(radial, 25% 75, 40, 25% 75, 600,
     	from(#FFF), color-stop(90%, #E04), to(#A02));
-    background-repeat: no-repeat;
+    background-color: #F90;
+    background: url(dirt_jam.png) left top repeat-x;
 }
 
 #banner h1 {
@@ -28,7 +29,8 @@ body {
 
     font-family: 'Luckiest Guy', serif;
     text-align: left;
-    color: rgb(19, 81, 101);
+    color: #FFF;
+    text-shadow: rgba(0, 0, 0, 0.5) 3px 3px 2px;
 }
 
 #banner p {
@@ -41,6 +43,8 @@ body {
     color: rgb(19, 81, 101);
 	  font-family: 'Kreon', sans-serif;
 	  text-transform: lowercase;
+  color: #FFF;
+  text-shadow: rgba(0, 0, 0, 0.5) 3px 3px 2px;
 }
 
 #body {
@@ -51,7 +55,7 @@ body {
 section#pack_list {
   float: left;
   width: 560px; /* 7u */
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.75);
   border-radius: 0.5em;
 }
 
