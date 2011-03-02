@@ -32,7 +32,7 @@ class SourcePack(models.Model):
     released = models.DateTimeField(auto_now_add=True, help_text='When this vesion of the pack was was released')
 
     def __unicode__(self):
-        return '{series} {label}'.format(series=self.series.label, label=self.label)
+        return u'{series} {label}'.format(series=self.series.label, label=self.label)
 
 class Spec(models.Model):
     owner = models.ForeignKey(User, related_name='atlases')
@@ -71,5 +71,5 @@ class PackArg(models.Model):
     name = models.SlugField(help_text='Name used for ths formal parameter in the recipe')
 
     def __unicode__(self):
-        return '{name}={source_pack}'.format(name=self.name, source_pack=self.source_pack.label)
+        return u'{name}={source_pack}'.format(name=self.name, source_pack=self.source_pack.label)
 
