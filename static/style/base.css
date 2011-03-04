@@ -47,7 +47,7 @@ body {
   text-shadow: rgba(0, 0, 0, 0.5) 3px 3px 2px;
 }
 
-#body {
+#content {
   width: 960px;
   margin: 0 auto;
 }
@@ -130,4 +130,56 @@ section p {
 #pack_list li a:active b {
 	text-decoration: underline;
 	color: #06B;
+}
+
+/* The user’s identity displayed at top roight of page */
+#who {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 0.5em 10px;
+  min-width: 140px;
+  height: 24px;
+  overflow: hidden;
+
+  line-height: 1;
+  background: rgba(204, 51, 102, 0.75);
+  border-bottom-left-radius: 10px;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.25) 1px 1px 2px;
+}
+
+#who:hover {
+  height: auto;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 3px;
+}
+
+#who img.profile {
+  height: 24px;
+  vertical-align: middle;
+}
+
+#who form {
+  padding: 0.5em 0 0;
+}
+
+table {
+  margin: 0.65em 5px;
+  border-collapse: collapse;
+}
+
+td, th {
+  padding: 0.125em 5px;
+
+  text-align: left;
+  vertical-align: baseline;
+}
+
+tbody th {
+  text-align: right;
+  min-width: 60px;
+  padding-right: 15px;
+}
+
+td img {
+  display: block;
 }

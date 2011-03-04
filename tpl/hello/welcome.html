@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Welcome to Texturejam{% endblock %}
+{% block heading %}Welcome to Texturejam{% endblock %}
+{% block content %}
+<section id="pack_list">
+    <p>
+        Thanks for logging in.
+    <p>
+    <p>
+        <a href="{% url home %}">Back to the list of texture packs</a>
+    </p>
+
+
+
+  <p>User data (from {{ user.social_auth.get.provider }}):</p>
+  <table>
+    <tr class="even"><th>Name</th> <td>{{ user.get_full_name|default:"Not provided" }}</td></tr>
+    <tr class="even"><th>Login</th> <td>{{ user.username }}</td></tr>
+    <tr class="odd"><th>Email</th> <td>{{ user.email|default:"Not provided" }}</td></tr>
+    <tr><th>Picture</th><td><img src="{{ user_profile.get_picture_src|default:"Not provided" }}" alt=""></td></tr>
+  </table>
+</section>
+{% endblock %}

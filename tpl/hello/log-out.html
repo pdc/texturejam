@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Log out - Texturejam{% endblock %}
+{% block heading %}Log out{% endblock %}
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    <input type="submit" value="Log out"/>
+</form>
+{% endblock %}

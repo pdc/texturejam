@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Texturejam</title>
+        <link rel="stylesheet" href="{{ static }}style/base.css">
+    </head>
+    <body>
+        {% block banner %}
+        <section id="banner">
+            <h1>{% block heading %}Texturejam{% endblock %}</h1>
+            <p id="strap">Remix Minecraft Texture Packs</p>
+        </section>
+        {% endblock %}
+        {% if messages %}
+        <section id="messages">
+            <ul>
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% endif %}
+        <div id="content">
+            {% block content %}
+            {% endblock %}
+
+            {% block who %}
+            <aside id="who">
+                {% if user.is_authenticated %}
+                {% if user_profile.get_picture_src %}
+                <img src="{{ user_profile.get_picture_src }}" alt="" class="profile" />
+                {% endif %}
+                {{ user.username }}
+                <form action="{% url hello_log_out %}?next={{ logout_next }}" method="post">
+                    {% csrf_token %}
+                    <input type="submit" value="Log out" />
+                </form>
+                {% else %}
+                <a rel="nofollow" href="{% url begin "twitter" %}"><img src="{{ static }}style/sign-in-with-twitter.png" alt="Log in with Twitter"></a>
+                {% endif %}
+            </aside>
+            {% endblock %}
+        </div>
+        <section id="footer">
+            <p>© 2011 Damian Cugley</p>
+        </section>
+    </body>
+</html>

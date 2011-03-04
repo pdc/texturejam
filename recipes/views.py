@@ -11,28 +11,7 @@ from django.conf import settings
 
 from texturepacker import Mixer
 from recipes.models import *
-
-def with_template(default_template_name=None):
-    def decorator(func):
-        def decorated_func(request, *args, **kwargs):
-            result = func(request, *args, **kwargs)
-            if isinstance(result, HttpResponse):
-                return result
-            template_name = result.get('template_name', default_template_name)
-            template_args = {'static': settings.STATIC_URL}
-            template_args.update(result)
-            return render_to_response(template_name, template_args,
-                    context_instance=RequestContext(request))
-        return decorated_func
-    return decorator
-
-
-not_word_re = re.compile(r'\W+')
-def name_from_label(s):
-    return '_'.join(w for w in not_word_re.split(s.lower()) if w)
-
-###
-
+from shortcuts import *
 
 @with_template('recipes/packs.html')
 def recipe_pack_list(request):
