@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Log in - Texturejam{% endblock %}
+{% block heading %}Please log in to Texturejam{% endblock %}
+{% block content %}
+<section id="pack_list">
+    <p>
+        Please log in first.
+        We only use your login to keep track of
+        who adds what to the database.
+        For your comfort and convenience we use Twitter to
+        handle the actual logging-in process.
+    </p>
+    <p>
+        <a rel="nofollow" href="{% url begin "twitter" %}"><img src="{{ static }}style/sign-in-with-twitter.png" alt="Log in with Twitter"></a>
+    </p>
+    <p>
+        Or, <a href="{% url home %}">go back to the list of texture packs</a>
+    </p>
+</section>
+{% endblock %}
+{% block who %}{% endblock %}

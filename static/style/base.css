@@ -8,6 +8,7 @@ body {
 
     color: #333;
     font-family: "Verdana", sans-serif;
+    line-height: 1.25;
     background: #975 url(dirt64.png);
 }
 
@@ -229,4 +230,43 @@ td img {
 #main form .buttons input {
   margin: 0 10px;
   width: auto;
+}
+
+section#messages {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+#messages ul {
+  margin: 0 auto;
+  padding: 1.25em 0;
+  width: 560px;
+
+  color: #000;
+  background: rgba(255, 240, 151, 0.8);
+  -webkit-box-shadow: rgba(0, 0, 0, 0.75) 3px 3px 4px;
+  /*
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+  */
+}
+
+#messages li {
+  margin: 0;
+  padding: 0.625em 50px;
+}
+
+#messages li.error {
+  color: #903;
+  font-weight: bold;
+  background: url(error-24.png) 16px 0.625em no-repeat;
+}
+
+#messages li.info {
+  background: url(info-24.png) 16px 0.625em no-repeat;
 }

@@ -21,6 +21,7 @@ urlpatterns += patterns('',
     url(r'^hello/oh-dear$', 'hello.views.login_error'),
     url(r'^hello/callback$', 'hello.views.oauth_callback'),
     url(r'^hello/log-out$', 'hello.views.log_out', {}, 'hello_log_out'),
+    url(r'^hello/please-log-in$', 'hello.views.login_form', {}, 'hello_please_log_in'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # (r'^admin/doc/', include('django.contrib.admindocs.urls')),

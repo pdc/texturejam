@@ -1,9 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Upgrade to beta 1.3 - Texturejam{% endblock %}
-{% block heading %}Upgrade to Beta 1.3{% endblock %}
+{% block heading %}Upgrade to Beta 1.3 with Texturejam{% endblock %}
 {% block content %}
 <section id="main">
-    <p>Foo bar baz</p>
+    <p>
+        While you wait for your favourite texture pack to be updated
+        to be compatible with Minecraft Beta 1.3,
+        we can create an ersatz version by mixing in the missing
+        elements from another pack.
+    </p>
     <form method="post">
         {% csrf_token %}
         {% for field in form %}
@@ -18,7 +23,7 @@
             {% endif %}
         </div>
         {% endfor %}
-        <div class="buttons"><input type="submit" value="Submit" /></div>
+        <div class="buttons"><input type="submit" value="Create Beta 1.2 Pack" /></div>
     </form>
 </section>
 {% endblock %}

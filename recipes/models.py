@@ -31,7 +31,7 @@ class SourcePack(models.Model):
     level = models.ForeignKey(Level, related_name='source_packs')
 
     label = models.CharField(max_length=200)
-    download_url = models.URLField(max_length=1000)
+    download_url = models.URLField(max_length=1000, unique=True)
     released = models.DateTimeField(help_text='When this vesion of the pack was was released')
 
     def __unicode__(self):
