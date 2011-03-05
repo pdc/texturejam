@@ -9,7 +9,6 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.conf import settings
 
-from texturepacker import Mixer
 from recipes.models import *
 from shortcuts import *
 
@@ -26,19 +25,6 @@ def recipe(request, name):
 def maps(request, name):
     recipe = get_object_or_404(Spec, name=name, spec_type='tpmaps')
     return HttpResponse(recipe.spec, mimetype="application/x-yaml")
-
-def get_mixer():
-    mixer = Mixer()
-    def fetch_spec(path):
-        if path.startswith('///maps/'):
-            spec = Spec.objects.get(spec_type='tpmaps', name=path[8:])
-        elif path.startswith('///'):
-            spec = Spec.objects.get(spec_type='tprx', name=path[3:])
-        else:
-            raise Exception('Could not fetch %r' % (path,))
-        return {'content-type': 'application/x-yaml'}, StringIO(spec.spec)
-    mixer.loader.add_scheme('internal', fetch_spec)
-    return mixer
 
 def make_texture_pack(request, pk):
     recipe_pack = get_object_or_404(RecipePack, pk=pk)

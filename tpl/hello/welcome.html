@@ -18,6 +18,7 @@
     <tr class="even"><th>Login</th> <td>{{ user.username }}</td></tr>
     <tr class="odd"><th>Email</th> <td>{{ user.email|default:"Not provided" }}</td></tr>
     <tr><th>Picture</th><td><img src="{{ user_profile.get_picture_src|default:"Not provided" }}" alt=""></td></tr>
+    <tr><th>Picture</th><td>{{ user_profile.get_picture_src|default:"Not provided" }}</td></tr>
   </table>
 </section>
 {% endblock %}

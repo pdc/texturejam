@@ -4,6 +4,8 @@ import json
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
+from django.conf import settings
+from social_auth.models import UserSocialAuth
 from social_auth.signals import pre_update
 from social_auth.backends.twitter import TwitterBackend
 from texturejam.shortcuts import get_http
@@ -17,14 +19,18 @@ class Profile(models.Model):
     forum_name = models.CharField(max_length=200, blank=True)
 
     def get_picture_src(self):
-        if not self.pic_src and self.user.is_authenticated() and self.user.social_auth:
-            func_name = 'get_{provider}_pic'.format(provider=self.user.social_auth.get().provider)
-            func = getattr(self, func_name)
-            if func:
-                self.pic_src = func()
-                self.save()
+        if not self.pic_src and self.user.is_authenticated():
+            try:
+                social_auth = self.user.social_auth.get()
+                func_name = 'get_{provider}_pic'.format(provider=social_auth.provider)
+                func = getattr(self, func_name)
+                if func:
+                    self.pic_src = func()
+                    self.save()
+            except UserSocialAuth.DoesNotExist:
+                pass
 
-        return self.pic_src
+        return self.pic_src or (settings.STATIC_URL + 'style/userpic.png')
 
     def get_twitter_pic(self):
         social_auth = self.user.social_auth.get()

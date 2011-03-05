@@ -1,5 +1,8 @@
+# -*-coding: UTF-8-*-
+
 from django.db import models
 from django.contrib.auth.models import User
+from texturepacker import Mixer
 
 class Level(models.Model):
     label = models.CharField(max_length=200)
@@ -73,3 +76,21 @@ class PackArg(models.Model):
     def __unicode__(self):
         return u'{name}={source_pack}'.format(name=self.name, source_pack=self.source_pack.label)
 
+
+def get_mixer():
+    """Get a Texturepacker mixer that knows about locally hosted resources.
+
+    This allows the server to avoid making HTTP
+    requests to itself.
+    """
+    mixer = Mixer()
+    def fetch_spec(path):
+        if path.startswith('///maps/'):
+            spec = Spec.objects.get(spec_type='tpmaps', name=path[8:])
+        elif path.startswith('///'):
+            spec = Spec.objects.get(spec_type='tprx', name=path[3:])
+        else:
+            raise Exception('Could not fetch %r' % (path,))
+        return {'content-type': 'application/x-yaml'}, StringIO(spec.spec)
+    mixer.loader.add_scheme('internal', fetch_spec)
+    return mixer
