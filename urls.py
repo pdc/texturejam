@@ -7,6 +7,8 @@ admin.autodiscover()
 
 urlpatterns = patterns('recipes.views',
     (r'^$', 'recipe_pack_list', {}, 'home'),
+    (r'^beta-upgrade$', 'beta_upgrade', {}, 'beta_upgrade'),
+
     (r'^rx/(?P<name>[\w-]+)$', 'recipe', {}, 'tprx'),
     (r'^rx/maps/(?P<name>[\w-]+)$', 'maps', {}, 'tpmaps'),
     (r'^tp/(?P<pk>\d+)$', 'make_texture_pack', {}, 'tpmake'),

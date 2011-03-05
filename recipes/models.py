@@ -1,5 +1,6 @@
 # -*-coding: UTF-8-*-
 
+from StringIO import StringIO
 from django.db import models
 from django.contrib.auth.models import User
 from texturepacker import Mixer
@@ -31,8 +32,7 @@ class SourcePack(models.Model):
 
     label = models.CharField(max_length=200)
     download_url = models.URLField(max_length=1000)
-
-    released = models.DateTimeField(auto_now_add=True, help_text='When this vesion of the pack was was released')
+    released = models.DateTimeField(help_text='When this vesion of the pack was was released')
 
     def __unicode__(self):
         return u'{series} {label}'.format(series=self.series.label, label=self.label)
