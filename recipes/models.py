@@ -17,8 +17,8 @@ class SourceSeries(models.Model):
     owner = models.ForeignKey(User, related_name='source_series')
 
     label = models.CharField(max_length=200)
-    home_url = models.URLField(max_length=1000, blank=True)
-    forum_url = models.URLField(max_length=1000, blank=True)
+    home_url = models.URLField(max_length=255, blank=True)
+    forum_url = models.URLField(max_length=255, blank=True)
 
     created = models.DateTimeField(auto_now_add=True, help_text='When this series was added to our list')
     modified = models.DateTimeField(auto_now=True, help_text='When our info about this series was updated')
@@ -31,7 +31,7 @@ class SourcePack(models.Model):
     level = models.ForeignKey(Level, related_name='source_packs')
 
     label = models.CharField(max_length=200)
-    download_url = models.URLField(max_length=1000, unique=True)
+    download_url = models.URLField(max_length=255, unique=True)
     released = models.DateTimeField(help_text='When this vesion of the pack was was released')
 
     def __unicode__(self):
