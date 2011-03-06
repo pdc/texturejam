@@ -23,7 +23,14 @@
             {% endif %}
         </div>
         {% endfor %}
-        <div class="buttons"><input type="submit" value="Create Beta 1.2 Pack" /></div>
+        <div class="buttons">
+            <input type="submit" value="Make Texture Pack" />
+            or, <a href="{% url home %}">Cancel</a>
+        </div>
     </form>
+    <p>
+        Please bear in mind this service is still experimental,
+        and might not work.
+    </p>
 </section>
 {% endblock %}

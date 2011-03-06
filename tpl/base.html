@@ -32,12 +32,12 @@
                 <img src="{{ user_profile.get_picture_src }}" alt="" class="profile" />
                 {% endif %}
                 {{ user.username }}
-                <form action="{% url hello_log_out %}?next={{ logout_next }}" method="post">
+                <form action="{% url hello_log_out %}?next={{ redirect_field_value }}" method="post">
                     {% csrf_token %}
                     <input type="submit" value="Log out" />
                 </form>
                 {% else %}
-                <a rel="nofollow" href="{% url begin "twitter" %}"><img src="{{ static }}style/sign-in-with-twitter.png" alt="Log in with Twitter"></a>
+                <a rel="nofollow" href="{% url begin "twitter" %}?next={{ redirect_field_value }}"><img src="{{ static }}style/sign-in-with-twitter.png" alt="Log in with Twitter"></a>
                 {% endif %}
             </aside>
             {% endblock %}

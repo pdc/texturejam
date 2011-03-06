@@ -61,6 +61,14 @@ section#main {
   border-radius: 0.5em;
 }
 
+section#unoriginal {
+  float: left;
+  width: 240px; /* 3u */
+  margin: 0 0 0 160px;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 0.5em;
+}
+
 h1, h2 {
     margin: 1em 10px 0.5em;
 
@@ -224,11 +232,11 @@ td img {
 }
 
 #main form div.buttons {
-  padding: 0.5em 10px 0.5em 160px;
+  padding: 0.625em 10px 0.625em 160px;
 }
 
 #main form .buttons input {
-  margin: 0 10px;
+  margin: 0.625em 10px;
   width: auto;
 }
 

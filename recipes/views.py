@@ -36,7 +36,7 @@ LABEL_WITH_VERSION_RE = re.compile(ur"""
 def recipe_pack_list(request):
     """List of recipe packs, for the home page."""
     return {
-        'recipe_packs': RecipePack.objects.all(),
+        'recipe_packs': RecipePack.objects.order_by('-modified'),
     }
 
 def recipe(request, name):
@@ -67,6 +67,8 @@ def make_texture_pack(request, pk):
 @login_required
 @with_template('recipes/beta-upgrade.html')
 def beta_upgrade(request):
+    # XXX This function is quite long.
+    # Would it be possible to spin it out in to the model?
     if request.method == 'POST': # If the form has been submitted...
         form = BetaForm(request.POST) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass

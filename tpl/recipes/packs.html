@@ -4,14 +4,16 @@
 {% block content %}
 <section id="pack_list">
     <p>
-        One day
-        you will be able to define your own remixed texture packs
-        and
-        all will be super.
-        But I haven’t written that part of the site yet.
-        Until then here
-        are some texture packs I prepared earlier.
+        Why remix texture packs?
+        One reason to do this is if your favourite texture pack
+        has not yet been updated for Minecraft Beta 1.3.
+        If this is you, try our experimental
+        <a href="{% url beta_upgrade %}"><strong>Upgrade to Beta 1.3 Service</strong></a>.
+
+    </p>
     <p>
+        Here are some remixes we  prepared earlier:
+    </p>
     <ul>
         {% for pack in recipe_packs %}
         <li>
@@ -27,6 +29,19 @@
             </a>
         </li>
         {% endfor %}
+    </ul>
+</section>
+<section id="unoriginal">
+    <p>
+        The texture packs on this site are all remixes of packs
+        made by a horde of pixel artists.
+        Look for original packs
+        on sites like
+    </p>
+    <ul>
+        <li><a href="http://www.minecraftforum.net/viewforum.php?f=1021">Minecraft Forums</a></li>
+        <li><a href="http://www.minecrafttextures.com/">Minecraft Textures</a></li>
+        <li><a href="http://www.planetminecraft.com/resources/texture_packs/">Planet Minecraft Textures</a></li>
     </ul>
 </section>
 {% endblock %}

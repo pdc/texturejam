@@ -45,13 +45,15 @@ def static_context_processor(request):
         'static': settings.STATIC_URL,
     }
 
-def logout_context_processor(request):
+def redirect_field_value_context_processor(request):
     """Referenced in the setting TEMPLATE_CONTEXT_PROCESSORS to add link to static dir."""
-    next = request.get_full_path()
+    next = request.GET.get('next')
+    if not next:
+        next = request.get_full_path()
     if next == settings.LOGIN_REDIRECT_URL:
         next = '/'
     return {
-        'logout_next': next,
+        'redirect_field_value': next,
     }
 
 def get_http():
