@@ -109,7 +109,6 @@ def beta_upgrade(request):
                     messages.add_message(request, messages.INFO,
                             'we already have an entry for {pack}'.format(pack=source_pack.label))
                 except SourcePack.DoesNotExist:
-
                     series = SourceSeries(
                         owner=request.user,
                         label=series_label,
