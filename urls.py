@@ -9,11 +9,12 @@ urlpatterns = patterns('recipes.views',
     (r'^$', 'recipe_pack_list', {}, 'home'),
     (r'^packs/(?P<pk>\d+)/$', 'recipe_pack_detail', {}, 'pack'),
     (r'^packs/(?P<pk>\d+)/resources/(?P<res_name>.*)$', 'recipe_pack_resource', {}, 'pack_resource'),
+    (r'^packs/(?P<pk>\d+)/zip$', 'make_texture_pack', {}, 'tpmake'),
+
     (r'^beta-upgrade$', 'beta_upgrade', {}, 'beta_upgrade'),
 
     (r'^rx/(?P<name>[\w-]+)/$', 'recipe', {}, 'tprx'),
     (r'^rx/maps/(?P<name>[\w-]+)$', 'maps', {}, 'tpmaps'),
-    (r'^tp/(?P<pk>\d+)$', 'make_texture_pack', {}, 'tpmake'),
 )
 
 urlpatterns += patterns('',

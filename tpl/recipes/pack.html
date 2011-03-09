@@ -12,18 +12,22 @@
     </p>
 
     {% if pack.pack_args %}
-    <h2>Source{{ pack.pack_args|pluralize }}</h2>
     <p>
-        This pack was created by remixing {{ pack.pack_args|pluralize:"this pack,these packs" }}:
-    </p>
-    <ul>
+        This pack was created by remixing
         {% for pack_arg in pack.pack_args.all %}
-        <li>
-            <a href="{% firstof pack_arg.source_pack.series.home_url pack_arg.source_pack.series.forum_url pack_arg.source_pack.download_url %}">{{ pack_arg.source_pack }}</a>
-        </li>
+            {% if not forloop.first %}{% if forloop.last %}and{% endif %}{% endif %}
+            <a href="{% firstof pack_arg.source_pack.series.home_url pack_arg.source_pack.series.forum_url pack_arg.source_pack.download_url %}"
+            >{{ pack_arg.source_pack }}</a>{% if not forloop.last %},{% else %}.{% endif %}
         {% endfor %}
-    </ul>
+        Follow the link to their web page(s) to shower them with praise for their work.
+    </p>
     {% endif %}
+
+    <p>
+        To use this pack:
+        <strong><a href="{% url tpmake pk=pack.pk %}">Download the ZIP file</a></strong>
+        and copy in to your Minecraft texturepacks folder.
+    </p>
 
 </section>
 {% endblock %}

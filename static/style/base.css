@@ -288,5 +288,5 @@ section#messages {
   padding: 5px;
   border: 1px inset #CCC;
   border-radius: 10px;
-  background-color: #EEE;
+  background-color: rgba(0, 0, 0, 0.1);
 }
