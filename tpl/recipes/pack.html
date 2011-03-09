@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ pack.label }} - Texturejam{% endblock %}
+{% block heading %}{{ pack.label }}{% endblock %}
+{% block content %}
+<section id="main">
+    <p id="desc">
+        <img src="{% url pack_resource pk=pack.pk res_name="pack.png" %}" align="left" alt="" />
+        Added by {{ pack.owner }} on {{ pack.created|date }} using recipe {{ pack.recipe.label }}.
+        {% ifnotequal pack.created pack.modified %}
+            Last edited on {{ pack.modified|date }}.
+        {% endifnotequal %}
+    </p>
+
+    {% if pack.pack_args %}
+    <h2>Source{{ pack.pack_args|pluralize }}</h2>
+    <p>
+        This pack was created by remixing {{ pack.pack_args|pluralize:"this pack,these packs" }}:
+    </p>
+    <ul>
+        {% for pack_arg in pack.pack_args.all %}
+        <li>
+            <a href="{% firstof pack_arg.source_pack.series.home_url pack_arg.source_pack.series.forum_url pack_arg.source_pack.download_url %}">{{ pack_arg.source_pack }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+</section>
+{% endblock %}

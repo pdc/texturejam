@@ -17,7 +17,7 @@
     <ul>
         {% for pack in recipe_packs %}
         <li>
-            <a href="{% url tpmake pk=pack.pk %}">
+            <a href="{% url pack pk=pack.pk %}">
                 <b>{{ pack }}</b>
                 <small>
                     Recipe {{ pack.recipe }}

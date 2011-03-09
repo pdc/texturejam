@@ -1,9 +1,13 @@
 # -*-coding: UTF-8-*-
 
+import yaml
+import re
 from StringIO import StringIO
 from django.db import models
 from django.contrib.auth.models import User
-from texturepacker import Mixer
+from django.core.cache import cache
+from texturepacker import Mixer, RecipePack, Atlas
+import texturepacker
 
 class Level(models.Model):
     label = models.CharField(max_length=200)
@@ -66,6 +70,43 @@ class RecipePack(models.Model):
 
     def __unicode__(self):
         return self.label
+
+    def get_cache_key(self):
+        return 'entity-RecipePack-{pk}'.format(pk=self.pk)
+
+    def get_pack(self):
+        """Get the pack object represented by this entity.
+
+        Pack is cached to try to avoid rebuilding it too often.
+        """
+        pack = None
+
+        cache_key = self.get_cache_key()
+        pr = cache.get(cache_key)
+        if pr:
+            last_modified, pack_bytes = pr
+            if last_modified >= self.modified:
+                pack = texturepacker.SourcePack(StringIO(pack_bytes), Atlas())
+
+        if not pack:
+            mixer = get_mixer()
+            for arg in self.pack_args.all():
+                mixer.add_pack(arg.name, mixer.get_pack(arg.source_pack.download_url, base='internal:///'))
+            spec = yaml.load(StringIO(self.recipe.spec))
+            pack = mixer.make(spec, base='internal:///')
+
+
+            # Why can't I cache pack objetcs dorectlt?
+            strm = StringIO()
+            pack.write_to(strm)
+
+            cache.set(cache_key, (pack.get_last_modified(), strm.getvalue()))
+
+        return pack
+
+    def invalidate():
+        cache.delete(self.get_cache_key())
+
 
 class PackArg(models.Model):
     recipe_pack = models.ForeignKey(RecipePack, related_name='pack_args')

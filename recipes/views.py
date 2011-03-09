@@ -7,6 +7,7 @@ from zipfile import BadZipfile
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
+from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.conf import settings
@@ -39,6 +40,19 @@ def recipe_pack_list(request):
         'recipe_packs': RecipePack.objects.order_by('-modified'),
     }
 
+@with_template('recipes/pack.html')
+def recipe_pack_detail(request, pk):
+    """Info about one recipe pack."""
+    recipe_pack = get_object_or_404(RecipePack, pk=int(pk, 10))
+    return {
+        'pack': recipe_pack,
+    }
+
+def recipe_pack_resource(request, pk, res_name):
+    """A resource from a recipe pack."""
+    recipe_pack = get_object_or_404(RecipePack, pk=int(pk, 10))
+    return HttpResponse(recipe_pack.get_pack().get_resource(res_name).get_bytes(), mimetype='image/png')
+
 def recipe(request, name):
     """Return the spec for a recipe as YAML or JSON."""
     recipe = get_object_or_404(Spec, name=name, spec_type='tprx')
@@ -52,11 +66,8 @@ def maps(request, name):
 def make_texture_pack(request, pk):
     """Generate the ZIP file for a texture pack."""
     recipe_pack = get_object_or_404(RecipePack, pk=pk)
-    mixer = get_mixer()
-    for arg in recipe_pack.pack_args.all():
-        mixer.add_pack(arg.name, mixer.get_pack(arg.source_pack.download_url, base='internal:///'))
-    spec = yaml.load(StringIO(recipe_pack.recipe.spec))
-    pack = mixer.make(spec, base='internal:///')
+    pack = recipe_pack.get_pack()
+
     response = HttpResponse(mimetype="application/zip")
     response['content-disposition'] = 'attachment; filename={file_name}'.format(
         file_name=name_from_label(recipe_pack.label) + '.zip'
@@ -84,19 +95,20 @@ def beta_upgrade(request):
 
                 level = Level.objects.get(label='Beta 1.2')
 
+                label = source_pack.label
+                m = LABEL_WITH_VERSION_RE.match(label)
+                if m:
+                    series_label = m.group('series')
+                    release_label = m.group('release')
+                else:
+                    series_label = label
+                    release_label = ''
+
                 try:
                     source_release = SourcePack.objects.get(download_url=download_url)
                     messages.add_message(request, messages.INFO,
                             'we already have an entry for {pack}'.format(pack=source_pack.label))
                 except SourcePack.DoesNotExist:
-                    label = source_pack.label
-                    m = LABEL_WITH_VERSION_RE.match(label)
-                    if m:
-                        series_label = m.group('series')
-                        release_label = m.group('release')
-                    else:
-                        series_label = label
-                        release_label = ''
 
                     series = SourceSeries(
                         owner=request.user,
@@ -112,7 +124,7 @@ def beta_upgrade(request):
 
                 recipe_pack = RecipePack(
                     owner=request.user,
-                    label='{label} + Beta 1.3'.format(label=label),
+                    label='{label} + Beta 1.3'.format(label=source_pack.label),
                     recipe=recipe)
                 recipe_pack.save()
                 recipe_pack.pack_args.create(
@@ -122,7 +134,8 @@ def beta_upgrade(request):
                 messages.add_message(request, messages.INFO,
                         'Created {recipe_pack}'.format(recipe_pack=recipe_pack.label))
 
-                return HttpResponseRedirect('/') # Redirect after POST
+                return HttpResponseRedirect(
+                    reverse('pack', kwargs={'pk': recipe_pack.pk})) # Redirect after POST
             except BadZipfile, err:
                 messages.add_message(request, messages.ERROR, 'The URL was valid but did not reference a texture pack ({err})'.format(err=err))
     else:
