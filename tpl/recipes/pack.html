@@ -1,15 +1,10 @@
 {% extends "base.html" %}
 {% block title %}{{ pack.label }} - Texturejam{% endblock %}
 {% block heading %}{{ pack.label }}{% endblock %}
+{% block subheading %}A remixed texture pack{% endblock %}
 {% block content %}
 <section id="main">
-    <p id="desc">
-        <img src="{% url pack_resource pk=pack.pk res_name="pack.png" %}" align="left" alt="" />
-        Added by {{ pack.owner }} on {{ pack.created|date }} using recipe {{ pack.recipe.label }}.
-        {% ifnotequal pack.created pack.modified %}
-            Last edited on {{ pack.modified|date }}.
-        {% endifnotequal %}
-    </p>
+    <img class="pack_png" src="{% url pack_resource pk=pack.pk res_name="pack.png" %}" align="left" alt="" />
 
     {% if pack.pack_args %}
     <p>
@@ -19,9 +14,17 @@
             <a href="{% firstof pack_arg.source_pack.series.home_url pack_arg.source_pack.series.forum_url pack_arg.source_pack.download_url %}"
             >{{ pack_arg.source_pack }}</a>{% if not forloop.last %},{% else %}.{% endif %}
         {% endfor %}
-        Follow the link to their web page(s) to shower them with praise for their work.
+        Follow the link{{ pack.pack_args|pluralize }}
+        to their web page{{ pack.pack_args|pluralize }} to shower them with praise for their work.
     </p>
     {% endif %}
+
+    <p>
+        Added by {{ pack.owner }} on {{ pack.created|date }} using recipe {{ pack.recipe.label }}.
+        {% ifnotequal pack.created pack.modified %}
+            Last edited on {{ pack.modified|date }}.
+        {% endifnotequal %}
+    </p>
 
     <p>
         To use this pack:

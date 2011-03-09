@@ -25,7 +25,7 @@ body {
 #banner h1 {
     font-size: 3em;
     width: 940px;
-    padding: 1em 0 0;
+    padding: 1.5em 0 0;
     margin: 0 auto;
 
     font-family: 'Luckiest Guy', serif;
@@ -34,7 +34,33 @@ body {
     text-shadow: rgba(0, 0, 0, 0.5) 3px 3px 2px;
 }
 
-#banner p {
+#banner p+h1 {
+  padding-top: 0.5em;
+}
+
+p#trail {
+  font-size: 2em;
+  margin: 0;
+  padding: 0.313em 10px;
+
+  font-family: 'Luckiest Guy', serif;
+  text-align: left;
+}
+
+#trail a:link,
+#trail a:visited {
+  color: #FFF;
+  text-decoration: none;
+  text-shadow: rgba(0, 0, 0, 0.5) 1px 1px 2px;
+}
+
+#trail a:hover,
+#trail a:active {
+  text-decoration: underline;
+  text-shadow: rgba(255, 0, 153, 0.75) 0 0 3px;
+}
+
+p#strap {
     font-size: 2em;
     display: block;
     width: 940px;
@@ -44,8 +70,8 @@ body {
     color: rgb(19, 81, 101);
 	  font-family: 'Kreon', sans-serif;
 	  text-transform: lowercase;
-  color: #FFF;
-  text-shadow: rgba(0, 0, 0, 0.5) 3px 3px 2px;
+    color: #FFF;
+    text-shadow: rgba(0, 0, 0, 0.5) 3px 3px 2px;
 }
 
 #content {
@@ -279,10 +305,10 @@ section#messages {
   background: url(info-24.png) 16px 0.625em no-repeat;
 }
 
-#desc img {
+img.pack_png {
   display: block;
   float: left;
-  margin: 0 20px 0 0;
+  margin: 1.25em 20px 1.25em 10px;
   width: 128px;
   height: 128px;
   padding: 5px;

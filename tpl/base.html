@@ -8,8 +8,13 @@
     <body>
         {% block banner %}
         <section id="banner">
+            {% block trail %}
+            <p id="trail">
+                <a href="{% url home %}">Texturejam</a>
+            </p>
+            {% endblock %}
             <h1>{% block heading %}Texturejam{% endblock %}</h1>
-            <p id="strap">Remix Minecraft Texture Packs</p>
+            <p id="strap">{% block subheading %}Remix Minecraft Texture Packs{% endblock %}</p>
         </section>
         {% endblock %}
         {% if messages %}
