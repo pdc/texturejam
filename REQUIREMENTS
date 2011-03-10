@@ -6,5 +6,5 @@ django-social-auth==0.3.1
 httplib2==0.6.0
 oauth==1.0.1
 python-openid==2.2.5
-texturepacker==0.4.1
+texturepacker==0.5
 wsgiref==0.1.2
