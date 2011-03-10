@@ -316,3 +316,22 @@ img.pack_png {
   border-radius: 10px;
   background-color: rgba(0, 0, 0, 0.1);
 }
+
+#main img.userpic {
+  height: 16px;
+  vertical-align: middle;
+}
+
+#preview {
+  display: block;
+  width: 540px;
+  margin: 1.25em 10px;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+#preview img {
+  width: 256px;
+  height: 256px;
+  display: block;
+  margin: auto;
+}

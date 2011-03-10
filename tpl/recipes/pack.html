@@ -4,7 +4,8 @@
 {% block subheading %}A remixed texture pack{% endblock %}
 {% block content %}
 <section id="main">
-    <img class="pack_png" src="{% url pack_resource pk=pack.pk res_name="pack.png" %}" align="left" alt="" />
+    <img class="pack_png" src="{% url pack_resource pk=pack.pk res_name="pack.png" %}" align="left"
+                lowsrc="{{ static }}style/please-wait.gif" alt="" />
 
     {% if pack.pack_args %}
     <p>
@@ -20,8 +21,10 @@
     {% endif %}
 
     <p>
-        Added by {{ pack.owner }} on {{ pack.created|date }} using recipe {{ pack.recipe.label }}.
-        {% ifnotequal pack.created pack.modified %}
+        <img src="{{ pack.owner.get_profile.get_picture_src }}" alt="" class="userpic" />
+        {{ pack.owner }} added this pack on {{ pack.created|date }}
+        using recipe {{ pack.recipe.label }}.
+        {% ifnotequal pack.created|date pack.modified|date %}
             Last edited on {{ pack.modified|date }}.
         {% endifnotequal %}
     </p>
@@ -32,5 +35,10 @@
         and copy in to your Minecraft texturepacks folder.
     </p>
 
+    <h2>Preview</h2>
+    <div id="preview">
+        <img class="pack_terrain" src="{% url pack_resource pk=pack.pk res_name="terrain.png" %}"
+                lowsrc="{{ static }}style/please-wait.gif" alt="" />
+    </div>
 </section>
 {% endblock %}
