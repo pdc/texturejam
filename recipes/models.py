@@ -6,7 +6,8 @@ from StringIO import StringIO
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from texturepacker import Mixer, RecipePack, Atlas
+from django.conf import settings
+from texturepacker import Mixer, RecipePack, Atlas, set_http_cache
 import texturepacker
 
 class Level(models.Model):
@@ -89,6 +90,7 @@ class RecipePack(models.Model):
                 pack = texturepacker.SourcePack(StringIO(pack_bytes), Atlas())
 
         if not pack:
+            set_http_cache(settings.HTTPLIB2_CACHE_DIR)
             mixer = get_mixer()
             for arg in self.pack_args.all():
                 mixer.add_pack(arg.name, mixer.get_pack(arg.source_pack.download_url, base='internal:///'))

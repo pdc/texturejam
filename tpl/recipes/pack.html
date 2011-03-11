@@ -4,8 +4,7 @@
 {% block subheading %}A remixed texture pack{% endblock %}
 {% block content %}
 <section id="main">
-    <img class="pack_png" src="{% url pack_resource pk=pack.pk res_name="pack.png" %}" align="left"
-                lowsrc="{{ static }}style/please-wait.gif" alt="" />
+    <img class="pack_png" src="{% url pack_resource pk=pack.pk res_name="pack.png" %}" align="left" alt="" />
 
     {% if pack.pack_args %}
     <p>
@@ -37,8 +36,7 @@
 
     <h2>Preview</h2>
     <div id="preview">
-        <img class="pack_terrain" src="{% url pack_resource pk=pack.pk res_name="terrain.png" %}"
-                lowsrc="{{ static }}style/please-wait.gif" alt="" />
+        <img class="pack_terrain" src="{% url pack_resource pk=pack.pk res_name="terrain.png" %}" alt="" />
     </div>
 </section>
 {% endblock %}
