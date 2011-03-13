@@ -1,6 +1,7 @@
 Django==1.2.5
 PIL==1.1.7
 PyYAML==3.09
+South==0.7.3
 distribute==0.6.14
 django-social-auth==0.3.1
 httplib2==0.6.0
