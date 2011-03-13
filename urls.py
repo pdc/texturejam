@@ -12,6 +12,7 @@ urlpatterns = patterns('recipes.views',
     (r'^packs/(?P<pk>\d+)/zip$', 'make_texture_pack', {}, 'tpmake'),
 
     (r'^beta-upgrade$', 'beta_upgrade', {}, 'beta_upgrade'),
+    (r'^its-cooking/(?P<pk>\d+)$', 'its_cooking', {}, 'its_cooking'),
 
     (r'^rx/(?P<name>[\w-]+)/$', 'recipe', {}, 'tprx'),
     (r'^rx/maps/(?P<name>[\w-]+)$', 'maps', {}, 'tpmaps'),

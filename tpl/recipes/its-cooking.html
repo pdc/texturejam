@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Preparing {{ pack.label }} - Texturejam{% endblock %}
+{% block heading %}{{ pack.label }}{% endblock %}
+{% block subheading %}A remixed texture pack{% endblock %}
+{% block content %}
+<section id="main">
+    <p>
+        Remixing texture packs can take a little while,
+        so the job of building {{ pack.label }} as been added to the queue.
+    </p>
+
+    <p>The following steps are involved:</p>
+    <ol>
+    {% if pack.pack_args %}
+        {% for pack_arg in pack.pack_args.all %}
+            <li>
+                Download
+                <a href="{% firstof pack_arg.source_pack.series.home_url pack_arg.source_pack.series.forum_url pack_arg.source_pack.download_url %}"
+            >{{ pack_arg.source_pack }}</a>
+            </li>
+        {% endfor %}
+    {% endif %}
+        <li>Mix using the recipe <q>{{ pack.recipe.label }}</q></li>
+    <ol>
+
+    <p>
+        <img src="{{ pack.owner.get_profile.get_picture_src }}" alt="" class="userpic" />
+        {{ pack.owner }} requested this pack on {{ pack.created|date }}.
+        {% ifnotequal pack.created|date pack.modified|date %}
+            Last edited on {{ pack.modified|date }}.
+        {% endifnotequal %}
+    </p>
+</section>
+{% endblock %}

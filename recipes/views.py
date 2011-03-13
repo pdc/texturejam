@@ -51,7 +51,14 @@ def recipe_pack_detail(request, pk):
 def recipe_pack_resource(request, pk, res_name):
     """A resource from a recipe pack."""
     recipe_pack = get_object_or_404(RecipePack, pk=int(pk, 10))
-    return HttpResponse(recipe_pack.get_pack().get_resource(res_name).get_bytes(), mimetype='image/png')
+    data = recipe_pack.get_pack().get_resource(res_name).get_bytes()
+    return HttpResponse(data, mimetype='image/png')
+
+@with_template('recipes/its-cooking.html')
+def its_cooking(request, pk):
+    """User has requested creation of a texture pack."""
+    recipe_pack = get_object_or_404(RecipePack, pk=int(pk, 10))
+    return {'pack': recipe_pack}
 
 def recipe(request, name):
     """Return the spec for a recipe as YAML or JSON."""
@@ -134,7 +141,7 @@ def beta_upgrade(request):
                         'Created {recipe_pack}'.format(recipe_pack=recipe_pack.label))
 
                 return HttpResponseRedirect(
-                    reverse('pack', kwargs={'pk': recipe_pack.pk})) # Redirect after POST
+                    reverse('its_cooking', kwargs={'pk': recipe_pack.pk})) # Redirect after POST
             except BadZipfile, err:
                 messages.add_message(request, messages.ERROR, 'The URL was valid but did not reference a texture pack ({err})'.format(err=err))
     else:
