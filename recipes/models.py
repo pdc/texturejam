@@ -1,7 +1,10 @@
 # -*-coding: UTF-8-*-
 
+import sys
+import os
 import yaml
 import re
+from datetime import datetime, timedelta
 from StringIO import StringIO
 from django.db import models
 from django.contrib.auth.models import User
@@ -32,6 +35,13 @@ class SourceSeries(models.Model):
         return self.label
 
 class SourcePack(models.Model):
+    """Represents on release of the source series.
+
+    Generally there need only be exactly one source pack for
+    a given source series. I split it in to two models
+    to allow for the rare case when older versions of a
+    pack are specificyally rquired by some recipe.
+    """
     series = models.ForeignKey(SourceSeries, related_name='releases')
     level = models.ForeignKey(Level, related_name='source_packs')
 
@@ -39,8 +49,25 @@ class SourcePack(models.Model):
     download_url = models.URLField(max_length=255, unique=True)
     released = models.DateTimeField(help_text='When this vesion of the pack was was released')
 
+    last_download_attempt = models.DateTimeField(help_text='When the system last tried to fetch this pack.',
+        editable=False, default=datetime.fromtimestamp(0))
+
     def __unicode__(self):
         return u'{series} {label}'.format(series=self.series.label, label=self.label)
+
+    def get_file_path(self):
+        return os.path.join(settings.RECIPES_SOURCE_PACKS_DIR, str(self.pk) + '.zip')
+
+    def get_pack(self, loader):
+        file_path = self.get_file_path()
+        if self.last_download_attempt < self.released or not os.path.exists(file_path):
+            self.last_download_attempt = datetime.now()
+            self.save()
+            bytes = loader.get_bytes(self.download_url, base='internal:///')
+            with open(file_path, 'wb') as strm:
+                strm.write(bytes)
+        return texturepacker.SourcePack(file_path, Atlas())
+
 
 class Spec(models.Model):
     owner = models.ForeignKey(User, related_name='atlases')
@@ -93,7 +120,7 @@ class RecipePack(models.Model):
             set_http_cache(settings.HTTPLIB2_CACHE_DIR)
             mixer = get_mixer()
             for arg in self.pack_args.all():
-                mixer.add_pack(arg.name, mixer.get_pack(arg.source_pack.download_url, base='internal:///'))
+                mixer.add_pack(arg.name, arg.source_pack.get_pack(mixer.loader))
             spec = yaml.load(StringIO(self.recipe.spec))
             pack = mixer.make(spec, base='internal:///')
 
