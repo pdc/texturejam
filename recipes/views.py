@@ -59,6 +59,8 @@ def recipe_pack_resource(request, pk, res_name):
 def its_cooking(request, pk):
     """User has requested creation of a texture pack."""
     recipe_pack = get_object_or_404(RecipePack, pk=int(pk, 10))
+    if all(x.source_pack.is_ready() for x in recipe_pack.pack_args.all()):
+        return HttpResponseRedirect(reverse('pack', kwargs={'pk': recipe_pack.pk}))
     return {'pack': recipe_pack}
 
 def recipe(request, name):

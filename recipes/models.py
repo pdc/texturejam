@@ -58,11 +58,21 @@ class SourcePack(models.Model):
     def get_file_path(self):
         return os.path.join(settings.RECIPES_SOURCE_PACKS_DIR, str(self.pk) + '.zip')
 
+    def is_ready(self):
+        """Is this pack ready to be used in recipes?
+
+        At present this means it has been downloaded,
+        and the release date has not been set later than
+        when the download was performed.
+        """
+        file_path = self.get_file_path()
+        return self.last_download_attempt >= self.released and os.path.exists(file_path)
+
     def get_pack(self, loader=None):
         if not loader:
             loader = texturepacker.Loader()
         file_path = self.get_file_path()
-        if self.last_download_attempt < self.released or not os.path.exists(file_path):
+        if not self.is_ready():
             self.last_download_attempt = datetime.now()
             self.save()
             bytes = loader.get_bytes(self.download_url, base='internal:///')
