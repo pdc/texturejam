@@ -58,7 +58,9 @@ class SourcePack(models.Model):
     def get_file_path(self):
         return os.path.join(settings.RECIPES_SOURCE_PACKS_DIR, str(self.pk) + '.zip')
 
-    def get_pack(self, loader):
+    def get_pack(self, loader=None):
+        if not loader:
+            loader = texturepacker.Loader()
         file_path = self.get_file_path()
         if self.last_download_attempt < self.released or not os.path.exists(file_path):
             self.last_download_attempt = datetime.now()

@@ -14,6 +14,7 @@ from django.conf import settings
 
 from recipes.models import *
 from recipes.forms import *
+from recipes.tasks import *
 from shortcuts import *
 
 LABEL_WITH_VERSION_RE = re.compile(ur"""
@@ -94,10 +95,7 @@ def beta_upgrade(request):
             try:
                 download_url = form.cleaned_data['pack_download_url']
                 source_pack = get_mixer().get_pack(download_url)
-                if 'gui/items.png' in source_pack.get_resource_names():
-                    recipe_name = 'ersatz-beta-13'
-                else:
-                    recipe_name = 'ersatz-beta-13-sans-items'
+                recipe_name = 'ersatz-beta-13'
                 recipe = Spec.objects.get(name=recipe_name)
 
                 level = Level.objects.get(label='Beta 1.2')
@@ -127,6 +125,7 @@ def beta_upgrade(request):
                         level=level,
                         download_url=form.cleaned_data['pack_download_url'],
                         released=source_pack.get_last_modified())
+                    ensure_source_pack_is_downloaded.delay(source_release.pk)
 
                 recipe_pack = RecipePack(
                     owner=request.user,

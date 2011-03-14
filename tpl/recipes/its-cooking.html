@@ -17,6 +17,12 @@
                 Download
                 <a href="{% firstof pack_arg.source_pack.series.home_url pack_arg.source_pack.series.forum_url pack_arg.source_pack.download_url %}"
             >{{ pack_arg.source_pack }}</a>
+                <pre>import os
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+
+from recipes.tasks import ensure_source_pack_is_downloaded
+
+ensure_source_pack_is_downloaded.delay({{ pack_arg.source_pack.pk }})
             </li>
         {% endfor %}
     {% endif %}
@@ -30,5 +36,6 @@
             Last edited on {{ pack.modified|date }}.
         {% endifnotequal %}
     </p>
+
 </section>
 {% endblock %}

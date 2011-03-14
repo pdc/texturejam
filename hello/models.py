@@ -8,7 +8,7 @@ from django.conf import settings
 from social_auth.models import UserSocialAuth
 from social_auth.signals import pre_update
 from social_auth.backends.twitter import TwitterBackend
-from texturejam.shortcuts import get_http
+from shortcuts import get_http
 
 class Profile(models.Model):
     """Additional information about logged-in user."""
