@@ -335,3 +335,56 @@ img.pack_png {
   display: block;
   margin: auto;
 }
+
+#progress p {
+  margin: 0.613em 10px;
+}
+
+#progress ol {
+  margin: 0;
+  padding: 0;
+}
+
+#progress li {
+  margin: 0.613em 10px 0.613em 30px;
+  min-height: 16px;
+
+  list-style-type: square;
+}
+
+#progress li:after {
+  content: ".";
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+
+  color: transparent;
+  background-position: 0 50%;
+  background-repeat: no-repeat;
+}
+
+#progress li.incomplete:after {
+  background-image: url(please-wait.gif);
+}
+
+#progress .complete {
+  color: rgba(0, 0, 0, 0.5);
+  text-decoration: line-through;
+}
+
+#progress .complete a {
+  color: rgba(51, 0, 102, 0.5);
+}
+
+#progress li.complete:after {
+  background-image: url(info-24.png);
+}
+
+#progress .next {
+  margin: 0.613em 0;
+  padding: 1.25em 10px;
+
+  background-color: #9C3;
+  font-weight: bolder;
+}

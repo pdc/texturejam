@@ -63,6 +63,27 @@ def its_cooking(request, pk):
         return HttpResponseRedirect(reverse('pack', kwargs={'pk': recipe_pack.pk}))
     return {'pack': recipe_pack}
 
+@json_view
+def pack_progress(request, pk):
+    recipe = get_object_or_404(RecipePack, pk=pk)
+    steps = [
+        {
+            'name': 'arg_{0}'.format(arg.name),
+            'label': 'Download {0}'.format(arg.source_pack),
+            'percent': 100 if arg.source_pack.is_ready() else 0,
+        }
+        for arg in recipe.pack_args.all()
+    ]
+    return {
+        'success': True,
+        'steps': steps,
+        'percent': sum(x['percent'] for x in steps) / len(steps),
+        'isComplete': all(x['percent'] for x in steps),
+        'milliseconds': 15 * 1000,
+        'href': reverse('pack', kwargs={'pk': recipe.pk}),
+        'label': recipe.label,
+    }
+
 def recipe(request, name):
     """Return the spec for a recipe as YAML or JSON."""
     recipe = get_object_or_404(Spec, name=name, spec_type='tprx')

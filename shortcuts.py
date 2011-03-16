@@ -1,6 +1,7 @@
 # -*-coding: UTF-8-*-
 
 import re
+import json
 import httplib2
 
 from django.http import HttpResponse
@@ -34,6 +35,21 @@ def with_template(default_template_name=None):
                     context_instance=RequestContext(request))
         return decorated_func
     return decorator
+
+def json_view(func):
+    """Decorator for view functions retrning JSON.
+
+    Thre wrapped function returns a dict that is rendered as JSON.
+    """
+    def wrapped_func(request, *args, **kwargs):
+        result = func(request, *args, **kwargs)
+        if isinstance(result, HttpResponse):
+            return result
+        return HttpResponse(json.dumps(result),
+                mimetype='application/json')
+    return wrapped_func
+
+
 
 not_word_re = re.compile(r'\W+')
 def name_from_label(s):

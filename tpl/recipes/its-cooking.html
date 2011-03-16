@@ -9,20 +9,23 @@
         so the job of building {{ pack.label }} as been added to the queue.
     </p>
 
-    <p>The following steps are involved:</p>
-    <ol>
-    {% if pack.pack_args %}
-        {% for pack_arg in pack.pack_args.all %}
-            <li>
-                Download
-                <a href="{% firstof pack_arg.source_pack.series.home_url pack_arg.source_pack.series.forum_url pack_arg.source_pack.download_url %}"
-                >{{ pack_arg.source_pack }}</a>
-                <!-- source_pack={{ pack_arg.source_pack.pk }} -->
-            </li>
-        {% endfor %}
-    {% endif %}
-        <li>Mix using the recipe <q>{{ pack.recipe.label }}</q></li>
-    <ol>
+    <div id="progress" data-href="{% url pack_progress pk=pack.pk %}">
+        <p>Please wait while we</p>
+        <ol>
+            {% if pack.pack_args %}
+                {% for pack_arg in pack.pack_args.all %}
+                    {% with pack_arg.source_pack as p %}
+                    <li id="arg_{{ pack_arg.name }}">
+                        Download <a href="{% firstof p.home_url p.forum_url %}">{{ p }}</a>
+                    </li>
+                    {% endwith %}
+                {% endfor %}
+            {% endif %}
+        <ol>
+    </div>
+
+    <script src="{{ static }}script/jquery-1.5.1.min.js"></script>
+    <script src="{{ static }}script/cooking.js"></script>
 
     <p>
         <img src="{{ pack.owner.get_profile.get_picture_src }}" alt="" class="userpic" />
