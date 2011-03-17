@@ -30,6 +30,47 @@
             {% block content %}
             {% endblock %}
 
+            <aside id="ad">
+                <p>Help pay my hosting costs!</p>
+                <a class="FlattrButton" style="display:none;" rev="flattr;button:compact;"
+href="http://texturejam.org.uk/"></a>
+                <script type="text/javascript">
+                /* <![CDATA[ */
+                    (function() {
+                        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+                        s.type = 'text/javascript';
+                        s.async = true;
+                        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+                        t.parentNode.insertBefore(s, t);
+                    })();
+                /* ]]> */
+                </script>
+
+                <img src="http://placekitten.com/g/234/60" alt="" />
+            </aside>
+
+            <aside>
+                <p>
+                    The texture packs on this site are all remixes of packs
+                    hosted elsewhere on sites such as the following:
+                </p>
+                <ul>
+                    <li><a href="http://www.texturecraft.net/">Texturecraft</a></li>
+                    <li><a href="http://www.minecrafttextures.com/">Minecraft Textures</a></li>
+                    <li><a href="http://www.planetminecraft.com/resources/texture_packs/">Planet Minecraft Textures</a></li>
+                </ul>
+            </aside>
+            <aside>
+                <p>
+                    Many texture packs don’t have a home page
+                    but ‘live’ in a thread in one of the Minecraft forums:
+                </p>
+                <ul>
+                    <li><a href="http://www.minecraftforum.net/viewforum.php?f=1021">Minecraft Forums</a></li>
+                    <li><a href="http://www.worldofminecraft.com/Texture_Packs">World of Minecraft</a>
+                </ul>
+            </aside>
+
             {% block who %}
             <aside id="who">
                 {% if user.is_authenticated %}
@@ -46,9 +87,9 @@
                 {% endif %}
             </aside>
             {% endblock %}
+            <section id="footer">
+                <p>© 2011 Damian Cugley</p>
+            </section>
         </div>
-        <section id="footer">
-            <p>© 2011 Damian Cugley</p>
-        </section>
     </body>
 </html>

@@ -41,7 +41,8 @@ Some of these selectors will be used below to control fonts etc.
 }
 
 #content:after,
-section:after {
+section:after,
+.big_link:after {
     content: ".";
     display: block;
     height: 0;
@@ -64,23 +65,19 @@ section:after {
   width: 400px; /* 5u */
 }
 
-#unoriginal {
-  float: left;
-  width: 240px; /* 3u */
-}
-
 #footer {
   clear: both;
-  width: 960px;
-  margin: 0 auto;
   padding: 2.5em 0 0;
 }
 
 #who {
+  float: none;
+
   position: absolute;
   right: 0;
   top: 0;
   padding: 0.5em 10px;
+  width: auto;
   min-width: 140px;
   height: 24px;
   overflow: hidden;
@@ -98,6 +95,11 @@ section:after {
   width: 100%;
   padding: 0;
   margin: 0;
+}
+
+aside {
+  float: left;
+  width: 240px; /* 3u */
 }
 
 @media only all and (min-width: 1240px) {
@@ -169,18 +171,13 @@ section:after {
 }
 
 #content {
+  padding: 0 10px;
   background: rgba(255, 255, 255, 0.75);
   border-radius: 0.5em;
 }
 
-#pack_list {
-}
-
-#unoriginal {
-}
-
 h1, h2 {
-    margin: 1em 10px 0.5em;
+    margin: 1.25em 10px 0.25em;
 
     font-family: 'Luckiest Guy', serif;
     color: rgb(19, 81, 101);
@@ -195,7 +192,14 @@ h2 {
 }
 
 section p {
-  margin: 1.25em 10px;
+  margin: 0 10px 1.25em;
+}
+
+#pack_list h2 {
+  clear: both;
+  float: left;
+  margin: 0;
+  padding: 1.25em 10px 0.25em;
 }
 
 #pack_list ul {
@@ -210,8 +214,10 @@ section p {
 }
 
 #pack_list li a {
+  float: left;
 	display: block;
 	padding: 0.5em 10px;
+	width: 380px;
 
 	text-decoration: none;
 	color: inherit;
@@ -355,16 +361,28 @@ td img {
   background: url(info-24.png) 16px 0.625em no-repeat;
 }
 
-#main img.pack_png {
+#main img.pack_png,
+#pack_list img.pack_png {
   display: block;
   float: left;
-  margin: 1.25em 20px 1.25em 10px;
-  width: 128px;
-  height: 128px;
-  padding: 5px;
+
   border: 1px inset #CCC;
   border-radius: 10px;
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+#main img.pack_png {
+  width: 128px;
+  height: 128px;
+  margin: 1.25em 20px 1.25em 10px;
+  padding: 5px;
+}
+
+#pack_list img.pack_png {
+  width: 32px;
+  height: 32px;
+  margin: 0 12px 0 0;
+  padding: 5px;
 }
 
 #main img.userpic {
@@ -437,4 +455,50 @@ td img {
 
   background-color: #9C3;
   font-weight: bolder;
+}
+
+.big_link a {
+  float: left;
+  display: block;
+  padding: 0.613em 20px;
+
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(0, 0, 00, 0.75);
+  text-shadow: rgba(255, 255, 255, 0.75) 1px 1px 1px;
+  border: 1px outset #C30;
+  border-radius: 10px;
+  background: #F90 -webkit-gradient(linear, left top, left bottom, from(#F93), color-stop(10%, #FC6), to(#F60));
+  -webkit-box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 2px;
+}
+
+.big_link a:hover {
+  background: #F90 -webkit-gradient(linear, left top, left bottom, from(#FA4), color-stop(10%, #FD7), to(#F71));
+  -webkit-box-shadow: rgba(0, 0, 0, 0.5) 3px 3px 3px;
+}
+.big_link a:active {
+  background: #F90 -webkit-gradient(linear, left top, left bottom, from(#FA4), color-stop(10%, #FD7), to(#F71));
+  -webkit-box-shadow: rgba(0, 0, 0, 0.5) 1px 1px 1px;
+}
+
+aside p {
+  margin: 1.25em 10px 0;
+}
+
+#ad img {
+  display: block;
+  padding: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.75);
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+#ad iframe {/* flattr */
+  margin: 0.5em 10px;
+
+}
+
+#footer {
+  color: rgba(0, 51, 102, 0.5);
 }

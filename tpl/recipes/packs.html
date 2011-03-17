@@ -4,30 +4,52 @@
 {% block trail %}{% endblock %}
 {% block content %}
 <section id="main">
+    <h2>Why Remix Texture Packs?</h2>
     <p>
-        Why remix texture packs?
-        One reason to do this is if your favourite texture pack
-        has not yet been updated for Minecraft Beta 1.3.
-        If this is you, try our experimental
-        <a href="{% url beta_upgrade %}"><strong>Upgrade to Beta 1.3 Service</strong></a>.
-
+        When Mojang add new objects to Minecraft
+        you have to stop using your favourite texture pack
+        while you wait for the designer to design and add  new
+        imagery to the pack.
+        By mixing in elements from another pack we can create
+        an ersatz upgrade that
+        lets you carry on playing until an official upgrade is released.
     </p>
+    <p class="big_link">
+        <strong><a href="{% url beta_upgrade %}">Upgrade a pack to Beta 1.3</a></strong>
+    </p>
+    <p>
+        This service is still experimental.
+    </p>
+
+    <h2>Wait, what is a texture pack anyway?</h2>
+    <p>
+        The world of <a href="http://minecraft.net">Minecraft</a> is made of cubes.
+        By changing the
+        pictures (called textures) painted on the cubes you can change the look and feel of the game.
+        Pixel artists around the world have created artwork and packed it in to ZIP files.
+        To install a texture pack, drop the ZIP file in Minecraft‘s special
+        <i>texturepacks</i> folder.
+    </p>
+    <ul>
+        <li>
+            <a href="http://www.minecraftwiki.net/wiki/Texture_Pack">Texture Packs article</a>
+            on Minepedia, the Minecraft Wiki
+        </a>
+    </ul>
+
 </section>
 <section id="pack_list">
-    <p>
-        Here are some remixes we  prepared earlier:
-    </p>
     {% regroup recipe_packs by recipe.label as recipe_pack_groups %}
     {% for pack_group in recipe_pack_groups %}
-    <h2>{{ pack_group.grouper }}</h2>
+    <h2>{{ pack_group.grouper }} Remix{{ pack_group.list|pluralize:"es" }}</h2>
     <ul>
         {% for pack in pack_group.list %}
         <li>
             <a href="{% url pack pk=pack.pk %}">
+                <img src="{% url pack_resource pk=pack.pk res_name="pack.png" %}" alt="" class="pack_png" />
                 <b>{{ pack }}</b>
                 <small>
-                    Recipe {{ pack.recipe }}
-                    applied to
+                    Based on
                     {% for arg in pack.pack_args.all %}
                         {{ arg.source_pack }}
                     {% endfor %}
@@ -36,18 +58,5 @@
         </li>
         {% endfor %}
     {% endfor %}
-</section>
-<section id="unoriginal">
-    <p>
-        The texture packs on this site are all remixes of packs
-        made by a horde of pixel artists.
-        Look for original packs
-        on sites like
-    </p>
-    <ul>
-        <li><a href="http://www.minecraftforum.net/viewforum.php?f=1021">Minecraft Forums</a></li>
-        <li><a href="http://www.minecrafttextures.com/">Minecraft Textures</a></li>
-        <li><a href="http://www.planetminecraft.com/resources/texture_packs/">Planet Minecraft Textures</a></li>
-    </ul>
 </section>
 {% endblock %}
