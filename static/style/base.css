@@ -12,9 +12,117 @@ body {
     background: #975 url(dirt64.png);
 }
 
+/* I am going to bring all the big layout stuff in to one place
+Some of these selectors will be used below to control fonts etc.
+*/
 #banner {
     width: 100%;
     margin: 0 0 1.25em;
+}
+
+#banner h1 {
+    font-size: 3em;
+    width: 940px;
+    padding: 1.5em 0 0;
+    margin: 0 auto;
+}
+
+#trail {
+  font-size: 2em;
+  margin: 0;
+  padding: 0.313em 10px;
+}
+
+#strap {
+    font-size: 2em;
+    display: block;
+    width: 940px;
+    margin: 0 auto 0;
+}
+
+#content:after,
+section:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+#content {
+  width: 960px;
+  margin: 0 auto;
+}
+
+#main {
+  float: left;
+  width: 560px; /* 7u */
+}
+
+#pack_list {
+  float: left;
+  width: 400px; /* 5u */
+}
+
+#unoriginal {
+  float: left;
+  width: 240px; /* 3u */
+}
+
+#footer {
+  clear: both;
+  width: 960px;
+  margin: 0 auto;
+  padding: 2.5em 0 0;
+}
+
+#who {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 0.5em 10px;
+  min-width: 140px;
+  height: 24px;
+  overflow: hidden;
+}
+
+#who:hover {
+  height: auto;
+}
+
+#messages {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+@media only all and (min-width: 1240px) {
+  #banner h1,
+  #strap {
+    width: 1180px; /* 15u */
+  }
+
+  #content {
+    width: 1200px; /* 15u */
+  }
+}
+
+@media only all and (max-width: 980px) {
+  #banner h1,
+  #strap {
+    width: 700px; /* 9u */
+  }
+
+  #content {
+    width: 720px; /* 9u */
+  }
+}
+
+#banner {
     background-color: #F90;
     background-image: -webkit-gradient(radial, 25% 75, 40, 25% 75, 600,
     	from(#FFF), color-stop(90%, #E04), to(#A02));
@@ -23,11 +131,6 @@ body {
 }
 
 #banner h1 {
-    font-size: 3em;
-    width: 940px;
-    padding: 1.5em 0 0;
-    margin: 0 auto;
-
     font-family: 'Luckiest Guy', serif;
     text-align: left;
     color: #FFF;
@@ -38,11 +141,7 @@ body {
   padding-top: 0.5em;
 }
 
-p#trail {
-  font-size: 2em;
-  margin: 0;
-  padding: 0.313em 10px;
-
+#trail {
   font-family: 'Luckiest Guy', serif;
   text-align: left;
 }
@@ -60,12 +159,7 @@ p#trail {
   text-shadow: rgba(255, 0, 153, 0.75) 0 0 3px;
 }
 
-p#strap {
-    font-size: 2em;
-    display: block;
-    width: 940px;
-    margin: 0 auto 0;
-
+#strap {
     text-align: left;
     color: rgb(19, 81, 101);
 	  font-family: 'Kreon', sans-serif;
@@ -75,24 +169,14 @@ p#strap {
 }
 
 #content {
-  width: 960px;
-  margin: 0 auto;
-}
-
-section#pack_list,
-section#main {
-  float: left;
-  width: 560px; /* 7u */
   background: rgba(255, 255, 255, 0.75);
   border-radius: 0.5em;
 }
 
-section#unoriginal {
-  float: left;
-  width: 240px; /* 3u */
-  margin: 0 0 0 160px;
-  background: rgba(255, 255, 255, 0.75);
-  border-radius: 0.5em;
+#pack_list {
+}
+
+#unoriginal {
 }
 
 h1, h2 {
@@ -110,23 +194,8 @@ h2 {
     font-size: 1.5em;
 }
 
-section:after {
-    content: ".";
-    display: block;
-    height: 0;
-    clear: both;
-    visibility: hidden;
-}
-
 section p {
   margin: 1.25em 10px;
-}
-
-#footer {
-  clear: both;
-  width: 960px;
-  margin: 0 auto;
-  padding: 2.5em 0 0;
 }
 
 #pack_list ul {
@@ -168,16 +237,8 @@ section p {
 	color: #06B;
 }
 
-/* The user’s identity displayed at top roight of page */
+/* The user’s identity displayed at top right of page */
 #who {
-  position: absolute;
-  right: 0;
-  top: 0;
-  padding: 0.5em 10px;
-  min-width: 140px;
-  height: 24px;
-  overflow: hidden;
-
   line-height: 1;
   background: rgba(204, 51, 102, 0.75);
   border-bottom-left-radius: 10px;
@@ -185,7 +246,6 @@ section p {
 }
 
 #who:hover {
-  height: auto;
   -webkit-box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 3px;
 }
 
@@ -266,16 +326,6 @@ td img {
   width: auto;
 }
 
-section#messages {
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  padding: 0;
-  margin: 0;
-}
-
 #messages ul {
   margin: 0 auto;
   padding: 1.25em 0;
@@ -305,7 +355,7 @@ section#messages {
   background: url(info-24.png) 16px 0.625em no-repeat;
 }
 
-img.pack_png {
+#main img.pack_png {
   display: block;
   float: left;
   margin: 1.25em 20px 1.25em 10px;

@@ -3,7 +3,7 @@
 {% block heading %}Texturejam{% endblock %}
 {% block trail %}{% endblock %}
 {% block content %}
-<section id="pack_list">
+<section id="main">
     <p>
         Why remix texture packs?
         One reason to do this is if your favourite texture pack
@@ -12,11 +12,16 @@
         <a href="{% url beta_upgrade %}"><strong>Upgrade to Beta 1.3 Service</strong></a>.
 
     </p>
+</section>
+<section id="pack_list">
     <p>
         Here are some remixes we  prepared earlier:
     </p>
+    {% regroup recipe_packs by recipe.label as recipe_pack_groups %}
+    {% for pack_group in recipe_pack_groups %}
+    <h2>{{ pack_group.grouper }}</h2>
     <ul>
-        {% for pack in recipe_packs %}
+        {% for pack in pack_group.list %}
         <li>
             <a href="{% url pack pk=pack.pk %}">
                 <b>{{ pack }}</b>
@@ -30,7 +35,7 @@
             </a>
         </li>
         {% endfor %}
-    </ul>
+    {% endfor %}
 </section>
 <section id="unoriginal">
     <p>

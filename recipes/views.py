@@ -114,7 +114,6 @@ def beta_upgrade(request):
     if request.method == 'POST': # If the form has been submitted...
         form = BetaForm(request.POST) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
-            # Which recipe?
             try:
                 download_url = form.cleaned_data['pack_download_url']
                 source_pack = get_mixer().get_pack(download_url)
@@ -148,7 +147,7 @@ def beta_upgrade(request):
                         level=level,
                         download_url=form.cleaned_data['pack_download_url'],
                         released=source_pack.get_last_modified())
-                    ensure_source_pack_is_downloaded.delay(source_release.pk)
+                ensure_source_pack_is_downloaded.delay(source_release.pk)
 
                 recipe_pack = RecipePack(
                     owner=request.user,
