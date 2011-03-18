@@ -13,6 +13,18 @@ from django.conf import settings
 from texturepacker import Mixer, RecipePack, Atlas, set_http_cache
 import texturepacker
 
+# Using South to manage migrations.
+#
+# After adding or changing fields run the following
+# in the deve environment:
+#
+#     python manage.py schemamigration recipes --auto
+#
+# And then in each environemtn do
+#
+#     python manage.py migrate recipes
+#
+
 class Level(models.Model):
     label = models.CharField(max_length=200)
     desc = models.TextField()
@@ -36,6 +48,9 @@ class SourceSeries(models.Model):
 
 class SourcePack(models.Model):
     """Represents on release of the source series.
+
+    This class should have been called SourceRelease
+    because the name clashes with texturepacker.SourcedPack.
 
     Generally there need only be exactly one source pack for
     a given source series. I split it in to two models
@@ -84,14 +99,16 @@ class SourcePack(models.Model):
 class Spec(models.Model):
     owner = models.ForeignKey(User, related_name='atlases')
 
-    label = models.CharField(max_length=200)
-    name = models.SlugField(max_length=200)
+    label = models.CharField(max_length=200, help_text="Identifies this recipe to users")
+    desc = models.TextField(blank=True, help_text="Explians this recipe to users; can use Markdown formatting")
+
+    name = models.SlugField(max_length=200, help_text="Identifies this spec in recipes; should be unique")
     SPEC_TYPE_CHOICES = [
         ('tprx', 'Texture pack recipe'),
         ('tpmaps', 'Texture pack maps'),
     ]
     spec_type = models.CharField(max_length=100, choices=SPEC_TYPE_CHOICES)
-    spec = models.TextField()
+    spec = models.TextField(help_text="The recipe code in YAML or JSON format.")
 
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
