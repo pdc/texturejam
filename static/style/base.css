@@ -60,7 +60,8 @@ section:after,
   width: 560px; /* 7u */
 }
 
-#pack_list {
+#pack_list,
+#recipe_desc {
   float: left;
   width: 400px; /* 5u */
 }

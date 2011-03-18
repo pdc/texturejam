@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load markup %}
 {% block title %}{{ pack.label }} - Texturejam{% endblock %}
 {% block heading %}{{ pack.label }}{% endblock %}
 {% block subheading %}A remixed texture pack{% endblock %}
@@ -39,4 +40,12 @@
         <img class="pack_terrain" src="{% url pack_resource pk=pack.pk res_name="terrain.png" %}" alt="" />
     </div>
 </section>
+
+{% if pack.recipe.desc %}
+<section id="recipe_desc">
+    <h2>About {{ pack.recipe }}</h2>
+    {{ pack.recipe.desc|markdown }}
+</section>
+{% endif %}
+
 {% endblock %}
