@@ -2,8 +2,8 @@
 {% block title %}Texturejam{% endblock %}
 {% block heading %}Texturejam{% endblock %}
 {% block trail %}{% endblock %}
-{% block content %}
-<section id="main">
+{% block main_sections %}
+<section id="why_remix">
     <h2>Why Remix Texture Packs?</h2>
     <p>
         When Mojang add new objects to Minecraft
@@ -20,7 +20,8 @@
     <p>
         This service is still experimental.
     </p>
-
+</section>
+<section id="what_is">
     <h2>Wait, what is a texture pack anyway?</h2>
     <p>
         The world of <a href="http://minecraft.net">Minecraft</a> is made of cubes.
@@ -36,17 +37,19 @@
             on Minepedia, the Minecraft Wiki
         </a>
     </ul>
-
 </section>
-<section id="pack_list">
-    {% regroup recipe_packs by recipe.label as recipe_pack_groups %}
-    {% for pack_group in recipe_pack_groups %}
+{% endblock %}
+
+{% block more_sections %}
+{% regroup recipe_packs by recipe.label as recipe_pack_groups %}
+{% for pack_group in recipe_pack_groups %}
+<section id="{{ pack_group.grouper|slugify }}" class="pack-list">
     <h2>{{ pack_group.grouper }} Remix{{ pack_group.list|pluralize:"es" }}</h2>
     <ul>
         {% for pack in pack_group.list %}
         <li>
             <a href="{% url pack pk=pack.pk %}">
-                <img src="{% url pack_resource pk=pack.pk res_name="pack.png" %}" alt="" class="pack_png" />
+                <img src="{% url pack_resource pk=pack.pk res_name="pack.png" %}" alt="" class="pack-png" />
                 <b>{{ pack }}</b>
                 <small>
                     Based on
@@ -57,6 +60,6 @@
             </a>
         </li>
         {% endfor %}
-    {% endfor %}
 </section>
+{% endfor %}
 {% endblock %}

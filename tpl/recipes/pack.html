@@ -3,42 +3,68 @@
 {% block title %}{{ pack.label }} - Texturejam{% endblock %}
 {% block heading %}{{ pack.label }}{% endblock %}
 {% block subheading %}A remixed texture pack{% endblock %}
-{% block content %}
-<section id="main">
-    <img class="pack_png" src="{% url pack_resource pk=pack.pk res_name="pack.png" %}" align="left" alt="" />
 
-    {% if pack.pack_args %}
-    <p>
-        This pack was created by remixing
-        {% for pack_arg in pack.pack_args.all %}
-            {% if not forloop.first %}{% if forloop.last %}and{% endif %}{% endif %}
-            <a href="{% firstof pack_arg.source_pack.series.home_url pack_arg.source_pack.series.forum_url pack_arg.source_pack.download_url %}"
-            >{{ pack_arg.source_pack }}</a>{% if not forloop.last %},{% else %}.{% endif %}
-        {% endfor %}
-        Follow the link{{ pack.pack_args|pluralize }}
-        to their web page{{ pack.pack_args|pluralize }} to shower them with praise for their work.
-    </p>
-    {% endif %}
+{% block main_sections %}
+<section id="pack-desc">
+    <img class="pack-png" src="{% url pack_resource pk=pack.pk res_name="pack.png" %}" align="left" alt="" />
 
-    <p>
-        <img src="{{ pack.owner.get_profile.get_picture_src }}" alt="" class="userpic" />
-        {{ pack.owner }} added this pack on {{ pack.created|date }}
-        using recipe {{ pack.recipe.label }}.
+    <dl>
+        {% if pack.pack_args %}
+        <dt>Based on</dt>
+        <dd>
+            {% for pack_arg in pack.pack_args.all %}
+                {% if not forloop.first %}{% if forloop.last %}and{% endif %}{% endif %}
+                <a href="{% firstof pack_arg.source_pack.series.home_url pack_arg.source_pack.series.forum_url pack_arg.source_pack.download_url %}"
+                >{{ pack_arg.source_pack }}</a>{% if not forloop.last %},{% else %}.{% endif %}
+            {% endfor %}
+
+            <dd>
+            Follow the link{{ pack.pack_args|pluralize }}
+            to their web page{{ pack.pack_args|pluralize }}
+            for more info and to donate to their creators.
+            </dd>
+        </dd>
+        {% endif %}
+
+        <dt>Added by</dt>
+        <dd>
+            <img src="{{ pack.owner.get_profile.get_picture_src }}" alt="" class="userpic" />
+            {{ pack.owner }}
+        </dd>
+        <dd>
+            {{ pack.created|date }}
+        </dd>
+
+
         {% ifnotequal pack.created|date pack.modified|date %}
-            Last edited on {{ pack.modified|date }}.
+        <dt>Last edited</dt>
+        <dd>
+            {{ pack.modified|date }}
+        </dd>
         {% endifnotequal %}
-    </p>
+    </dl>
+</section>
 
-    <p>
-        To use this pack:
-        <strong><a href="{% url tpmake pk=pack.pk %}">Download the ZIP file</a></strong>
-        and copy in to your Minecraft texturepacks folder.
-    </p>
-
+<section id="pack-preview">
     <h2>Preview</h2>
     <div id="preview">
         <img class="pack_terrain" src="{% url pack_resource pk=pack.pk res_name="terrain.png" %}" alt="" />
     </div>
+</section>
+{% endblock %}
+
+{% block more_sections %}
+<section id="instructions">
+
+    <h2>How to use this texture pack</h2>
+
+    <p class="big_link">
+        <strong><a href="{% url tpmake pk=pack.pk %}">Download the ZIP file</a></strong>
+    </p>
+
+    <p>
+        Then copy the ZIP file in to your Minecraft texturepacks folder.
+    </p>
 </section>
 
 {% if pack.recipe.desc %}
@@ -47,5 +73,4 @@
     {{ pack.recipe.desc|markdown }}
 </section>
 {% endif %}
-
 {% endblock %}

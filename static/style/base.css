@@ -41,6 +41,9 @@ Some of these selectors will be used below to control fonts etc.
 }
 
 #content:after,
+#main:after,
+#more:after,
+#asides:after,
 section:after,
 .big_link:after {
     content: ".";
@@ -60,16 +63,17 @@ section:after,
   width: 560px; /* 7u */
 }
 
-#pack_list,
-#recipe_desc {
+#more {
   float: left;
   width: 400px; /* 5u */
 }
+/*
 
 #footer {
   clear: both;
   padding: 2.5em 0 0;
 }
+*/
 
 #who {
   float: none;
@@ -77,6 +81,7 @@ section:after,
   position: absolute;
   right: 0;
   top: 0;
+  margin: 0;
   padding: 0.5em 10px;
   width: auto;
   min-width: 140px;
@@ -98,9 +103,14 @@ section:after,
   margin: 0;
 }
 
-aside {
+#asides { /* Asides go horizontally below */
   float: left;
-  width: 240px; /* 3u */
+  width: 960px; /* 12u */
+}
+
+#asides aside {
+  float: left;
+  width: 240px;
 }
 
 @media only all and (min-width: 1240px) {
@@ -112,6 +122,10 @@ aside {
   #content {
     width: 1200px; /* 15u */
   }
+
+  #asides {
+    width: 240px;
+  }
 }
 
 @media only all and (max-width: 980px) {
@@ -121,7 +135,25 @@ aside {
   }
 
   #content {
+    position: relative;
     width: 720px; /* 9u */
+  }
+
+  #main,
+  #more {
+    width: 480px; /* 6u */
+  }
+
+  #asides {
+    position: absolute;
+    top: 0;
+    right: 10px;
+    width: 240px;
+  }
+
+  #asides aside {
+    clear: both;
+    float: right;
   }
 }
 
@@ -178,10 +210,12 @@ aside {
 }
 
 h1, h2 {
-    margin: 1.25em 10px 0.25em;
+  clear: both;
+  margin: 1.25em 10px 0.25em;
 
-    font-family: 'Luckiest Guy', serif;
-    color: rgb(19, 81, 101);
+  font-family: 'Luckiest Guy', serif;
+  font-weight: normal;
+  color: rgb(19, 81, 101);
 }
 
 h1 {
@@ -190,31 +224,25 @@ h1 {
 
 h2 {
     font-size: 1.5em;
+    margin-top: 0.813em;
 }
 
 section p {
   margin: 0 10px 1.25em;
 }
 
-#pack_list h2 {
-  clear: both;
-  float: left;
-  margin: 0;
-  padding: 1.25em 10px 0.25em;
-}
-
-#pack_list ul {
-	margin: 1.25em 0 0;
+.pack-list ul {
+	margin: 0 0 1.25em 0;
 	padding: 0;
 }
 
-#pack_list li {
+.pack-list li {
 	margin: 0;
 	padding: 0;
 	list-style-type: none;
 }
 
-#pack_list li a {
+.pack-list li a {
   float: left;
 	display: block;
 	padding: 0.5em 10px;
@@ -225,21 +253,21 @@ section p {
   border-radius: 0.5em;
 }
 
-#pack_list li a:hover {
+.pack-list li a:hover {
 	background: rgba(255, 255, 255, 0.6);
 	-webkit-box-shadow: rgba(0, 0, 0, 0.25) 2px 2px 3px;
 }
-#pack_list li a:active {
+.pack-list li a:active {
 	background: rgba(255, 255, 255, 0.6);
 	-webkit-box-shadow: rgba(0, 0, 0, 0.25) 1px 1px 2px;
 }
 
-#pack_list li b {
+.pack-list li b {
 	display: block;
 }
 
-#pack_list li a:hover b,
-#pack_list li a:active b {
+.pack-list li a:hover b,
+.pack-list li a:active b {
 	text-decoration: underline;
 	color: #06B;
 }
@@ -285,6 +313,51 @@ tbody th {
 
 td img {
   display: block;
+}
+
+#pack-desc dl {
+  float: left;
+  width: 400px; /* 5u */
+  margin: 0.613em 0;
+  padding: 0;
+}
+
+dt {
+  clear: both;
+  float: left;
+  width: 140px; /* 2u */
+  margin: 0.613em 10px;
+
+
+  font-weight: bolder;
+  color: #369;
+  text-align: right;
+}
+
+dd {
+  float: right;
+  margin: 0.613em 10px;
+}
+
+
+#pack-desc dt {
+  width: 100px; /* 1.5u */
+}
+#pack-desc dd {
+  width: 260px; /* 3.5u */
+}
+
+@media only all and (max-width: 980px) {
+  foo { bar }
+  #pack-desc dl {
+    width: 320px; /* 4u */
+  }
+  #pack-desc dt {
+    width: 80px;
+  }
+  #pack-desc dd {
+    width: 200px;
+  }
 }
 
 #main form {
@@ -362,8 +435,8 @@ td img {
   background: url(info-24.png) 16px 0.625em no-repeat;
 }
 
-#main img.pack_png,
-#pack_list img.pack_png {
+#main img.pack-png,
+.pack-list img.pack-png {
   display: block;
   float: left;
 
@@ -372,14 +445,14 @@ td img {
   background-color: rgba(0, 0, 0, 0.15);
 }
 
-#main img.pack_png {
+#main img.pack-png {
   width: 128px;
   height: 128px;
-  margin: 1.25em 20px 1.25em 10px;
+  margin: 1.25em 10px 1.25em 10px;
   padding: 5px;
 }
 
-#pack_list img.pack_png {
+.pack-list img.pack-png {
   width: 32px;
   height: 32px;
   margin: 0 12px 0 0;
@@ -396,6 +469,13 @@ td img {
   width: 540px;
   margin: 1.25em 10px;
   background-color: rgba(0, 0, 0, 0.2);
+}
+
+
+@media only all and (max-width: 980px) {
+  #preview {
+    width: 460px;
+  }
 }
 
 #preview img {
