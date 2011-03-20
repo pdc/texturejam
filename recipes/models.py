@@ -33,6 +33,13 @@ class Level(models.Model):
     def __unicode__(self):
         return self.label
 
+class Tag(models.Model):
+    label = models.CharField(max_length=200, help_text='Name of the tag with the desired capitalization')
+    name = models.SlugField(max_length=200, unique=True, help_text='Uniquely identifies this tag in the database')
+
+    def __unicode__(self):
+        return self.label
+
 class SourceSeries(models.Model):
     owner = models.ForeignKey(User, related_name='source_series')
 
@@ -98,6 +105,7 @@ class SourcePack(models.Model):
 
 class Spec(models.Model):
     owner = models.ForeignKey(User, related_name='atlases')
+    tags = models.ManyToManyField(Tag, blank=True)
 
     label = models.CharField(max_length=200, help_text="Identifies this recipe to users")
     desc = models.TextField(blank=True, help_text="Explians this recipe to users; can use Markdown formatting")
@@ -108,6 +116,8 @@ class Spec(models.Model):
         ('tpmaps', 'Texture pack maps'),
     ]
     spec_type = models.CharField(max_length=100, choices=SPEC_TYPE_CHOICES)
+
+
     spec = models.TextField(help_text="The recipe code in YAML or JSON format.")
 
     created = models.DateTimeField(auto_now_add=True)
