@@ -39,9 +39,13 @@
 
 {% block more_sections %}
 {% for recipe in recipes %}
-<section id="{{ recipe.name }}">
+<section id="recipe-{{ recipe.pk }}">
     <h2>Recipe: {{ recipe.label }}</h2>
     {{ recipe.desc|markdown }}
 </section>
 {% endfor %}
+
+    <script src="{{ static }}script/jquery-1.5.1.min.js"></script>
+    <script src="{{ static }}script/beta-upgrade.js"></script>
+
 {% endblock %}
