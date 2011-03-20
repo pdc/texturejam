@@ -58,4 +58,4 @@ def on_post_save_user(sender, instance, created, **kwargs):
     if created or not instance.get_profile():
         Profile(user=instance).save()
 
-post_save.connect(on_post_save_user, User)
+post_save.connect(on_post_save_user, User, dispatch_uid='texturejam.hello.models')

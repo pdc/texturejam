@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Log in - Texturejam{% endblock %}
 {% block heading %}Please log in to Texturejam{% endblock %}
-{% block content %}
-<section id="pack_list">
+{% block main_sections %}
+<section id="please-log-in">
     <p>
         Please log in first.
-        We only use your login to keep track of
-        who adds what to the database.
+    </p>
+    <p>
         For your comfort and convenience we use Twitter to
         handle the actual logging-in process.
     </p>
@@ -16,6 +16,46 @@
     <p>
         Or, <a href="{% url home %}">go back to the list of texture packs</a>
     </p>
+</section>
+{% endblock %}
+
+{% block more_sections %}
+<section id="why-twitter">
+    <h2>Why Log in?</h2>
+    <p>
+        I only use your login to keep track of
+        who adds what to the database.
+    </p>
+
+    <h2>Why Twitter?</h2>
+    <p>
+        Convenience:
+        most people already have a Twitter account
+        and are probably logged in to Twitter anyway. The first time you click the
+        Log in with Twitter button you will be asked to click a confirmation button,
+        but after that it will be automatic.
+    </p>
+    <p>
+        Confidence:
+        I  have delegated the tricky process of protecting your online identity to
+        Twitter, who have years of experience in this regard.
+        So there is no way for the Texturejam site
+        to accidentally reveal your password (because it never leaves Twitter).
+        Texturejam does not request permission to write tweets, so you
+        don‘t have to worry about your
+        twitterstream being spammed.
+    </p>
+
+    <h2>Why not Facebook Connect or OpenID?</h2>
+    <p>Life’s complicated enough already.</p>
+    <p>
+        In other words, I wanted to choose just one option that would suit most people.
+        In the unlikely event that you don’t have a Twitter account already,
+        getting one is fairly painless, because you are not
+        signing up for a complicated and confusing personal data-sucking behemoth
+        or scratching your head over the technicalities of OpenID.
+    </p>
+
 </section>
 {% endblock %}
 {% block who %}{% endblock %}
