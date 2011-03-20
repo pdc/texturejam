@@ -366,25 +366,31 @@ dd {
 }
 
 #main form {
-  padding: 0;
+  padding: 0.613em 0 0;
   margin: 0;
   background: rgba(204, 151, 0, 0.25);
+  border-radius: 10px;
+  border: 1px inset #993;
 }
 
 #main form div {
   margin: 0.25em 0;
 }
 
-#main form label {
+#main label {
   float: left;
-  margin: 0.25em 10px;
+  margin: 0.25em 10px 0.25em 9px; /* 9px to allow for 1px border */
   padding: 0;
   width: 140px;
   text-align: right;
 }
 
-#main form input {
-  margin: 0.25em 10px;
+#main input,
+#main select {
+  margin: 0.25em 9px 0.25em 10px;  /* 9px to allow for 1px border */
+}
+
+#main input  {
   width: 372px;
   border-width: 2px;
 }

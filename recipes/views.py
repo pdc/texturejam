@@ -110,15 +110,30 @@ def make_texture_pack(request, pk):
 @with_template('recipes/beta-upgrade.html')
 def beta_upgrade(request):
     # XXX This function is quite long.
-    # Would it be possible to spin it out in to the model?
+    # Would it be possible to spin it out in to tasg
+
+    suitable_recipes = Tag.objects.get(name='beta-13').spec_set.order_by('created')
+
+    class BetaForm(forms.Form):
+        pack_download_url = forms.URLField(max_length=1000, label='Download URL',
+            help_text='URL to download the ZIP file')
+        series_forum_url = forms.URLField(max_length=1000, required=False, label='Forum thread',
+            help_text='URL of a forum thread about this texture pack')
+        series_home_url = forms.URLField(max_length=1000, required=False, label='Home page',
+            help_text='URL of a dedicated home page for this pack, if any')
+        recipe = forms.ModelChoiceField(
+            required=True,
+            queryset=suitable_recipes,
+            initial=Spec.objects.get(name='ersatz-beta-13'),
+            help_text='Depends on whether the pack supports Beta 1.2 already')
+
     if request.method == 'POST': # If the form has been submitted...
         form = BetaForm(request.POST) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
             try:
+                recipe = form.cleaned_data['recipe']
                 download_url = form.cleaned_data['pack_download_url']
                 source_pack = get_mixer().get_pack(download_url)
-                recipe_name = 'ersatz-beta-13'
-                recipe = Spec.objects.get(name=recipe_name)
 
                 level = Level.objects.get(label='Beta 1.2')
 
@@ -155,11 +170,11 @@ def beta_upgrade(request):
                     recipe=recipe)
                 recipe_pack.save()
                 recipe_pack.pack_args.create(
-                    name='beta12',
+                    name='base',
                     source_pack=source_release)
 
                 messages.add_message(request, messages.INFO,
-                        'Created {recipe_pack}'.format(recipe_pack=recipe_pack.label))
+                        'Added {recipe_pack} to the queue'.format(recipe_pack=recipe_pack.label))
 
                 return HttpResponseRedirect(
                     reverse('its_cooking', kwargs={'pk': recipe_pack.pk})) # Redirect after POST
@@ -170,4 +185,5 @@ def beta_upgrade(request):
 
     return {
         'form': form,
+        'recipes': suitable_recipes,
     }

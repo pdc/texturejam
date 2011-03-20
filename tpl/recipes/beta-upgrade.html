@@ -1,8 +1,10 @@
 {% extends "base.html" %}
+{% load markup %}
+
 {% block title %}Upgrade to beta 1.3 - Texturejam{% endblock %}
 {% block heading %}Upgrade to Beta 1.3 with Texturejam{% endblock %}
-{% block content %}
-<section id="main">
+{% block main_sections %}
+<section id="form">
     <p>
         While you wait for your favourite texture pack to be updated
         to be compatible with Minecraft Beta 1.3,
@@ -33,4 +35,13 @@
         and might not work.
     </p>
 </section>
+{% endblock %}
+
+{% block more_sections %}
+{% for recipe in recipes %}
+<section id="{{ recipe.name }}">
+    <h2>Recipe: {{ recipe.label }}</h2>
+    {{ recipe.desc|markdown }}
+</section>
+{% endfor %}
 {% endblock %}
