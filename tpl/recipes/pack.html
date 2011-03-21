@@ -63,7 +63,7 @@
     <h2>How to use this texture pack</h2>
 
     <p class="big_link">
-        <strong><a href="{% url tpmake pk=pack.pk %}">Download the ZIP file</a></strong>
+        <strong><a href="{% url tpmake pk=pack.pk slug=pack.label|slugify  %}">Download the ZIP file</a></strong>
     </p>
 
     <p>

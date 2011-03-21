@@ -8,6 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.core.urlresolvers import reverse
+from django.template.defaultfilters import slugify
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.conf import settings
@@ -94,14 +95,14 @@ def maps(request, name):
     recipe = get_object_or_404(Spec, name=name, spec_type='tpmaps')
     return HttpResponse(recipe.spec, mimetype="application/x-yaml")
 
-def make_texture_pack(request, pk):
+def make_texture_pack(request, pk, slug):
     """Generate the ZIP file for a texture pack."""
     recipe_pack = get_object_or_404(RecipePack, pk=pk)
     pack = recipe_pack.get_pack()
 
     response = HttpResponse(mimetype="application/zip")
     response['content-disposition'] = 'attachment; filename={file_name}'.format(
-        file_name=name_from_label(recipe_pack.label) + '.zip'
+        file_name=slugify(recipe_pack.label) + '.zip'
     )
     pack.write_to(response)
     return response
@@ -187,3 +188,9 @@ def beta_upgrade(request):
         'form': form,
         'recipes': suitable_recipes,
     }
+
+
+@with_template('recipes/source.html')
+def source_series(request, pk):
+    source_pack = get_object_or_404(SourcePack, pk=pk)
+    return {'pack': source_pack}
