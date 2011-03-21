@@ -14,15 +14,9 @@
         <dd>
             {% for pack_arg in pack.pack_args.all %}
                 {% if not forloop.first %}{% if forloop.last %}and{% endif %}{% endif %}
-                <a href="{% firstof pack_arg.source_pack.series.home_url pack_arg.source_pack.series.forum_url pack_arg.source_pack.download_url %}"
+                <a href="{% url source pk=pack_arg.source_pack.series.pk %}"
                 >{{ pack_arg.source_pack }}</a>{% if not forloop.last %},{% else %}.{% endif %}
             {% endfor %}
-
-            <dd>
-            Follow the link{{ pack.pack_args|pluralize }}
-            to their web page{{ pack.pack_args|pluralize }}
-            for more info and to donate to their creators.
-            </dd>
         </dd>
         {% endif %}
 

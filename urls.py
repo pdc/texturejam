@@ -12,7 +12,9 @@ urlpatterns = patterns('recipes.views',
     (r'^packs/(?P<pk>\d+)/progress$', 'pack_progress', {}, 'pack_progress'),
     (r'^packs/(?P<pk>\d+)/resources/(?P<res_name>.*)$', 'recipe_pack_resource', {}, 'pack_resource'),
     (r'^packs/(?P<pk>\d+)/(?P<slug>[\w-]+)\.zip$', 'make_texture_pack', {}, 'tpmake'),
+
     (r'^sources/(?P<pk>\d+)/$', 'source_series', {}, 'source'),
+    (r'^sources/(?P<pk>\d+)/releases/(?P<release_pk>\d+)/resources/(?P<res_name>.*)$', 'source_pack_resource', {}, 'source_resource'),
 
     (r'^beta-upgrade$', 'beta_upgrade', {}, 'beta_upgrade'),
 

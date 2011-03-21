@@ -192,5 +192,17 @@ def beta_upgrade(request):
 
 @with_template('recipes/source.html')
 def source_series(request, pk):
-    source_pack = get_object_or_404(SourcePack, pk=pk)
-    return {'pack': source_pack}
+    source_series = get_object_or_404(SourceSeries, pk=pk)
+    releases = source_series.releases.order_by('-released')
+    return {
+        'source': source_series,
+        'releases': releases,
+        'release': releases[0],
+    }
+
+
+def source_pack_resource(request, pk, release_pk, res_name):
+    """A resource from a source pack."""
+    source_pack = get_object_or_404(SourcePack, pk=int(release_pk, 10))
+    data = source_pack.get_pack().get_resource(res_name).get_bytes()
+    return HttpResponse(data, mimetype='image/png')

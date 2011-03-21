@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load markup %}
+{% block title %}{{ source.label }} - Sources - Texturejam{% endblock %}
+{% block heading %}{{ source.label }}{% endblock %}
+{% block subheading %}A source texture pack{% endblock %}
+
+{% block main_sections %}
+<section id="pack-desc">
+    <img class="pack-png" src="{% url source_resource pk=source.pk release_pk=release.pk res_name="pack.png" %}" align="left" alt="" />
+
+    <dl>
+        {% if source.home_url %}
+        <dt>Home page</dt>
+        <dd><a href="{{ source.home_url }}">{{ source.truncated_home_url }}</a></dd>
+        {% endif %}
+        {% if source.forum_url %}
+        <dt>Forum thread</dt>
+        <dd><a href="{{ source.forum_url }}">{{ source.truncated_forum_url }}</a></dd>
+        {% endif %}
+
+        <dt>Info added by</dt>
+        <dd>
+            <img src="{{ source.owner.get_profile.get_picture_src }}" alt="" class="userpic" />
+            {{ source.owner }}
+            <small>{{ source.created|date }}</small>
+        </dd>
+    </dl>
+</section>
+
+
+<section id="previews">
+    <h2>Latest Release{{ releases|pluralize }}</h2>
+    {% for release in releases %}
+    <dl>
+        <dt>Release</dt>
+        <dd>{{ release.label }} <small>{{ release.released|date }}</small></dd>
+        <dt>Level</dt>
+        <dd>{{ release.level }}</dd>
+        <dt>Download</dt>
+        <dd><a href="{{ release.download_url }}">{{ release.truncated_download_url }}</a></dd>
+    </dl>
+
+    <div id="preview">
+        <img class="pack_terrain" src="{% url source_resource pk=source.pk release_pk=release.pk res_name="terrain.png" %}" alt="" />
+    </div>
+    {% endfor %}
+</section>
+
+<section id="tweet-this">
+    <a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="texturejamorguk">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+</section>
+{% endblock %}
+
+{% block more_sections %}
+    {% for rr in releases %}
+        {% if rr.occurrences.all %}
+        <section id="remixes" class="pack-list">
+            <h2>Recipes using {{ rr }}</h2>
+            <ul>
+                {% for arg in rr.occurrences.all %}
+                <li>
+                    <a href="{% url pack pk=arg.recipe_pack.pk %}">
+                        <img src="{% url pack_resource pk=arg.recipe_pack.pk res_name="pack.png" %}" alt="" class="pack-png" />
+                        <b>{{ arg.recipe_pack }}</b>
+                        <small>
+                            Using recipe
+                            {{ arg.recipe_pack.recipe }}
+                        </small>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% endif %}
+    {% endfor %}
+{% endblock %}

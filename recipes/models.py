@@ -53,6 +53,12 @@ class SourceSeries(models.Model):
     def __unicode__(self):
         return self.label
 
+    def truncated_home_url(self):
+        return trunc_url(self.home_url)
+
+    def truncated_forum_url(self):
+        return trunc_url(self.forum_url)
+
 class SourcePack(models.Model):
     """Represents on release of the source series.
 
@@ -101,6 +107,9 @@ class SourcePack(models.Model):
             with open(file_path, 'wb') as strm:
                 strm.write(bytes)
         return texturepacker.SourcePack(file_path, Atlas())
+
+    def truncated_download_url(self):
+        return trunc_url(self.download_url)
 
 
 class Spec(models.Model):
@@ -203,3 +212,32 @@ def get_mixer():
         return {'content-type': 'application/x-yaml'}, StringIO(spec.spec)
     mixer.loader.add_scheme('internal', fetch_spec)
     return mixer
+
+
+
+URL_RE = re.compile("""
+    ^
+    (?: https? | ftp ) :
+    //
+    (?: www\. )?
+    ( [\w.-]+ )
+    ( /.*? )?
+    (
+        (?: /[^/]+)
+    )?
+    ( / | /index.\w+ )?
+    $
+""", re.VERBOSE)
+
+def trunc_url(u):
+    m = URL_RE.match(u)
+    ps = [m.group(1)]
+    if m.group(2) and m.group(3):
+        ps.append(u'/…')
+    elif m.group(2) and m.group(2) != '/':
+        ps.append(m.group(2))
+    if m.group(3):
+        ps.append(m.group(3))
+    if m.group(4):
+        ps.append('/')
+    return ''.join(ps)

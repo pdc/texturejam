@@ -45,7 +45,8 @@ Some of these selectors will be used below to control fonts etc.
 #more:after,
 #asides:after,
 section:after,
-.big_link:after {
+.big_link:after,
+dl:after {
     content: ".";
     display: block;
     height: 0;
@@ -323,7 +324,7 @@ td img {
 #pack-desc dl {
   float: left;
   width: 400px; /* 5u */
-  margin: 0.613em 0;
+  margin: 0.919em 0;
   padding: 0;
 }
 
@@ -331,7 +332,7 @@ dt {
   clear: both;
   float: left;
   width: 140px; /* 2u */
-  margin: 0.613em 10px;
+  margin: 0.306em 10px;
 
 
   font-weight: bolder;
@@ -341,9 +342,12 @@ dt {
 
 dd {
   float: right;
-  margin: 0.613em 10px;
+  margin: 0.306em 10px;
 }
 
+#main dd {
+  width: 380px; /* 5u */
+}
 
 #pack-desc dt {
   width: 100px; /* 1.5u */
@@ -363,6 +367,13 @@ dd {
   #pack-desc dd {
     width: 200px;
   }
+}
+
+dd small {
+  font-size: inherit;
+
+  display: block;
+  color: rgba(0, 0, 0, 0.5);
 }
 
 #main form {
