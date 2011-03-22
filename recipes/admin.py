@@ -20,7 +20,7 @@ class PackArgInline(admin.TabularInline):
 
 class RecipePackAdmin(admin.ModelAdmin):
     inlines = [PackArgInline]
-    list_display = ['label', 'owner', 'created', 'modified']
+    list_display = ['label', 'owner', 'created', 'modified', 'withdrawn', 'withdrawn_reason']
 
 class SpecAdmin(admin.ModelAdmin):
     list_display = ['name', 'label', 'owner', 'created', 'modified']
