@@ -39,7 +39,7 @@ LABEL_WITH_VERSION_RE = re.compile(ur"""
 def recipe_pack_list(request):
     """List of recipe packs, for the home page."""
     return {
-        'recipe_packs': RecipePack.objects.order_by('recipe__label', '-modified'),
+        'recipe_packs': RecipePack.objects.filter(withdrawn=None).order_by('recipe__label', '-modified'),
     }
 
 @with_template('recipes/pack.html')

@@ -111,6 +111,9 @@ class SourcePack(models.Model):
     def truncated_download_url(self):
         return trunc_url(self.download_url)
 
+    def active_occurrences(self):
+        return self.occurrences.filter(recipe_pack__withdrawn=None)
+
 
 class Spec(models.Model):
     owner = models.ForeignKey(User, related_name='atlases')
@@ -135,6 +138,7 @@ class Spec(models.Model):
     def __unicode__(self):
         return self.label
 
+
 class RecipePack(models.Model):
     owner = models.ForeignKey(User, related_name='recipe_packs')
     recipe = models.ForeignKey(Spec, related_name='occurrences', limit_choices_to={'spec_type': 'tprx'})
@@ -143,6 +147,9 @@ class RecipePack(models.Model):
 
     created = models.DateTimeField(auto_now_add=True, help_text='When this pack was added to our list')
     modified = models.DateTimeField(auto_now=True, help_text='When our info about this pack was updated')
+
+    withdrawn_reason = models.CharField(max_length=200, default='', help_text='One-line description of why this remix was withdrawn, or (more commonly) empty if is has not been withdrawn')
+    withdrawn = models.DateTimeField(null=True, blank=True, help_text='When this remix was withdrawn, or (more commonly) blank if it has not been withdrawn')
 
     def __unicode__(self):
         return self.label

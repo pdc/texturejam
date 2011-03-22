@@ -24,9 +24,7 @@
         <dd>
             <img src="{{ pack.owner.get_profile.get_picture_src }}" alt="" class="userpic" />
             {{ pack.owner }}
-        </dd>
-        <dd>
-            {{ pack.created|date }}
+            <small>{{ pack.created|date }}</small>
         </dd>
 
 
@@ -36,6 +34,14 @@
             {{ pack.modified|date }}
         </dd>
         {% endifnotequal %}
+
+        {% if pack.withdrawn %}
+        <dt>Withdrawn</dt>
+        <dd>
+            <strong>{{ pack.withdrawn_reason }}</strong>
+            <small>{{ pack.withdrawn }}</small>
+        </dd>
+        {% endif %}
     </dl>
 </section>
 

@@ -53,11 +53,11 @@
 
 {% block more_sections %}
     {% for rr in releases %}
-        {% if rr.occurrences.all %}
+        {% if rr.active_occurrences %}
         <section id="remixes" class="pack-list">
             <h2>Recipes using {{ rr }}</h2>
             <ul>
-                {% for arg in rr.occurrences.all %}
+                {% for arg in rr.active_occurrences %}
                 <li>
                     <a href="{% url pack pk=arg.recipe_pack.pk %}">
                         <img src="{% url pack_resource pk=arg.recipe_pack.pk res_name="pack.png" %}" alt="" class="pack-png" />
