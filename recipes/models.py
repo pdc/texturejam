@@ -148,7 +148,7 @@ class RecipePack(models.Model):
     created = models.DateTimeField(auto_now_add=True, help_text='When this pack was added to our list')
     modified = models.DateTimeField(auto_now=True, help_text='When our info about this pack was updated')
 
-    withdrawn_reason = models.CharField(max_length=200, default='', help_text='One-line description of why this remix was withdrawn, or (more commonly) empty if is has not been withdrawn')
+    withdrawn_reason = models.CharField(max_length=200, blank=True, default='', help_text='One-line description of why this remix was withdrawn, or (more commonly) empty if is has not been withdrawn')
     withdrawn = models.DateTimeField(null=True, blank=True, help_text='When this remix was withdrawn, or (more commonly) blank if it has not been withdrawn')
 
     def __unicode__(self):
