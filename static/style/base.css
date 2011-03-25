@@ -245,6 +245,19 @@ section p+p {
   display: block;
 }
 
+
+@media only all and (max-width: 980px) {
+  #main .image-full-width img {
+    width: 460px;
+    height: auto;
+  }
+  #main .image-full-width img:hover {
+    width: auto;
+  }
+}
+
+
+
 .pack-list ul {
 	margin: 0 0 1.25em 0;
 	padding: 0;
