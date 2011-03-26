@@ -1,5 +1,6 @@
 *.pyc
 dev.db
+dev-*.db
 foo
 settings.py
 celeryconfig.py

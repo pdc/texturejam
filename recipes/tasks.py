@@ -12,5 +12,5 @@ def add(x, y):
 
 @task(ignore_result=True)
 def ensure_source_pack_is_downloaded(pk):
-    source_pack = SourcePack.objects.get(pk=pk)
+    source_pack = Release.objects.get(pk=pk)
     actual_pack = source_pack.get_pack()

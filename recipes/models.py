@@ -18,7 +18,7 @@ import texturepacker
 # After adding or changing fields run the following
 # in the deve environment:
 #
-#     python manage.py schemamigration recipes --auto
+#     ./manage.py schemamigration recipes --auto
 #
 # And then in each environemtn do
 #
@@ -44,7 +44,7 @@ class Tag(models.Model):
     def __unicode__(self):
         return self.label
 
-class SourceSeries(models.Model):
+class Source(models.Model):
     owner = models.ForeignKey(User, related_name='source_series')
 
     label = models.CharField(max_length=200)
@@ -63,7 +63,7 @@ class SourceSeries(models.Model):
     def truncated_forum_url(self):
         return trunc_url(self.forum_url)
 
-class SourcePack(models.Model):
+class Release(models.Model):
     """Represents one release of the source series.
 
     This class should have been called SourceRelease
@@ -78,7 +78,7 @@ class SourcePack(models.Model):
         get_latest_by = 'released'
         ordering = ['-released']
 
-    series = models.ForeignKey(SourceSeries, related_name='releases')
+    series = models.ForeignKey(Source, related_name='releases')
     level = models.ForeignKey(Level, related_name='source_packs')
 
     label = models.CharField(max_length=200)
@@ -208,7 +208,7 @@ class PackArg(models.Model):
         unique_together = [('recipe_pack', 'name')]
 
     recipe_pack = models.ForeignKey(RecipePack, related_name='pack_args')
-    source_pack = models.ForeignKey(SourcePack, related_name='occurrences')
+    source_pack = models.ForeignKey(Release, related_name='occurrences')
 
     name = models.SlugField(help_text='Name used for this formal parameter in the recipe')
 

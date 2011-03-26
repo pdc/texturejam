@@ -148,11 +148,11 @@ def beta_upgrade(request):
                     release_label = ''
 
                 try:
-                    source_release = SourcePack.objects.get(download_url=download_url)
+                    source_release = Release.objects.get(download_url=download_url)
                     messages.add_message(request, messages.INFO,
                             'we already have an entry for {pack}'.format(pack=source_pack.label))
-                except SourcePack.DoesNotExist:
-                    series = SourceSeries(
+                except Release.DoesNotExist:
+                    series = Source(
                         owner=request.user,
                         label=series_label,
                         home_url=form.cleaned_data['series_home_url'],
@@ -192,7 +192,7 @@ def beta_upgrade(request):
 
 @with_template('recipes/source.html')
 def source_series(request, pk):
-    source_series = get_object_or_404(SourceSeries, pk=pk)
+    source_series = get_object_or_404(Source, pk=pk)
     releases = source_series.releases.order_by('-released')
     return {
         'source': source_series,
@@ -203,6 +203,6 @@ def source_series(request, pk):
 
 def source_pack_resource(request, pk, release_pk, res_name):
     """A resource from a source pack."""
-    source_pack = get_object_or_404(SourcePack, pk=int(release_pk, 10))
+    source_pack = get_object_or_404(Release, pk=int(release_pk, 10))
     data = source_pack.get_pack().get_resource(res_name).get_bytes()
     return HttpResponse(data, mimetype='image/png')

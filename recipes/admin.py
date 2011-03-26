@@ -1,17 +1,17 @@
 
-from recipes.models import Level, Tag, SourceSeries, SourcePack, Spec, RecipePack, PackArg
+from recipes.models import Level, Tag, Source, Release, Spec, RecipePack, PackArg
 from django.contrib import admin
 
 class TagAdmin(admin.ModelAdmin):
     list_display = ['name', 'label']
     prepopulated_fields = {'name': ('label',)}
 
-class SourcePackInline(admin.TabularInline):
-    model = SourcePack
+class ReleaseInline(admin.TabularInline):
+    model = Release
     extra = 1
 
-class SourceSeriesAdmin(admin.ModelAdmin):
-    inlines = [SourcePackInline]
+class SourceAdmin(admin.ModelAdmin):
+    inlines = [ReleaseInline]
     list_display = ['label', 'owner', 'created', 'modified']
 
 class PackArgInline(admin.TabularInline):
@@ -31,6 +31,6 @@ class RecipeAdmin(admin.ModelAdmin):
 
 admin.site.register(Level)
 admin.site.register(Tag, TagAdmin)
-admin.site.register(SourceSeries, SourceSeriesAdmin)
+admin.site.register(Source, SourceAdmin)
 admin.site.register(Spec, SpecAdmin)
 admin.site.register(RecipePack, RecipePackAdmin)
