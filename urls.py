@@ -7,11 +7,12 @@ admin.autodiscover()
 
 urlpatterns = patterns('recipes.views',
     (r'^$', 'recipe_pack_list', {}, 'home'),
-    (r'^packs/(?P<pk>\d+)/cooking$', 'its_cooking', {}, 'its_cooking'),
-    (r'^packs/(?P<pk>\d+)/$', 'recipe_pack_detail', {}, 'pack'),
-    (r'^packs/(?P<pk>\d+)/progress$', 'pack_progress', {}, 'pack_progress'),
-    (r'^packs/(?P<pk>\d+)/resources/(?P<res_name>.*)$', 'recipe_pack_resource', {}, 'pack_resource'),
-    (r'^packs/(?P<pk>\d+)/(?P<slug>[\w-]+)\.zip$', 'make_texture_pack', {}, 'tpmake'),
+
+    (r'^remixes/(?P<pk>\d+)/$', 'recipe_pack_detail', {}, 'pack'),
+    (r'^remixes/(?P<pk>\d+)/cooking$', 'its_cooking', {}, 'its_cooking'),
+    (r'^remixes/(?P<pk>\d+)/progress$', 'pack_progress', {}, 'pack_progress'),
+    (r'^remixes/(?P<pk>\d+)/resources/(?P<res_name>.*)$', 'recipe_pack_resource', {}, 'pack_resource'),
+    (r'^remixes/(?P<pk>\d+)/(?P<slug>[\w-]+)\.zip$', 'make_texture_pack', {}, 'tpmake'),
 
     (r'^sources/(?P<pk>\d+)/$', 'source_series', {}, 'source'),
     (r'^sources/(?P<pk>\d+)/releases/(?P<release_pk>\d+)/resources/(?P<res_name>.*)$', 'source_pack_resource', {}, 'source_resource'),
@@ -37,4 +38,9 @@ urlpatterns += patterns('',
 
     # Uncomment the next line to enable the admin:
     (r'^admin/', include(admin.site.urls)),
+)
+
+# Old URLs redirected to new ones.
+urlpatterns += patterns('django.views.generic.simple',
+    (r'^packs/(?P<pk>\d+)/$', 'redirect_to', {'url': '/remixes/%(pk)s/'}),
 )
