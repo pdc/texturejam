@@ -152,7 +152,7 @@ class Remix(models.Model):
     class Meta:
         verbose_name_plural = 'Remixes'
 
-    owner = models.ForeignKey(User, related_name='recipe_packs', editable=False)
+    owner = models.ForeignKey(User, related_name='recipe_packs')
     recipe = models.ForeignKey(Spec, related_name='occurrences', limit_choices_to={'spec_type': 'tprx'})
 
     label = models.CharField(max_length=1000)
