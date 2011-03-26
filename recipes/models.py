@@ -26,6 +26,10 @@ import texturepacker
 #
 
 class Level(models.Model):
+    class Meta:
+        get_latest_by = 'released'
+        ordering = ['-released'] # Reverse chronological order
+
     label = models.CharField(max_length=200)
     desc = models.TextField()
     released = models.DateTimeField(help_text='When the curresponding version of Minecraft was released')
@@ -60,7 +64,7 @@ class SourceSeries(models.Model):
         return trunc_url(self.forum_url)
 
 class SourcePack(models.Model):
-    """Represents on release of the source series.
+    """Represents one release of the source series.
 
     This class should have been called SourceRelease
     because the name clashes with texturepacker.SourcedPack.
@@ -70,6 +74,10 @@ class SourcePack(models.Model):
     to allow for the rare case when older versions of a
     pack are specificyally rquired by some recipe.
     """
+    class Meta:
+        get_latest_by = 'released'
+        ordering = ['-released']
+
     series = models.ForeignKey(SourceSeries, related_name='releases')
     level = models.ForeignKey(Level, related_name='source_packs')
 
@@ -116,6 +124,10 @@ class SourcePack(models.Model):
 
 
 class Spec(models.Model):
+    class Meta:
+        unique_together = [('name', 'spec_type')]
+        ordering = ['spec_type', 'label']
+
     owner = models.ForeignKey(User, related_name='atlases')
     tags = models.ManyToManyField(Tag, blank=True)
 
@@ -128,7 +140,6 @@ class Spec(models.Model):
         ('tpmaps', 'Texture pack maps'),
     ]
     spec_type = models.CharField(max_length=100, choices=SPEC_TYPE_CHOICES)
-
 
     spec = models.TextField(help_text="The recipe code in YAML or JSON format.")
 
@@ -193,10 +204,13 @@ class RecipePack(models.Model):
 
 
 class PackArg(models.Model):
+    class Meta:
+        unique_together = [('recipe_pack', 'name')]
+
     recipe_pack = models.ForeignKey(RecipePack, related_name='pack_args')
     source_pack = models.ForeignKey(SourcePack, related_name='occurrences')
 
-    name = models.SlugField(help_text='Name used for ths formal parameter in the recipe')
+    name = models.SlugField(help_text='Name used for this formal parameter in the recipe')
 
     def __unicode__(self):
         return u'{name}={source_pack}'.format(name=self.name, source_pack=self.source_pack.label)
@@ -219,7 +233,6 @@ def get_mixer():
         return {'content-type': 'application/x-yaml'}, StringIO(spec.spec)
     mixer.loader.add_scheme('internal', fetch_spec)
     return mixer
-
 
 
 URL_RE = re.compile("""
