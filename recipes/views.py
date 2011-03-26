@@ -97,7 +97,7 @@ def remix_edit(request, pk):
             remix2 = form.save()
 
             messages.add_message(request, messages.INFO,
-                    'Updated description of {remix}'.format(remix=remix2.label))
+                    u'Updated description of {remix}'.format(remix=remix2.label))
             return HttpResponseRedirect(reverse('remix-detail', kwargs={'pk': remix2.pk}))
     else:
         form = RemixEditForm(instance=remix)
@@ -174,7 +174,7 @@ def beta_upgrade(request):
                 try:
                     source_release = Release.objects.get(download_url=download_url)
                     messages.add_message(request, messages.INFO,
-                            'we already have an entry for {pack}'.format(pack=source_pack.label))
+                            u'We already have an entry for {pack}'.format(pack=source_pack.label))
                 except Release.DoesNotExist:
                     series = Source(
                         owner=request.user,
@@ -199,12 +199,13 @@ def beta_upgrade(request):
                     source_pack=source_release)
 
                 messages.add_message(request, messages.INFO,
-                        'Added {recipe_pack} to the queue'.format(recipe_pack=recipe_pack.label))
+                        u'Added {recipe_pack} to the queue'.format(recipe_pack=recipe_pack.label))
 
                 return HttpResponseRedirect(
                     reverse('its_cooking', kwargs={'pk': recipe_pack.pk})) # Redirect after POST
             except BadZipfile, err:
-                messages.add_message(request, messages.ERROR, 'The URL was valid but did not reference a texture pack ({err})'.format(err=err))
+                messages.add_message(request, messages.ERROR,
+                        u'The URL was valid but did not reference a texture pack ({err})'.format(err=err))
     else:
         form = BetaForm() # An unbound form
 
