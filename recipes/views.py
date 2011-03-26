@@ -9,12 +9,11 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
 from django.conf import settings
 
 from recipes.models import *
-from recipes.forms import *
 from recipes.tasks import *
 from shortcuts import *
 
@@ -42,12 +41,11 @@ def recipe_pack_list(request):
         'recipe_packs': Remix.objects.filter(withdrawn=None).order_by('recipe__label', '-modified'),
     }
 
-@with_template('recipes/pack.html')
-def recipe_pack_detail(request, pk):
-    """Info about one recipe pack."""
-    recipe_pack = get_object_or_404(Remix, pk=int(pk, 10))
+@with_template('recipes/remix-detail.html')
+def remix_detail(request, pk):
+    """Info about one remix."""
     return {
-        'pack': recipe_pack,
+        'remix': get_object_or_404(Remix, pk=pk)
     }
 
 def recipe_pack_resource(request, pk, res_name):
@@ -66,14 +64,14 @@ def its_cooking(request, pk):
 
 @json_view
 def pack_progress(request, pk):
-    recipe = get_object_or_404(Remix, pk=pk)
+    remix = get_object_or_404(Remix, pk=pk)
     steps = [
         {
             'name': 'arg_{0}'.format(arg.name),
             'label': 'Download {0}'.format(arg.source_pack),
             'percent': 100 if arg.source_pack.is_ready() else 0,
         }
-        for arg in recipe.pack_args.all()
+        for arg in remix.pack_args.all()
     ]
     return {
         'success': True,
@@ -81,9 +79,35 @@ def pack_progress(request, pk):
         'percent': sum(x['percent'] for x in steps) / len(steps),
         'isComplete': all(x['percent'] for x in steps),
         'milliseconds': 15 * 1000,
-        'href': reverse('pack', kwargs={'pk': recipe.pk}),
-        'label': recipe.label,
+        'href': reverse('pack', kwargs={'pk': remix.pk}),
+        'label': remix.label,
     }
+
+@with_template('recipes/remix-edit.html')
+def remix_edit(request, pk):
+    remix = get_object_or_404(Remix, pk=pk)
+    class RemixEditForm(forms.ModelForm):
+        class Meta:
+            model = Remix
+            fields = ['label', 'recipe']
+
+    if request.method == 'POST':
+        form = RemixEditForm(request.POST, instance=remix)
+        if form.is_valid():
+            remix2 = form.save()
+
+            messages.add_message(request, messages.INFO,
+                    'Updated description of {remix}'.format(remix=remix2.label))
+            return HttpResponseRedirect(reverse('remix-detail', kwargs={'pk': remix2.pk}))
+    else:
+        form = RemixEditForm(instance=remix)
+
+    return {
+        'remix': remix,
+        'form': form,
+        'recipes': Spec.objects.filter(spec_type='tprx'),
+    }
+
 
 def recipe(request, name):
     """Return the spec for a recipe as YAML or JSON."""

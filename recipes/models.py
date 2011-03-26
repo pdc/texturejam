@@ -6,6 +6,7 @@ import yaml
 import re
 from datetime import datetime, timedelta
 from StringIO import StringIO
+from django import forms
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -151,13 +152,13 @@ class Remix(models.Model):
     class Meta:
         verbose_name_plural = 'Remixes'
 
-    owner = models.ForeignKey(User, related_name='recipe_packs')
+    owner = models.ForeignKey(User, related_name='recipe_packs', editable=False)
     recipe = models.ForeignKey(Spec, related_name='occurrences', limit_choices_to={'spec_type': 'tprx'})
 
     label = models.CharField(max_length=1000)
 
-    created = models.DateTimeField(auto_now_add=True, help_text='When this pack was added to our list')
-    modified = models.DateTimeField(auto_now=True, help_text='When our info about this pack was updated')
+    created = models.DateTimeField(auto_now_add=True, editable=False, help_text='When this pack was added to our list')
+    modified = models.DateTimeField(auto_now=True, editable=False, help_text='When our info about this pack was updated')
 
     withdrawn_reason = models.CharField(max_length=200, blank=True, default='', help_text='One-line description of why this remix was withdrawn, or (more commonly) empty if is has not been withdrawn')
     withdrawn = models.DateTimeField(null=True, blank=True, help_text='When this remix was withdrawn, or (more commonly) blank if it has not been withdrawn')

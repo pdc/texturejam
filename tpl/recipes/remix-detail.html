@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 {% load markup %}
-{% block title %}{{ pack.label }} - Texturejam{% endblock %}
-{% block heading %}{{ pack.label }}{% endblock %}
+{% block title %}{{ remix.label }} - Texturejam{% endblock %}
+{% block heading %}{{ remix.label }}{% endblock %}
 {% block subheading %}A remixed texture pack{% endblock %}
 
 {% block main_sections %}
 <section id="pack-desc">
-    <img class="pack-png" src="{% url pack_resource pk=pack.pk res_name="pack.png" %}" align="left" alt="" />
+    <img class="pack-png" src="{% url pack_resource pk=remix.pk res_name="pack.png" %}" align="left" alt="" />
 
     <dl>
-        {% if pack.pack_args %}
+        {% if remix.pack_args %}
         <dt>Based on</dt>
         <dd>
-            {% for pack_arg in pack.pack_args.all %}
+            {% for pack_arg in remix.pack_args.all %}
                 {% if not forloop.first %}{% if forloop.last %}and{% endif %}{% endif %}
                 <a href="{% url source pk=pack_arg.source_pack.series.pk %}"
                 >{{ pack_arg.source_pack }}</a>{% if not forloop.last %},{% else %}.{% endif %}
@@ -22,24 +22,31 @@
 
         <dt>Added by</dt>
         <dd>
-            <img src="{{ pack.owner.get_profile.get_picture_src }}" alt="" class="userpic" />
-            {{ pack.owner }}
-            <small>{{ pack.created|date }}</small>
+            <img src="{{ remix.owner.get_profile.get_picture_src }}" alt="" class="userpic" />
+            {{ remix.owner }}
+            <small>{{ remix.created|date }}</small>
         </dd>
 
 
-        {% ifnotequal pack.created|date pack.modified|date %}
+        {% if remix.created|date == remix.modified|date %}
         <dt>Last edited</dt>
         <dd>
-            {{ pack.modified|date }}
+            {{ remix.modified|date }}
         </dd>
-        {% endifnotequal %}
+        {% endif  %}
 
-        {% if pack.withdrawn %}
+        {% if remix.withdrawn %}
         <dt>Withdrawn</dt>
         <dd>
-            <strong>{{ pack.withdrawn_reason }}</strong>
-            <small>{{ pack.withdrawn }}</small>
+            <strong>{{ remix.withdrawn_reason }}</strong>
+            <small>{{ remix.withdrawn }}</small>
+        </dd>
+        {% endif %}
+
+        {% if remix.owner.pk == user.pk %}
+        <dt>Edit</dt>
+        <dd>
+            <a href="{% url remix_edit pk=remix.pk %}">Edit description</a>
         </dd>
         {% endif %}
     </dl>
@@ -48,7 +55,7 @@
 <section id="pack-preview">
     <h2>Preview</h2>
     <div id="preview">
-        <img class="pack_terrain" src="{% url pack_resource pk=pack.pk res_name="terrain.png" %}" alt="" />
+        <img class="pack_terrain" src="{% url pack_resource pk=remix.pk res_name="terrain.png" %}" alt="" />
     </div>
 </section>
 
@@ -63,7 +70,7 @@
     <h2>How to use this texture pack</h2>
 
     <p class="big_link">
-        <strong><a href="{% url tpmake pk=pack.pk slug=pack.label|slugify  %}">Download the ZIP file</a></strong>
+        <strong><a href="{% url tpmake pk=remix.pk slug=remix.label|slugify  %}">Download the ZIP file</a></strong>
     </p>
 
     <p>
@@ -71,10 +78,10 @@
     </p>
 </section>
 
-{% if pack.recipe.desc %}
+{% if remix.recipe.desc %}
 <section id="recipe_desc">
-    <h2>Recipe: {{ pack.recipe }}</h2>
-    {{ pack.recipe.desc|markdown }}
+    <h2>Recipe: {{ remix.recipe }}</h2>
+    {{ remix.recipe.desc|markdown }}
 </section>
 {% endif %}
 {% endblock %}

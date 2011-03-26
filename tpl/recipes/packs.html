@@ -53,7 +53,7 @@
     <ul>
         {% for pack in pack_group.list %}
         <li>
-            <a href="{% url pack pk=pack.pk %}">
+            <a href="{% url remix-detail pk=pack.pk %}">
                 <img src="{% url pack_resource pk=pack.pk res_name="pack.png" %}" alt="" class="pack-png" />
                 <b>{{ pack }}</b>
                 <small>

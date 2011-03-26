@@ -8,9 +8,10 @@ admin.autodiscover()
 urlpatterns = patterns('recipes.views',
     (r'^$', 'recipe_pack_list', {}, 'home'),
 
-    (r'^remixes/(?P<pk>\d+)/$', 'recipe_pack_detail', {}, 'pack'),
+    (r'^remixes/(?P<pk>\d+)/$', 'remix_detail', {}, 'remix-detail'),
     (r'^remixes/(?P<pk>\d+)/cooking$', 'its_cooking', {}, 'its_cooking'),
     (r'^remixes/(?P<pk>\d+)/progress$', 'pack_progress', {}, 'pack_progress'),
+    (r'^remixes/(?P<pk>\d+)/edit$', 'remix_edit', {}, 'remix_edit'),
     (r'^remixes/(?P<pk>\d+)/resources/(?P<res_name>.*)$', 'recipe_pack_resource', {}, 'pack_resource'),
     (r'^remixes/(?P<pk>\d+)/(?P<slug>[\w-]+)\.zip$', 'make_texture_pack', {}, 'tpmake'),
 
