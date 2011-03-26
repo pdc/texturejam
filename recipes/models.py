@@ -10,7 +10,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.conf import settings
-from texturepacker import Mixer, RecipePack, Atlas, set_http_cache
+from texturepacker import Mixer, Atlas, set_http_cache
 import texturepacker
 
 # Using South to manage migrations.
@@ -22,7 +22,7 @@ import texturepacker
 #
 # And then in each environemtn do
 #
-#     python manage.py migrate recipes
+#     ./manage.py migrate recipes
 #
 
 class Level(models.Model):
@@ -66,13 +66,10 @@ class Source(models.Model):
 class Release(models.Model):
     """Represents one release of the source series.
 
-    This class should have been called SourceRelease
-    because the name clashes with texturepacker.SourcedPack.
-
-    Generally there need only be exactly one source pack for
-    a given source series. I split it in to two models
+    Generally there need only be exactly one release for
+    a given source. I split it in to two models
     to allow for the rare case when older versions of a
-    pack are specificyally rquired by some recipe.
+    pack are specifically rquired by some recipe.
     """
     class Meta:
         get_latest_by = 'released'
@@ -150,7 +147,10 @@ class Spec(models.Model):
         return self.label
 
 
-class RecipePack(models.Model):
+class Remix(models.Model):
+    class Meta:
+        verbose_name_plural = 'Remixes'
+
     owner = models.ForeignKey(User, related_name='recipe_packs')
     recipe = models.ForeignKey(Spec, related_name='occurrences', limit_choices_to={'spec_type': 'tprx'})
 
@@ -166,7 +166,7 @@ class RecipePack(models.Model):
         return self.label
 
     def get_cache_key(self):
-        return 'entity-RecipePack-{pk}'.format(pk=self.pk)
+        return 'entity-Remix-{pk}'.format(pk=self.pk)
 
     def get_pack(self):
         """Get the pack object represented by this entity.
@@ -190,8 +190,7 @@ class RecipePack(models.Model):
             spec = yaml.load(StringIO(self.recipe.spec))
             pack = mixer.make(spec, base='internal:///')
 
-
-            # Why can't I cache pack objetcs dorectlt?
+            # Why can't I cache pack objects directly?
             strm = StringIO()
             pack.write_to(strm)
 
@@ -207,7 +206,7 @@ class PackArg(models.Model):
     class Meta:
         unique_together = [('recipe_pack', 'name')]
 
-    recipe_pack = models.ForeignKey(RecipePack, related_name='pack_args')
+    recipe_pack = models.ForeignKey(Remix, related_name='pack_args')
     source_pack = models.ForeignKey(Release, related_name='occurrences')
 
     name = models.SlugField(help_text='Name used for this formal parameter in the recipe')

@@ -1,5 +1,5 @@
 
-from recipes.models import Level, Tag, Source, Release, Spec, RecipePack, PackArg
+from recipes.models import Level, Tag, Source, Release, Spec, Remix, PackArg
 from django.contrib import admin
 
 class TagAdmin(admin.ModelAdmin):
@@ -18,7 +18,7 @@ class PackArgInline(admin.TabularInline):
     model=PackArg
     extra=1
 
-class RecipePackAdmin(admin.ModelAdmin):
+class RemixAdmin(admin.ModelAdmin):
     inlines = [PackArgInline]
     list_display = ['label', 'owner', 'created', 'modified', 'withdrawn', 'withdrawn_reason']
 
@@ -33,4 +33,4 @@ admin.site.register(Level)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Source, SourceAdmin)
 admin.site.register(Spec, SpecAdmin)
-admin.site.register(RecipePack, RecipePackAdmin)
+admin.site.register(Remix, RemixAdmin)

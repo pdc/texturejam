@@ -39,34 +39,34 @@ LABEL_WITH_VERSION_RE = re.compile(ur"""
 def recipe_pack_list(request):
     """List of recipe packs, for the home page."""
     return {
-        'recipe_packs': RecipePack.objects.filter(withdrawn=None).order_by('recipe__label', '-modified'),
+        'recipe_packs': Remix.objects.filter(withdrawn=None).order_by('recipe__label', '-modified'),
     }
 
 @with_template('recipes/pack.html')
 def recipe_pack_detail(request, pk):
     """Info about one recipe pack."""
-    recipe_pack = get_object_or_404(RecipePack, pk=int(pk, 10))
+    recipe_pack = get_object_or_404(Remix, pk=int(pk, 10))
     return {
         'pack': recipe_pack,
     }
 
 def recipe_pack_resource(request, pk, res_name):
     """A resource from a recipe pack."""
-    recipe_pack = get_object_or_404(RecipePack, pk=int(pk, 10))
+    recipe_pack = get_object_or_404(Remix, pk=int(pk, 10))
     data = recipe_pack.get_pack().get_resource(res_name).get_bytes()
     return HttpResponse(data, mimetype='image/png')
 
 @with_template('recipes/its-cooking.html')
 def its_cooking(request, pk):
     """User has requested creation of a texture pack."""
-    recipe_pack = get_object_or_404(RecipePack, pk=int(pk, 10))
+    recipe_pack = get_object_or_404(Remix, pk=int(pk, 10))
     if all(x.source_pack.is_ready() for x in recipe_pack.pack_args.all()):
         return HttpResponseRedirect(reverse('pack', kwargs={'pk': recipe_pack.pk}))
     return {'pack': recipe_pack}
 
 @json_view
 def pack_progress(request, pk):
-    recipe = get_object_or_404(RecipePack, pk=pk)
+    recipe = get_object_or_404(Remix, pk=pk)
     steps = [
         {
             'name': 'arg_{0}'.format(arg.name),
@@ -97,7 +97,7 @@ def maps(request, name):
 
 def make_texture_pack(request, pk, slug):
     """Generate the ZIP file for a texture pack."""
-    recipe_pack = get_object_or_404(RecipePack, pk=pk)
+    recipe_pack = get_object_or_404(Remix, pk=pk)
     pack = recipe_pack.get_pack()
 
     response = HttpResponse(mimetype="application/zip")
@@ -165,7 +165,7 @@ def beta_upgrade(request):
                         released=source_pack.get_last_modified())
                 ensure_source_pack_is_downloaded.delay(source_release.pk)
 
-                recipe_pack = RecipePack(
+                recipe_pack = Remix(
                     owner=request.user,
                     label='{label} + Beta 1.3'.format(label=source_pack.label),
                     recipe=recipe)
