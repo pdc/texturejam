@@ -6,7 +6,7 @@
 
 {% block main_sections %}
 <section id="pack-desc">
-    <img class="pack-png" src="{% url source_resource pk=source.pk release_pk=release.pk res_name="pack.png" %}" align="left" alt="" />
+    <img class="pack-png" src="{% url source-resource pk=source.pk release_pk=release.pk res_name="pack.png" %}" align="left" alt="" />
 
     <dl>
         {% if source.home_url %}
@@ -24,27 +24,17 @@
             {{ source.owner }}
             <small>{{ source.created|date }}</small>
         </dd>
+
+        {% if source.owner.id == user.id %}
+        <dt>Edit</dt>
+        <dd>
+            <a href="{% url source-edit pk=source.pk %}">Edit description</a>
+        </dd>
+        {% endif %}
     </dl>
 </section>
 
-
-<section id="previews">
-    <h2>Latest Release{{ releases|pluralize }}</h2>
-    {% for release in releases %}
-    <dl>
-        <dt>Release</dt>
-        <dd>{{ release.label }} <small>{{ release.released|date }}</small></dd>
-        <dt>Level</dt>
-        <dd>{{ release.level }}</dd>
-        <dt>Download</dt>
-        <dd><a href="{{ release.download_url }}">{{ release.truncated_download_url }}</a></dd>
-    </dl>
-
-    <div id="preview">
-        <img class="pack_terrain" src="{% url source_resource pk=source.pk release_pk=release.pk res_name="terrain.png" %}" alt="" />
-    </div>
-    {% endfor %}
-</section>
+{% include "recipes/parts/source-release-previews.html" %}
 
 <section id="tweet-this">
     <a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="texturejamorguk">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
@@ -52,25 +42,5 @@
 {% endblock %}
 
 {% block more_sections %}
-    {% for rr in releases %}
-        {% if rr.active_occurrences %}
-        <section id="remixes" class="pack-list">
-            <h2>Recipes using {{ rr }}</h2>
-            <ul>
-                {% for arg in rr.active_occurrences %}
-                <li>
-                    <a href="{% url remix-detail pk=arg.recipe_pack.pk %}">
-                        <img src="{% url remix-resource pk=arg.recipe_pack.pk res_name="pack.png" %}" alt="" class="pack-png" />
-                        <b>{{ arg.recipe_pack }}</b>
-                        <small>
-                            Using recipe
-                            {{ arg.recipe_pack.recipe }}
-                        </small>
-                    </a>
-                </li>
-                {% endfor %}
-            </ul>
-        </section>
-        {% endif %}
-    {% endfor %}
+{% include "recipes/parts/source-recipe-links.html" %}
 {% endblock %}

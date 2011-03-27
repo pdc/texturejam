@@ -88,6 +88,12 @@ def remix_progress(request, pk):
 @with_template('recipes/remix-edit.html')
 def remix_edit(request, pk):
     remix = get_object_or_404(Remix, pk=pk)
+
+    if remix.owner.id != request.user.id:
+        messages.add_message(request, messages.ERROR,
+            u'You can’t edit {remix}, because you are not its maintainer'.format(remix=remix.label))
+        return HttpResponseRedirect(reverse('remix-detail', kwargs={'pk': remix.pk}))
+
     class RemixEditForm(forms.ModelForm):
         class Meta:
             model = Remix
@@ -218,11 +224,113 @@ def beta_upgrade(request):
 
 
 @with_template('recipes/source-detail.html')
-def source_series(request, pk):
-    source_series = get_object_or_404(Source, pk=pk)
-    releases = source_series.releases.order_by('-released')
+def source_detail(request, pk):
+    source = get_object_or_404(Source, pk=pk)
+    releases = source.releases.order_by('-released')
+    release = releases[0]
     return {
-        'source': source_series,
+        'source': source,
+        'releases': releases,
+        'release': releases[0],
+    }
+
+
+# XXX check user owns this source
+@with_template('recipes/source-edit.html')
+def source_edit(request, pk):
+    source = get_object_or_404(Source, pk=pk)
+
+    if source.owner.id != request.user.id:
+        messages.add_message(request, messages.ERROR,
+            u'You can’t edit {source} because you are not its maintainer'.format(source=source.label))
+        return HttpResponseRedirect(reverse('source-detail', kwargs={'pk': source.pk}))
+
+    releases = source.releases.order_by('-released')
+    release = releases[0]
+
+    class SourceEditForm(forms.Form):
+        source_label = forms.CharField(max_length=200,
+            label='Pack name',
+            help_text='Without version number')
+        release_label = forms.CharField(max_length=200,
+            label='Latest release',
+            help_text='Version number of most recent release of pack')
+        release_download_url = forms.CharField(max_length=1000,
+            label='Download URL',
+            help_text='URL for downloading the ZIP file')
+        release_level = forms.ModelChoiceField(Level.objects.all(),
+            label='Minecraft version',
+            help_text='Latest version of Minecraft this pack supports')
+        source_forum_url = forms.CharField(max_length=1000,
+            label='Forum thread',
+            help_text='URL where this pack is discussed')
+        source_home_url = forms.CharField(max_length=1000,
+            label='Home page',
+            help_text='URL of a dedicated home page for this pack, if any')
+
+    if request.method == 'POST':
+        form = SourceEditForm(request.POST)
+        if form.is_valid():
+            source_label = form.cleaned_data['source_label']
+            source_forum_url = form.cleaned_data['source_forum_url']
+            source_home_url = form.cleaned_data['source_home_url']
+            needs_save = (source_label != source.label
+                    or source_forum_url != source.forum_url
+                    or source_home_url != source.home_url)
+            if needs_save:
+                source.label = source_label
+                source.forum_url = source_forum_url
+                source.home_url = source_home_url
+                source.full_clean(exclude=['owner', 'created', 'modified'])
+                source.save()
+                messages.add_message(request, messages.INFO,
+                        u'Updated description of {source}'.format(source=source.label))
+
+            release_label = form.cleaned_data['release_label']
+            release_download_url = form.cleaned_data['release_download_url']
+            release_level = form.cleaned_data['release_level']
+            if release_download_url == release.download_url:
+                # Same release; might still want to edit label
+                needs_save = (release_label != release.label
+                        or release_level.id != release.level.id)
+                if needs_save:
+                    release.label = release_label
+                    release.level = release.level
+                    release.full_clean(exclude=['released', 'last_download_attempt'])
+                    release.save()
+                    release.invalidate_downloaded_data()
+                    ensure_source_pack_is_downloaded.delay(release.pk)
+                    messages.add_message(request, messages.INFO,
+                        u'Updated description of release {release}'.format(release=release.label))
+            else:
+                # New release
+                old_release = release
+                release = source.releases.create(
+                    label=release_label,
+                    level=release_level,
+                    download_url=release_download_url,
+                    released=datetime.now())
+                ensure_source_pack_is_downloaded.delay(release.pk)
+                for arg in PackArg.objects.filter(source_pack=old_release):
+                    arg.source_pack = release
+                    arg.save()
+                messages.add_message(request, messages.INFO,
+                    u'Added new release {release}'.format(release=release.label))
+
+            return HttpResponseRedirect(reverse('source-detail', kwargs={'pk': source.pk}))
+    else:
+        form = SourceEditForm(initial={
+            'source_label': source.label,
+            'release_label': release.label,
+            'release_download_url': release.download_url,
+            'release_level': release.level,
+            'source_forum_url': source.forum_url,
+            'source_home_url': source.home_url,
+        })
+
+    return {
+        'form': form,
+        'source': source,
         'releases': releases,
         'release': releases[0],
     }

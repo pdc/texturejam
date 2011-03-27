@@ -48,9 +48,11 @@ class Tag(models.Model):
 class Source(models.Model):
     owner = models.ForeignKey(User, related_name='source_series')
 
-    label = models.CharField(max_length=200)
-    home_url = models.URLField(max_length=255, blank=True)
-    forum_url = models.URLField(max_length=255, blank=True)
+    label = models.CharField(max_length=200, help_text="Not including version number")
+    home_url = models.URLField(max_length=255, blank=True,
+        verbose_name='Home page URL', help_text="Web page or site about  this pack (optional)")
+    forum_url = models.URLField(max_length=255, blank=True,
+        verbose_name='Forum URL', help_text="Where discussion of this pack takes place (optional)")
 
     created = models.DateTimeField(auto_now_add=True, help_text='When this series was added to our list')
     modified = models.DateTimeField(auto_now=True, help_text='When our info about this series was updated')
@@ -101,6 +103,11 @@ class Release(models.Model):
         """
         file_path = self.get_file_path()
         return self.last_download_attempt >= self.released and os.path.exists(file_path)
+
+    def invalidate_downloaded_data(self):
+        file_path = self.get_file_path()
+        if os.path.exists(file_path):
+            os.unlink(file_path)
 
     def get_pack(self, loader=None):
         if not loader:

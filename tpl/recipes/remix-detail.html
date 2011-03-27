@@ -14,7 +14,7 @@
         <dd>
             {% for pack_arg in remix.pack_args.all %}
                 {% if not forloop.first %}{% if forloop.last %}and{% endif %}{% endif %}
-                <a href="{% url source pk=pack_arg.source_pack.series.pk %}"
+                <a href="{% url source-detail pk=pack_arg.source_pack.series.pk %}"
                 >{{ pack_arg.source_pack }}</a>{% if not forloop.last %},{% else %}.{% endif %}
             {% endfor %}
         </dd>

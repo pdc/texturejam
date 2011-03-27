@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load markup %}
+{% block title %}Edit source - {{ source.label }} - Texturejam{% endblock %}
+{% block heading %}{{ source.label }}{% endblock %}
+{% block subheading %}A source texture pack{% endblock %}
+
+{% block main_sections %}
+<section id="form">
+    <p>
+        You can change the label if the pack.txt one is no good.
+    </p>
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div>
+            {{ field.label_tag }}
+            {{ field }}
+            {% for error in field.errors %}
+            <b>{{ error }}</b>
+            {% endfor %}
+            {% if field.help_text %}
+            <span>{{ field.help_text }}</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+        <div class="buttons">
+            <input type="submit" value="Save changes" />
+            or, <a href="{% url source-detail pk=source.pk %}">Cancel</a>
+        </div>
+    </form>
+</section>
+
+
+{% include "recipes/parts/source-release-previews.html" %}
+{% endblock %}
+
+{% block more_sections %}
+{% include "recipes/parts/source-recipe-links.html" %}
+{% endblock %}

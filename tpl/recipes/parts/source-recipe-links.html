@@ -1,0 +1,22 @@
+
+    {% for rr in releases %}
+        {% if rr.active_occurrences %}
+        <section id="remixes" class="pack-list">
+            <h2>Recipes using {{ rr }}</h2>
+            <ul>
+                {% for arg in rr.active_occurrences %}
+                <li>
+                    <a href="{% url remix-detail pk=arg.recipe_pack.pk %}">
+                        <img src="{% url remix-resource pk=arg.recipe_pack.pk res_name="pack.png" %}" alt="" class="pack-png" />
+                        <b>{{ arg.recipe_pack }}</b>
+                        <small>
+                            Using recipe
+                            {{ arg.recipe_pack.recipe }}
+                        </small>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% endif %}
+    {% endfor %}

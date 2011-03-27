@@ -15,8 +15,9 @@ urlpatterns = patterns('recipes.views',
     (r'^remixes/(?P<pk>\d+)/resources/(?P<res_name>.*)$', 'remix_resource', {}, 'remix-resource'),
     (r'^remixes/(?P<pk>\d+)/(?P<slug>[\w-]+)\.zip$', 'make_texture_pack', {}, 'tpmake'),
 
-    (r'^sources/(?P<pk>\d+)/$', 'source_series', {}, 'source'),
-    (r'^sources/(?P<pk>\d+)/releases/(?P<release_pk>\d+)/resources/(?P<res_name>.*)$', 'source_resource', {}, 'source_resource'),
+    (r'^sources/(?P<pk>\d+)/$', 'source_detail', {}, 'source-detail'),
+    (r'^sources/(?P<pk>\d+)/edit$', 'source_edit', {}, 'source-edit'),
+    (r'^sources/(?P<pk>\d+)/releases/(?P<release_pk>\d+)/resources/(?P<res_name>.*)$', 'source_resource', {}, 'source-resource'),
 
     (r'^beta-upgrade$', 'beta_upgrade', {}, 'beta_upgrade'),
 

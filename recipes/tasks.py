@@ -11,6 +11,10 @@ def add(x, y):
     return x + y
 
 @task(ignore_result=True)
-def ensure_source_pack_is_downloaded(pk):
-    source_pack = Release.objects.get(pk=pk)
-    actual_pack = source_pack.get_pack()
+def ensure_source_pack_is_downloaded(id):
+    release = Release.objects.get(id=id)
+    actual_pack = release.get_pack()
+    actual_released = actual_pack.get_last_modified()
+    if release.released != actual_released:
+        release.released = actual_released
+        release.save()
