@@ -6,17 +6,17 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('recipes.views',
-    (r'^$', 'recipe_pack_list', {}, 'home'),
+    (r'^$', 'remix_list', {}, 'home'),
 
     (r'^remixes/(?P<pk>\d+)/$', 'remix_detail', {}, 'remix-detail'),
-    (r'^remixes/(?P<pk>\d+)/cooking$', 'its_cooking', {}, 'its_cooking'),
-    (r'^remixes/(?P<pk>\d+)/progress$', 'pack_progress', {}, 'pack_progress'),
-    (r'^remixes/(?P<pk>\d+)/edit$', 'remix_edit', {}, 'remix_edit'),
-    (r'^remixes/(?P<pk>\d+)/resources/(?P<res_name>.*)$', 'recipe_pack_resource', {}, 'pack_resource'),
+    (r'^remixes/(?P<pk>\d+)/cooking$', 'remix_cooking', {}, 'remix-cooking'),
+    (r'^remixes/(?P<pk>\d+)/progress$', 'remix_progress', {}, 'remix-progress'),
+    (r'^remixes/(?P<pk>\d+)/edit$', 'remix_edit', {}, 'remix-edit'),
+    (r'^remixes/(?P<pk>\d+)/resources/(?P<res_name>.*)$', 'remix_resource', {}, 'remix-resource'),
     (r'^remixes/(?P<pk>\d+)/(?P<slug>[\w-]+)\.zip$', 'make_texture_pack', {}, 'tpmake'),
 
     (r'^sources/(?P<pk>\d+)/$', 'source_series', {}, 'source'),
-    (r'^sources/(?P<pk>\d+)/releases/(?P<release_pk>\d+)/resources/(?P<res_name>.*)$', 'source_pack_resource', {}, 'source_resource'),
+    (r'^sources/(?P<pk>\d+)/releases/(?P<release_pk>\d+)/resources/(?P<res_name>.*)$', 'source_resource', {}, 'source_resource'),
 
     (r'^beta-upgrade$', 'beta_upgrade', {}, 'beta_upgrade'),
 

@@ -34,11 +34,11 @@ LABEL_WITH_VERSION_RE = re.compile(ur"""
     $
 """, re.VERBOSE | re.IGNORECASE)
 
-@with_template('recipes/packs.html')
-def recipe_pack_list(request):
-    """List of recipe packs, for the home page."""
+@with_template('recipes/remix-list.html')
+def remix_list(request):
+    """List of remixes, for the home page."""
     return {
-        'recipe_packs': Remix.objects.filter(withdrawn=None).order_by('recipe__label', '-modified'),
+        'remixes': Remix.objects.filter(withdrawn=None).order_by('recipe__label', '-modified'),
     }
 
 @with_template('recipes/remix-detail.html')
@@ -48,22 +48,24 @@ def remix_detail(request, pk):
         'remix': get_object_or_404(Remix, pk=pk)
     }
 
-def recipe_pack_resource(request, pk, res_name):
+def remix_resource(request, pk, res_name):
     """A resource from a recipe pack."""
-    recipe_pack = get_object_or_404(Remix, pk=int(pk, 10))
-    data = recipe_pack.get_pack().get_resource(res_name).get_bytes()
+    remix = get_object_or_404(Remix, pk=int(pk, 10))
+    data = remix.get_pack().get_resource(res_name).get_bytes()
     return HttpResponse(data, mimetype='image/png')
 
-@with_template('recipes/its-cooking.html')
-def its_cooking(request, pk):
+@with_template('recipes/remix-cooking.html')
+def remix_cooking(request, pk):
     """User has requested creation of a texture pack."""
-    recipe_pack = get_object_or_404(Remix, pk=int(pk, 10))
-    if all(x.source_pack.is_ready() for x in recipe_pack.pack_args.all()):
-        return HttpResponseRedirect(reverse('pack', kwargs={'pk': recipe_pack.pk}))
-    return {'pack': recipe_pack}
+    remix = get_object_or_404(Remix, pk=int(pk, 10))
+    if all(x.source_pack.is_ready() for x in remix.pack_args.all()):
+        return HttpResponseRedirect(reverse('remix-edit', kwargs={'pk': remix.pk}))
+    return {
+        'remix': remix,
+    }
 
 @json_view
-def pack_progress(request, pk):
+def remix_progress(request, pk):
     remix = get_object_or_404(Remix, pk=pk)
     steps = [
         {
@@ -121,12 +123,12 @@ def maps(request, name):
 
 def make_texture_pack(request, pk, slug):
     """Generate the ZIP file for a texture pack."""
-    recipe_pack = get_object_or_404(Remix, pk=pk)
-    pack = recipe_pack.get_pack()
+    remix = get_object_or_404(Remix, pk=pk)
+    pack = remix.get_pack()
 
     response = HttpResponse(mimetype="application/zip")
     response['content-disposition'] = 'attachment; filename={file_name}'.format(
-        file_name=slugify(recipe_pack.label) + '.zip'
+        file_name=slugify(remix.label) + '.zip'
     )
     pack.write_to(response)
     return response
@@ -189,20 +191,20 @@ def beta_upgrade(request):
                         released=source_pack.get_last_modified())
                 ensure_source_pack_is_downloaded.delay(source_release.pk)
 
-                recipe_pack = Remix(
+                remix = Remix(
                     owner=request.user,
                     label='{label} + Beta 1.3'.format(label=source_pack.label),
                     recipe=recipe)
-                recipe_pack.save()
-                recipe_pack.pack_args.create(
+                remix.save()
+                remix.pack_args.create(
                     name='base',
                     source_pack=source_release)
 
                 messages.add_message(request, messages.INFO,
-                        u'Added {recipe_pack} to the queue'.format(recipe_pack=recipe_pack.label))
+                        u'Added {remix} to the queue'.format(remix=remix.label))
 
                 return HttpResponseRedirect(
-                    reverse('its_cooking', kwargs={'pk': recipe_pack.pk})) # Redirect after POST
+                    reverse('remix-cooking', kwargs={'pk': remix.pk})) # Redirect after POST
             except BadZipfile, err:
                 messages.add_message(request, messages.ERROR,
                         u'The URL was valid but did not reference a texture pack ({err})'.format(err=err))
@@ -215,7 +217,7 @@ def beta_upgrade(request):
     }
 
 
-@with_template('recipes/source.html')
+@with_template('recipes/source-detail.html')
 def source_series(request, pk):
     source_series = get_object_or_404(Source, pk=pk)
     releases = source_series.releases.order_by('-released')
@@ -225,8 +227,7 @@ def source_series(request, pk):
         'release': releases[0],
     }
 
-
-def source_pack_resource(request, pk, release_pk, res_name):
+def source_resource(request, pk, release_pk, res_name):
     """A resource from a source pack."""
     source_pack = get_object_or_404(Release, pk=int(release_pk, 10))
     data = source_pack.get_pack().get_resource(res_name).get_bytes()

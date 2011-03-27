@@ -46,19 +46,19 @@
 {% endblock %}
 
 {% block more_sections %}
-{% regroup recipe_packs by recipe.label as recipe_pack_groups %}
-{% for pack_group in recipe_pack_groups %}
-<section id="{{ pack_group.grouper|slugify }}" class="pack-list">
-    <h2>{{ pack_group.grouper }} Remix{{ pack_group.list|pluralize:"es" }}</h2>
+{% regroup remixes by recipe.label as groups %}
+{% for group in groups %}
+<section id="{{ group.grouper|slugify }}" class="pack-list">
+    <h2>{{ group.grouper }} Remix{{ group.list|pluralize:"es" }}</h2>
     <ul>
-        {% for pack in pack_group.list %}
+        {% for remix in group.list %}
         <li>
-            <a href="{% url remix-detail pk=pack.pk %}">
-                <img src="{% url pack_resource pk=pack.pk res_name="pack.png" %}" alt="" class="pack-png" />
-                <b>{{ pack }}</b>
+            <a href="{% url remix-detail pk=remix.pk %}">
+                <img src="{% url remix-resource pk=remix.pk res_name="pack.png" %}" alt="" class="pack-png" />
+                <b>{{ remix }}</b>
                 <small>
                     Based on
-                    {% for arg in pack.pack_args.all %}
+                    {% for arg in remix.pack_args.all %}
                         {{ arg.source_pack }}
                     {% endfor %}
                 </small>

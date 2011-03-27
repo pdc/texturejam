@@ -1,19 +1,19 @@
 {% extends "base.html" %}
-{% block title %}Preparing {{ pack.label }} - Texturejam{% endblock %}
-{% block heading %}{{ pack.label }}{% endblock %}
+{% block title %}Preparing {{ remix.label }} - Texturejam{% endblock %}
+{% block heading %}{{ remix.label }}{% endblock %}
 {% block subheading %}A remixed texture pack{% endblock %}
 {% block content %}
 <section id="main">
     <p>
         Remixing texture packs can take a little while,
-        so the job of building {{ pack.label }} as been added to the queue.
+        so the job of building {{ remix.label }} as been added to the queue.
     </p>
 
-    <div id="progress" data-href="{% url pack_progress pk=pack.pk %}">
+    <div id="progress" data-href="{% url remix-progress pk=remix.pk %}">
         <p>Please wait while we</p>
         <ol>
-            {% if pack.pack_args %}
-                {% for pack_arg in pack.pack_args.all %}
+            {% if remix.pack_args %}
+                {% for pack_arg in remix.pack_args.all %}
                     {% with pack_arg.source_pack as p %}
                     <li id="arg_{{ pack_arg.name }}">
                         Download <a href="{% firstof p.home_url p.forum_url %}">{{ p }}</a>
@@ -28,10 +28,10 @@
     <script src="{{ static }}script/cooking.js"></script>
 
     <p>
-        <img src="{{ pack.owner.get_profile.get_picture_src }}" alt="" class="userpic" />
-        {{ pack.owner }} requested this pack on {{ pack.created|date }}.
-        {% ifnotequal pack.created|date pack.modified|date %}
-            Last edited on {{ pack.modified|date }}.
+        <img src="{{ remix.owner.get_profile.get_picture_src }}" alt="" class="userpic" />
+        {{ remix.owner }} requested this remix on {{ remix.created|date }}.
+        {% ifnotequal remix.created|date remix.modified|date %}
+            Last edited on {{ remix.modified|date }}.
         {% endifnotequal %}
     </p>
 

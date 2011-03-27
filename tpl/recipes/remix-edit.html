@@ -7,7 +7,7 @@
 {% block main_sections %}
 <section id="form">
     <p>
-        You are maintainer of this remix.
+        You can change the label if the automatic one is no good.
     </p>
     <form method="post">
         {% csrf_token %}
@@ -33,7 +33,7 @@
 <section id="pack-preview">
     <h2>Preview</h2>
     <div id="preview">
-        <img class="pack_terrain" src="{% url pack_resource pk=remix.pk res_name="terrain.png" %}" alt="" />
+        <img class="pack_terrain" src="{% url remix-resource pk=remix.pk res_name="terrain.png" %}" alt="" />
     </div>
 </section>
 {% endblock %}

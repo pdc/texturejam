@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% load markup %}
-{% block title %}{{ remix.label }} - Texturejam{% endblock %}
+{% block title %}{{ remix.label }} (remix) - Texturejam{% endblock %}
 {% block heading %}{{ remix.label }}{% endblock %}
 {% block subheading %}A remixed texture pack{% endblock %}
 
 {% block main_sections %}
 <section id="pack-desc">
-    <img class="pack-png" src="{% url pack_resource pk=remix.pk res_name="pack.png" %}" align="left" alt="" />
+    <img class="pack-png" src="{% url remix-resource pk=remix.pk res_name="pack.png" %}" align="left" alt="" />
 
     <dl>
         {% if remix.pack_args %}
@@ -46,7 +46,7 @@
         {% if remix.owner.pk == user.pk %}
         <dt>Edit</dt>
         <dd>
-            <a href="{% url remix_edit pk=remix.pk %}">Edit description</a>
+            <a href="{% url remix-edit pk=remix.pk %}">Edit description</a>
         </dd>
         {% endif %}
     </dl>
@@ -55,7 +55,7 @@
 <section id="pack-preview">
     <h2>Preview</h2>
     <div id="preview">
-        <img class="pack_terrain" src="{% url pack_resource pk=remix.pk res_name="terrain.png" %}" alt="" />
+        <img class="pack_terrain" src="{% url remix-resource pk=remix.pk res_name="terrain.png" %}" alt="" />
     </div>
 </section>
 
