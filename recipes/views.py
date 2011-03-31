@@ -81,7 +81,7 @@ def remix_progress(request, pk):
         'percent': sum(x['percent'] for x in steps) / len(steps),
         'isComplete': all(x['percent'] for x in steps),
         'milliseconds': 15 * 1000,
-        'href': reverse('pack', kwargs={'pk': remix.pk}),
+        'href': reverse('remix-detail', kwargs={'pk': remix.pk}),
         'label': remix.label,
     }
 
@@ -145,7 +145,7 @@ def beta_upgrade(request):
     # XXX This function is quite long.
     # Would it be possible to spin it out in to tasg
 
-    suitable_recipes = Tag.objects.get(name='beta-13').spec_set.order_by('created')
+    suitable_recipes = Tag.objects.get(name='beta-14').spec_set.order_by('label')
 
     class BetaForm(forms.Form):
         pack_download_url = forms.URLField(max_length=1000, label='Download URL',
@@ -157,8 +157,8 @@ def beta_upgrade(request):
         recipe = forms.ModelChoiceField(
             required=True,
             queryset=suitable_recipes,
-            initial=Spec.objects.get(name='ersatz-beta-13'),
-            help_text='Depends on whether the pack supports Beta 1.2 already')
+            initial=Spec.objects.get(name='beta-14-13'),
+            help_text='Depends on whether the pack supports Beta 1.3 already')
 
     if request.method == 'POST': # If the form has been submitted...
         form = BetaForm(request.POST) # A form bound to the POST data
@@ -168,7 +168,7 @@ def beta_upgrade(request):
                 download_url = form.cleaned_data['pack_download_url']
                 source_pack = get_mixer().get_pack(download_url)
 
-                level = Level.objects.get(label='Beta 1.2')
+                level = Level.objects.get(label='Beta 1.3')
 
                 label = source_pack.label
                 m = LABEL_WITH_VERSION_RE.match(label)
@@ -199,7 +199,7 @@ def beta_upgrade(request):
 
                 remix = Remix(
                     owner=request.user,
-                    label='{label} + Beta 1.3'.format(label=source_pack.label),
+                    label='{label} + Beta 1.4'.format(label=source_pack.label),
                     recipe=recipe)
                 remix.save()
                 remix.pack_args.create(
@@ -262,9 +262,11 @@ def source_edit(request, pk):
             label='Minecraft version',
             help_text='Latest version of Minecraft this pack supports')
         source_forum_url = forms.CharField(max_length=1000,
+            required=False,
             label='Forum thread',
             help_text='URL where this pack is discussed')
         source_home_url = forms.CharField(max_length=1000,
+            required=False,
             label='Home page',
             help_text='URL of a dedicated home page for this pack, if any')
 
