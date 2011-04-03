@@ -37,10 +37,14 @@ LABEL_WITH_VERSION_RE = re.compile(ur"""
 @with_template('recipes/remix-list.html')
 def remix_list(request):
     """List of remixes, for the home page."""
-    alts_tag = Tag.objects.get(name='alts')
+    try:
+        alts_tag = Tag.objects.get(name='alts')
+        recipes = alts_tag.spec_set.filter(spec_type='tpmaps').order_by('label')
+    except Tag.DoesNotExist:
+        recipes = Noone
     return {
         'remixes': Remix.objects.filter(withdrawn=None).order_by('recipe__label', '-modified'),
-        'recipes': alts_tag.spec_set.filter(spec_type='tpmaps').order_by('label'),
+        'recipes': recipes,
     }
 
 @with_template('recipes/remix-detail.html')

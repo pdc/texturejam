@@ -20,6 +20,8 @@
     <p>
         This service is still experimental.
     </p>
+    {% if recipes %}
+    <h2>Texturepacks with Alternatives</h2>
     <p>
         These texture packs contain alternative imagery for some
         textures. You can create a recipe that mixes in alternatives:
@@ -32,6 +34,7 @@
         </li>
         {% endfor %}
     </ul>
+    {% endif %}
 </section>
 <section id="what_is">
     <h2>Wait, what is a texture pack anyway?</h2>
