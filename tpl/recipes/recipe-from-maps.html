@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load markup %}
+{% block title %}Make a recipe for {{ spec.label }} - Texturejam{% endblock %}
+{% block heading %}Make a recipe for {{ spec.label }}{% endblock %}
+{% block subheading %}Don’t Panic{% endblock %}
+
+{% block main_sections %}
+<section id="form">
+    <p>
+        {% for release in spec.release_set.all %}
+            {% if forloop.last and not forloop.first %}and{% endif %}
+            {{ release.series }}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+        {{ spec.release_set.all|pluralize:"supplies,supply" }} alternative
+        interpretations of some textures.
+        Create your remix by choosing alternatives in this list:
+    </p>
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div>
+            {{ field.label_tag }}
+            {{ field }}
+            {% for error in field.errors %}
+            <b>{{ error }}</b>
+            {% endfor %}
+            {% if field.help_text %}
+            <span>{{ field.help_text }}</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+        <div class="buttons">
+            <input type="submit" value="Create recipe" />
+        </div>
+    </form>
+</section>
+
+<section id="tweet-this">
+    <a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="texturejamorguk">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+</section>
+{% endblock %}
+
+{% block more_sections %}
+<section id="instructions">
+
+    <h2>How to use this texture pack</h2>
+
+    <p>
+        Then copy the ZIP file in to your Minecraft texturepacks folder.
+    </p>
+</section>
+
+{% if spec.desc %}
+<section id="maps_desc">
+    <h2>Maps: {{ spec }}</h2>
+    {{ spec.desc|markdown }}
+</section>
+{% endif %}
+{% endblock %}

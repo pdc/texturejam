@@ -20,6 +20,7 @@ urlpatterns = patterns('recipes.views',
     (r'^sources/(?P<pk>\d+)/releases/(?P<release_pk>\d+)/resources/(?P<res_name>.*)$', 'source_resource', {}, 'source-resource'),
 
     (r'^beta-upgrade$', 'beta_upgrade', {}, 'beta_upgrade'),
+    (r'^recipe-from-maps/(?P<id>\d+)', 'recipe_from_maps', {}, 'recipe-from-maps'),
 
     (r'^rx/(?P<name>[\w-]+)/$', 'recipe', {}, 'tprx'),
     (r'^rx/maps/(?P<name>[\w-]+)$', 'maps', {}, 'tpmaps'),

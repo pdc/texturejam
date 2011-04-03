@@ -8,7 +8,8 @@ Replace these with more appropriate tests for your application.
 """
 
 from django.test import TestCase
-from recipes.models import trunc_url
+from textwrap import dedent
+from recipes.models import *
 
 class TruncUrlTests(TestCase):
     def test_no_www(self):
@@ -37,3 +38,40 @@ class TruncUrlTests(TestCase):
 
     def test_ftp(self):
         self.assertEqual(u'example.co.uk/…/smuersh', trunc_url('ftp://www.example.co.uk/bunkum/smuersh'))
+
+class GetMapTests(TestCase):
+    def test_get_grid_map(self):
+        spec = Spec(spec_type='tpmaps', spec=dedent("""
+            bank/instruments.png:
+                source_rect:
+                    width: 32
+                    height: 32
+                cell_rect:
+                    width: 16
+                    height: 16
+                names:
+                    - banjo
+                    - ukelele
+                    - sousaphone
+                    - tambourine
+        """))
+        atlas = spec.get_atlas()
+        map = atlas.get_map('bank/instruments.png', None)
+        self.assertTrue(map)
+        self.assertEqual((16, 16, 32, 32), map.get_box('tambourine'))
+
+    def test_not_a_maps(self):
+        with self.assertRaises(WrongSpecType):
+            spec = Spec(spec_type='tprx', spec="foo")
+            atlas = spec.get_atlas()
+
+class SpecTests(TestCase):
+    def test_get_internal_url_maps(self):
+        spec = Spec(name='alphonse', spec_type='tpmaps', spec="href: http://example.com/foo.tpmaps")
+        spec.save()
+        self.assertEqual('internal:///maps/alphonse', spec.get_internal_url())
+
+    def test_get_internal_url_recope(self):
+        spec = Spec(name='bart', spec_type='tprx', spec="label: bunk")
+        spec.save()
+        self.assertEqual('internal:///bart', spec.get_internal_url())

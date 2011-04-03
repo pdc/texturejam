@@ -37,8 +37,10 @@ LABEL_WITH_VERSION_RE = re.compile(ur"""
 @with_template('recipes/remix-list.html')
 def remix_list(request):
     """List of remixes, for the home page."""
+    alts_tag = Tag.objects.get(name='alts')
     return {
         'remixes': Remix.objects.filter(withdrawn=None).order_by('recipe__label', '-modified'),
+        'recipes': alts_tag.spec_set.filter(spec_type='tpmaps').order_by('label'),
     }
 
 @with_template('recipes/remix-detail.html')
@@ -342,3 +344,100 @@ def source_resource(request, pk, release_pk, res_name):
     source_pack = get_object_or_404(Release, pk=int(release_pk, 10))
     data = source_pack.get_pack().get_resource(res_name).get_bytes()
     return HttpResponse(data, mimetype='image/png')
+
+@login_required
+@with_template('recipes/recipe-from-maps.html')
+def recipe_from_maps(request, id):
+    spec = get_object_or_404(Spec, id=id)
+    atlas = spec.get_atlas()
+    map = atlas.get_map('terrain.png', 'internal:///maps/')
+    alts_list = map.get_alts_list()
+
+    # Lets see if I can build my own dynamic form!
+    class RecipeFromMapsForm(forms.Form):
+        label = forms.CharField(max_length=200,
+                help_text='A name for this recipe. It should be unique.')
+        desc = forms.CharField(max_length=2000, widget=forms.Textarea,
+                required=False, label='Description',
+                help_text='Describes this recipe to other users. Separate paragraphs wth blank lines. Markdown formatting is supporterd.')
+
+        def __init__(self, alts_list, *args, **kwargs):
+            super(RecipeFromMapsForm, self).__init__(*args, **kwargs)
+            for name, cellss in alts_list:
+                for cells in cellss:
+                    name = cells[0] # XXX convert
+                    choices = zip(cells, ['Std', 'Alt'] + ['Alt {x}'.format(x=i + 2) for i in range(len(cells) - 2)])
+                    self.fields[name] = forms.ChoiceField(choices=choices, widget=forms.RadioSelect)
+
+    if request.method == 'POST':
+        form = RecipeFromMapsForm(alts_list, request.POST)
+        if form.is_valid():
+            label = form.cleaned_data['label']
+            desc = form.cleaned_data['desc']
+            rx_struct = {
+                'label': label,
+                'desc': desc,
+                'parameters': {
+                    'packs': ['base']
+                },
+                'maps': spec.get_internal_url(),
+                'mix':  {
+                    'pack': '$base',
+                    'files': [
+                        # XXX pack.png?
+                        '*.png',
+                        {
+                            'file': 'terrain.png',
+                            'replace': {
+                                'cells': {cs[0]: form.cleaned_data[cs[0]]
+                                    for (gn, css) in alts_list
+                                    for cs in css
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+            strm = StringIO()
+            yaml.dump(rx_struct, strm, default_flow_style=False, encoding=None, width=72, indent=4)
+            rx_str = strm.getvalue()
+            rx_spec, was_created = request.user.spec_set.get_or_create(
+                name='{user}/{label}'.format(user=request.user.username, label=slugify(label)),
+                spec_type='tprx')
+            rx_spec.label = label
+            rx_spec.desc = desc
+            rx_spec.spec = rx_str
+            rx_spec.save()
+
+            messages.add_message(request, messages.INFO,
+                u'{created} recipe {label}'.format(created='Created' if was_created else 'Updated', label=label))
+
+            for release in spec.release_set.all():
+                remix, was_created = request.user.remix_set.get_or_create(
+                    recipe=rx_spec,
+                    pack_args__source_pack=release,
+                    defaults={'label': '{source} + {recipe}'.format(recipe=label, source=release.series.label)})
+                remix.save()
+                arg, _ = remix.pack_args.get_or_create(name='base')
+                arg.source_pack = release
+                arg.save()
+                messages.add_message(request, messages.INFO,
+                    u'{created} remix {label}'.format(
+                        created='Created' if was_created else 'Updated',
+                        label=remix.label))
+            return HttpResponseRedirect(reverse('remix-edit', kwargs={'pk': remix.id}))
+    else:
+        initial = {'label': '{maps} Alts'.format(maps=spec.label)}
+        for name, cellss in alts_list:
+            for cells in cellss:
+                try:
+                    name, val = cells[:2]
+                    initial[name] = val
+                except ValueError:
+                    pass
+        form = RecipeFromMapsForm(alts_list=alts_list, initial=initial)
+
+    return {
+        'spec': spec,
+        'form': form,
+    }

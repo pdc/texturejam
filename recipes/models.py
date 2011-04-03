@@ -45,6 +45,47 @@ class Tag(models.Model):
     def __unicode__(self):
         return self.label
 
+class WrongSpecType(Exception):
+    pass
+
+class Spec(models.Model):
+    class Meta:
+        unique_together = [('name', 'spec_type')]
+        ordering = ['spec_type', 'label']
+
+    owner = models.ForeignKey(User)
+    tags = models.ManyToManyField(Tag, blank=True)
+
+    label = models.CharField(max_length=200, help_text="Identifies this recipe to users")
+    desc = models.TextField(blank=True, help_text="Explians this recipe to users; can use Markdown formatting")
+
+    name = models.SlugField(max_length=200, help_text="Identifies this spec in recipes; should be unique")
+    SPEC_TYPE_CHOICES = [
+        ('tprx', 'Texture pack recipe'),
+        ('tpmaps', 'Texture pack maps'),
+    ]
+    spec_type = models.CharField(max_length=100, choices=SPEC_TYPE_CHOICES)
+
+    spec = models.TextField(help_text="The recipe code in YAML or JSON format.")
+
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        return self.label
+
+    def get_internal_url(self):
+        """The URL that can be used within recipes to refer to this spec."""
+        base = 'internal:///' if self.spec_type == 'tprx' else 'internal:///{0}/'.format(self.spec_type[2:])
+        return '{base}{name}'.format(base=base, name=self.name)
+
+    def get_atlas(self):
+        """If this spec is for an atlas (type==tpmaps), then return the atlas."""
+        if self.spec_type != 'tpmaps':
+            raise WrongSpecType('{name}: is {type}, not a maps spec'.format(name=self.name, type=self.spec_type))
+        spec = yaml.load(StringIO(self.spec))
+        return get_mixer().get_atlas(spec, self.get_internal_url())
+
 class Source(models.Model):
     owner = models.ForeignKey(User, related_name='source_series')
 
@@ -80,6 +121,9 @@ class Release(models.Model):
 
     series = models.ForeignKey(Source, related_name='releases')
     level = models.ForeignKey(Level, related_name='source_packs')
+    maps = models.ForeignKey(Spec, blank=True, null=True,
+        limit_choices_to={'spec_type': 'tpmaps'},
+        on_delete=models.SET_NULL)
 
     label = models.CharField(max_length=200)
     download_url = models.URLField(max_length=255, unique=True)
@@ -128,38 +172,11 @@ class Release(models.Model):
         return self.occurrences.filter(recipe_pack__withdrawn=None)
 
 
-class Spec(models.Model):
-    class Meta:
-        unique_together = [('name', 'spec_type')]
-        ordering = ['spec_type', 'label']
-
-    owner = models.ForeignKey(User, related_name='atlases')
-    tags = models.ManyToManyField(Tag, blank=True)
-
-    label = models.CharField(max_length=200, help_text="Identifies this recipe to users")
-    desc = models.TextField(blank=True, help_text="Explians this recipe to users; can use Markdown formatting")
-
-    name = models.SlugField(max_length=200, help_text="Identifies this spec in recipes; should be unique")
-    SPEC_TYPE_CHOICES = [
-        ('tprx', 'Texture pack recipe'),
-        ('tpmaps', 'Texture pack maps'),
-    ]
-    spec_type = models.CharField(max_length=100, choices=SPEC_TYPE_CHOICES)
-
-    spec = models.TextField(help_text="The recipe code in YAML or JSON format.")
-
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
-
-    def __unicode__(self):
-        return self.label
-
-
 class Remix(models.Model):
     class Meta:
         verbose_name_plural = 'Remixes'
 
-    owner = models.ForeignKey(User, related_name='recipe_packs')
+    owner = models.ForeignKey(User)
     recipe = models.ForeignKey(Spec, related_name='occurrences', limit_choices_to={'spec_type': 'tprx'})
 
     label = models.CharField(max_length=1000)

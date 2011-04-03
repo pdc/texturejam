@@ -256,8 +256,6 @@ section p+p {
   }
 }
 
-
-
 .pack-list ul {
 	margin: 0 0 1.25em 0;
 	padding: 0;
@@ -407,9 +405,11 @@ dd small {
 
 #main form div {
   margin: 0.25em 0;
+  clear: both;
 }
 
-#main label {
+#main label,
+#main .radios b {
   float: left;
   margin: 0.25em 10px 0.25em 9px; /* 9px to allow for 1px border */
   padding: 0;
@@ -418,13 +418,47 @@ dd small {
 }
 
 #main input,
-#main select {
+#main select,
+#main textarea {
   margin: 0.25em 9px 0.25em 10px;  /* 9px to allow for 1px border */
 }
 
-#main input  {
+#main input {
   width: 372px;
   border-width: 2px;
+}
+
+#main textarea  {
+  width: 372px;
+}
+
+#main form ul {
+  float: left;
+  margin: 0.25em 0;
+  padding: 0;
+  width: 399px;
+}
+
+#main form ul input {
+  width: auto;
+  margin: 0;
+}
+
+#main form li {
+  float: left;
+  width: 80px;
+  list-style-type: none;
+  white-space: pre;
+}
+
+#main form li label {
+  float: none;
+  text-align: left;
+
+  display: block;
+  width: 60px;
+  margin: 0 10px;
+  padding: 0;
 }
 
 #main form span { /* help text */
