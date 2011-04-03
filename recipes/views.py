@@ -41,7 +41,7 @@ def remix_list(request):
         alts_tag = Tag.objects.get(name='alts')
         recipes = alts_tag.spec_set.filter(spec_type='tpmaps').order_by('label')
     except Tag.DoesNotExist:
-        recipes = Noone
+        recipes = None
     return {
         'remixes': Remix.objects.filter(withdrawn=None).order_by('recipe__label', '-modified'),
         'recipes': recipes,
