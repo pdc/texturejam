@@ -420,7 +420,7 @@ def recipe_from_maps(request, id):
                 remix, was_created = request.user.remix_set.get_or_create(
                     recipe=rx_spec,
                     pack_args__source_pack=release,
-                    defaults={'label': '{source} + {recipe}'.format(recipe=label, source=release.series.label)})
+                    defaults={u'label': '{source} + {recipe}'.format(recipe=label, source=release.series.label)})
                 remix.save()
                 arg, _ = remix.pack_args.get_or_create(name='base', defaults={'source_pack': release})
                 arg.source_pack = release
