@@ -422,7 +422,7 @@ def recipe_from_maps(request, id):
                     pack_args__source_pack=release,
                     defaults={'label': '{source} + {recipe}'.format(recipe=label, source=release.series.label)})
                 remix.save()
-                arg, _ = remix.pack_args.get_or_create(name='base')
+                arg, _ = remix.pack_args.get_or_create(name='base', defaults={'source_pack': release})
                 arg.source_pack = release
                 arg.save()
                 messages.add_message(request, messages.INFO,
