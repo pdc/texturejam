@@ -14,5 +14,5 @@ oauth==1.0.1
 pyparsing==1.5.5
 python-dateutil==1.5
 python-openid==2.2.5
-texturepacker==0.6.1
+texturepacker==0.7
 wsgiref==0.1.2

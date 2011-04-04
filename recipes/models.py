@@ -154,15 +154,20 @@ class Release(models.Model):
             os.unlink(file_path)
 
     def get_pack(self, loader=None):
-        if not loader:
-            loader = texturepacker.Loader()
         file_path = self.get_file_path()
         if not self.is_ready():
-            self.last_download_attempt = datetime.now()
-            self.save()
-            bytes = loader.get_bytes(self.download_url, base='internal:///')
-            with open(file_path, 'wb') as strm:
-                strm.write(bytes)
+            if self.download_url.starts_with(settings.STATIC_URL):
+                static_path = os.path.join(settings.STATIC_DIR,
+                    self.download_url[len(settings.STATIC_URL):].strip('/'))
+                os.symlink(static_path, file_path)
+            else:
+                if not loader:
+                    loader = get_loader()
+                self.last_download_attempt = datetime.now()
+                self.save()
+                bytes = loader.get_bytes(self.download_url, base='internal:///')
+                with open(file_path, 'wb') as strm:
+                    strm.write(bytes)
         return texturepacker.SourcePack(file_path, Atlas())
 
     def truncated_download_url(self):
@@ -240,13 +245,19 @@ class PackArg(models.Model):
         return u'{name}={source_pack}'.format(name=self.name, source_pack=self.source_pack.label)
 
 
-def get_mixer():
-    """Get a Texturepacker mixer that knows about locally hosted resources.
+def get_loader():
+    loader = texturepacker.Loader()
+    augment_loader(loader)
+    return loader
 
-    This allows the server to avoid making HTTP
-    requests to itself.
+def augment_loader(loader):
+    """Add local knowledge to this loader.
+
+    This allows for certain HTTP resources to be
+    fetched directly from disc.
     """
-    mixer = Mixer()
+    loader.add_local_knowledge(settings.STATIC_URL, settings.STATIC_DIR)
+
     def fetch_spec(path):
         if path.startswith('///maps/'):
             spec = Spec.objects.get(spec_type='tpmaps', name=path[8:])
@@ -255,7 +266,16 @@ def get_mixer():
         else:
             raise Exception('Could not fetch %r' % (path,))
         return {'content-type': 'application/x-yaml'}, StringIO(spec.spec)
-    mixer.loader.add_scheme('internal', fetch_spec)
+    loader.add_scheme('internal', fetch_spec)
+
+def get_mixer():
+    """Get a Texturepacker mixer that knows about locally hosted resources.
+
+    This allows the server to avoid making HTTP
+    requests to itself.
+    """
+    mixer = Mixer()
+    augment_loader(mixer.loader)
     return mixer
 
 
