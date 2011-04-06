@@ -183,7 +183,6 @@ dl:after {
     width: 320px; /* 4u */
   }
 
-
   #asides {
     position: absolute;
     top: 0;
@@ -197,6 +196,81 @@ dl:after {
   }
 }
 
+@media only all and (max-width: 740px) {
+  #banner h1,
+  #strap {
+    width: 460px; /* 6u */
+  }
+
+  #content {
+    position: relative;
+    width: 480px; /* 6u */
+  }
+
+  #main {
+    width: 480px; /* 6u */
+  }
+
+  #more {
+    width: 480px; /* 6u */
+  }
+
+  #more>div,
+  #more>div+div {
+    float: left;
+    width: 240px; /* 3u */
+  }
+
+  #asides {
+    position: relative;
+    margin: 0 10px;
+    width: 480px;
+  }
+
+  #asides aside {
+    clear: none;
+    float: left;
+    width: 240px;
+  }
+}
+
+@media only all and (max-width: 500px) {
+  #banner h1,
+  #strap {
+    width: 300px; /* 4u */
+  }
+
+  #content {
+    position: relative;
+    width: 320px; /* 4u */
+  }
+
+  #main {
+    width: 320px; /* 4u */
+  }
+
+  #more {
+    width: 320px; /* 4u */
+  }
+
+  #more>div,
+  #more>div+div {
+    float: none;
+    width: 320px; /* 4u */
+  }
+
+  #asides {
+    position: relative;
+    margin: 0 10px;
+    width: 320px;
+  }
+
+  #asides aside {
+    clear: none;
+    float: none;
+    width: 320px;
+  }
+}
 #banner {
     background-color: #F90;
     background-image: -webkit-gradient(radial, 25% 75, 40, 25% 75, 600,
@@ -294,6 +368,15 @@ section p+p {
     width: auto;
   }
 }
+@media only all and (max-width: 500px) {
+  #main .image-full-width img {
+    width: 300px;
+    height: auto;
+  }
+  #main .image-full-width img:hover {
+    width: auto;
+  }
+}
 
 .pack-list ul {
 	margin: 0 0 1.25em 0;
@@ -325,6 +408,18 @@ section p+p {
   }
 }
 @media only all and (max-width: 980px) {
+  /* Then more section gets split in to 2 columns. */
+  .pack-list li a {
+    width: 300px; /* 4u */
+  }
+}
+@media only all and (max-width: 740px) {
+  /* Then more section gets split in to 2 columns. */
+  .pack-list li a {
+    width: 220px; /* 3u */
+  }
+}
+@media only all and (max-width: 500px) {
   /* Then more section gets split in to 2 columns. */
   .pack-list li a {
     width: 300px; /* 4u */
@@ -703,6 +798,12 @@ aside p {
   border: 1px solid rgba(0, 0, 0, 0.75);
   border-radius: 3px;
   background: rgba(0, 0, 0, 0.25);
+}
+
+@media only all and (max-width: 500px) {
+  #ad img {
+    margin: 0 10px;
+  }
 }
 
 iframe { /* Tlattr , Twitter */
