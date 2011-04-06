@@ -61,25 +61,49 @@
 {% endblock %}
 
 {% block more_sections %}
-{% regroup remixes by recipe.label as groups %}
-{% for group in groups %}
-<section id="{{ group.grouper|slugify }}" class="pack-list">
-    <h2>{{ group.grouper }} Remix{{ group.list|pluralize:"es" }}</h2>
-    <ul>
-        {% for remix in group.list %}
-        <li>
-            <a href="{% url remix-detail pk=remix.pk %}">
-                <img src="{% url remix-resource pk=remix.pk res_name="pack.png" %}" alt="" class="pack-png" />
-                <b>{{ remix }}</b>
-                <small>
-                    Based on
-                    {% for arg in remix.pack_args.all %}
-                        {{ arg.source_pack }}
-                    {% endfor %}
-                </small>
-            </a>
-        </li>
-        {% endfor %}
-</section>
-{% endfor %}
+<div id="beta-remixes">
+    {% for grouper, list in beta_remixes %}
+    <section id="{{ grouper|slugify }}" class="pack-list">
+        <h2>{{ grouper }} Remix{{ list|pluralize:"es" }}</h2>
+        <ul>
+            {% for remix in list %}
+            <li>
+                <a href="{% url remix-detail pk=remix.pk %}">
+                    <img src="{% url remix-resource pk=remix.pk res_name="pack.png" %}" alt="" class="pack-png" />
+                    <b>{{ remix }}</b>
+                    <small>
+                        Based on
+                        {% for arg in remix.pack_args.all %}
+                            {{ arg.source_pack }}
+                        {% endfor %}
+                    </small>
+                </a>
+            </li>
+            {% endfor %}
+    </section>
+    {% endfor %}
+</div>
+
+<div id="other-remixes">
+    {% for grouper, list in other_remixes %}
+    <section id="{{ grouper|slugify }}" class="pack-list">
+        <h2>{{ grouper }} Remix{{ list|pluralize:"es" }}</h2>
+        <ul>
+            {% for remix in list %}
+            <li>
+                <a href="{% url remix-detail pk=remix.pk %}">
+                    <img src="{% url remix-resource pk=remix.pk res_name="pack.png" %}" alt="" class="pack-png" />
+                    <b>{{ remix }}</b>
+                    <small>
+                        Based on
+                        {% for arg in remix.pack_args.all %}
+                            {{ arg.source_pack }}
+                        {% endfor %}
+                    </small>
+                </a>
+            </li>
+            {% endfor %}
+    </section>
+    {% endfor %}
+</div>
 {% endblock %}

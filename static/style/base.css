@@ -129,6 +129,31 @@ dl:after {
   }
 }
 
+
+@media only all and (min-width: 1460px) {
+  #banner h1,
+  #strap {
+    width: 1440px; /* 18u */
+  }
+
+  #content {
+    width: 1440px; /* 18u */
+  }
+
+  #more {
+    width: 640px; /* 8u */
+  }
+
+  #more>div {
+    float: left;
+    width: 320px; /* 4u */
+  }
+
+  #asides {
+    width: 240px; /* 3u */
+  }
+}
+
 @media only all and (max-width: 980px) {
   #banner h1,
   #strap {
@@ -140,10 +165,24 @@ dl:after {
     width: 720px; /* 9u */
   }
 
-  #main,
-  #more {
+  #main {
     width: 480px; /* 6u */
   }
+
+  /* XXX Danger of overlap with asides if main section too short! */
+  #more {
+    width: 720px; /* 8u */
+  }
+
+  #more>div {
+    float: left;
+    width: 320px; /* 4u */
+  }
+  #more>div+div {
+    float: right;
+    width: 320px; /* 4u */
+  }
+
 
   #asides {
     position: absolute;
@@ -271,11 +310,25 @@ section p+p {
   float: left;
 	display: block;
 	padding: 0.5em 10px;
-	width: 380px;
+	width: 380px; /* 5u */
 
 	text-decoration: none;
 	color: inherit;
   border-radius: 0.5em;
+}
+
+
+@media only all and (min-width: 1460px) {
+  /* Then more section gets split in to 2 columns. */
+  .pack-list li a {
+    width: 300px; /* 4u */
+  }
+}
+@media only all and (max-width: 980px) {
+  /* Then more section gets split in to 2 columns. */
+  .pack-list li a {
+    width: 300px; /* 4u */
+  }
 }
 
 .pack-list li a:hover {

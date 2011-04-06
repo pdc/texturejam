@@ -74,6 +74,11 @@ class Spec(models.Model):
     def __unicode__(self):
         return self.label
 
+    def has_tag(self, tag):
+        """Has this spec been tagged with this tag?"""
+        tag_name = tag.name if isinstance(tag, Tag) else tag
+        return self.tags.filter(name=tag_name).count()
+
     def get_internal_url(self):
         """The URL that can be used within recipes to refer to this spec."""
         base = 'internal:///' if self.spec_type == 'tprx' else 'internal:///{0}/'.format(self.spec_type[2:])
@@ -230,6 +235,11 @@ class Remix(models.Model):
 
     def invalidate():
         cache.delete(self.get_cache_key())
+
+    def get_base_release(self):
+        candidates = self.pack_args.filter(name='base')
+        if candidates:
+            return candidates[0].source_pack
 
 
 class PackArg(models.Model):

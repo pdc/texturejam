@@ -42,8 +42,32 @@ def remix_list(request):
         recipes = alts_tag.spec_set.filter(spec_type='tpmaps').order_by('label')
     except Tag.DoesNotExist:
         recipes = None
+
+    # Can't work out how to do this with filters, so:
+    beta_remixes = {}
+    other_remixes = {}
+    misc_remixes = []
+    for remix in Remix.objects.filter(withdrawn=None).order_by('label'):
+        if remix.recipe.has_tag('beta-14'):
+            beta_remixes.setdefault(remix.recipe.id, []).append(remix)
+        else:
+            release = remix.get_base_release()
+            if release:
+                other_remixes.setdefault(release.series.id, []).append(remix)
+            else:
+                misc_remixes.append(remix)
+
+    beta_remixes_1 = [(xs[0].recipe, xs) for (k, xs) in beta_remixes.items()]
+    beta_remixes_1.sort(key=lambda (r, xs): r.label, reverse=True)
+
+    other_remixes_1 = [(xs[0].get_base_release(), xs) for (k, xs) in other_remixes.items()]
+    other_remixes_1.sort(key=lambda (r, xs): r.series.created, reverse=True)
+
+    misc_remixes_1 = [('More remixes', misc_remixes)]
+
     return {
-        'remixes': Remix.objects.filter(withdrawn=None).order_by('recipe__label', '-modified'),
+        'beta_remixes': beta_remixes_1,
+        'other_remixes': other_remixes_1 + misc_remixes_1,
         'recipes': recipes,
     }
 
@@ -241,7 +265,6 @@ def source_detail(request, pk):
     }
 
 
-# XXX check user owns this source
 @with_template('recipes/source-edit.html')
 def source_edit(request, pk):
     source = get_object_or_404(Source, pk=pk)
