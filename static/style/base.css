@@ -631,6 +631,45 @@ dd small {
   width: auto;
 }
 
+@media only all and (max-width: 980px) {
+  #main input {
+    width: 292px;
+  }
+}
+@media only all and (max-width: 500px) {
+  /* Switch to having labels above widgets instead of to the left */
+
+  #main label,
+  #main .radios b {
+    float: none;
+    display: block;
+
+    margin: 0.25em 9px 0.125em 9px; /* 9px to allow for 1px border */
+    padding: 0;
+    width: 140px;
+    text-align: left;
+  }
+
+  #main input,
+  #main textarea  {
+    width: 292px;
+    margin: 0.125em 9px 0.25em 9px;  /* 9px to allow for 1px border */
+  }
+
+  #main form div.buttons {
+    padding: 0.625em 10px;
+  }
+
+  #main form .buttons input {
+    margin: 0.625em 10px 0.625em 0;
+    width: auto;
+  }
+
+  #main form span { /* help text */
+    margin: 0 10px 0.5em 30px;
+  }
+}
+
 #messages ul {
   margin: 0 auto;
   padding: 1.25em 0;
@@ -696,10 +735,15 @@ dd small {
   background-color: rgba(0, 0, 0, 0.2);
 }
 
-
 @media only all and (max-width: 980px) {
   #preview {
     width: 460px;
+  }
+}
+
+@media only all and (max-width: 500px) {
+  #preview {
+    width: 300px;
   }
 }
 
