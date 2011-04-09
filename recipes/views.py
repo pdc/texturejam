@@ -392,7 +392,7 @@ def recipe_from_maps(request, id):
             for name, tiless in tiles_list:
                 for tiles in tiless:
                     choices = [(x['value'], x['label']) for x in tiles]
-                    self.fields[tile['name']] = forms.ChoiceField(choices=choices, widget=forms.RadioSelect)
+                    self.fields[tiles[0]['name']] = forms.ChoiceField(choices=choices, widget=forms.RadioSelect)
 
     if request.method == 'POST':
         form = RecipeFromMapsForm(alts_list, src, request.POST)
