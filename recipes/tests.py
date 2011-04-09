@@ -10,6 +10,7 @@ Replace these with more appropriate tests for your application.
 from django.test import TestCase
 from textwrap import dedent
 from recipes.models import *
+from mock import patch
 
 class TruncUrlTests(TestCase):
     def test_no_www(self):
@@ -75,3 +76,35 @@ class SpecTests(TestCase):
         spec = Spec(name='bart', spec_type='tprx', spec="label: bunk")
         spec.save()
         self.assertEqual('internal:///bart', spec.get_internal_url())
+
+class TextureCellTests(TestCase):
+    def test_it(self):
+        map = texturepacker.GridMap((32, 32), (16, 16), ['ape', 'bee', 'ape_1', 'ape_2'])
+        atlas = texturepacker.Atlas()
+        atlas.add_map('terrain.png', map)
+
+        spec = Spec()
+        spec.save()
+
+        with patch.object(spec, 'get_atlas') as mock_get_atlas:
+            mock_get_atlas.return_value = atlas
+            tile_infos = spec.get_alt_tiles()
+
+        (group_name, tiless), = tile_infos
+        self.assertEqual('ape', group_name)
+        tiles, = tiless
+
+        self.assertEqual('ape', tiles[0]['name'])
+        self.assertEqual('ape', tiles[0]['value'])
+        self.assertEqual('Std', tiles[0]['label'])
+        self.assertEqual('width: 16px; height: 16px; background-position: 0 0;', tiles[0]['style'])
+
+        self.assertEqual('ape', tiles[1]['name'])
+        self.assertEqual('ape_1', tiles[1]['value'])
+        self.assertEqual('Alt', tiles[1]['label'])
+        self.assertEqual('width: 16px; height: 16px; background-position: 0 -16px;', tiles[1]['style'])
+
+        self.assertEqual('ape', tiles[2]['name'])
+        self.assertEqual('ape_2', tiles[2]['value'])
+        self.assertEqual('Alt 2', tiles[2]['label'])
+        self.assertEqual('width: 16px; height: 16px; background-position: -16px -16px;', tiles[2]['style'])

@@ -69,7 +69,7 @@
             {% for remix in list %}
             <li>
                 <a href="{% url remix-detail pk=remix.pk %}">
-                    <img src="{% url remix-resource pk=remix.pk res_name="pack.png" %}" alt="" class="pack-png" />
+                    <img src="{% url remix-resource pk=remix.pk resource_name="pack.png" %}" alt="" class="pack-png" />
                     <b>{{ remix }}</b>
                     <small>
                         Based on
@@ -92,7 +92,7 @@
             {% for remix in list %}
             <li>
                 <a href="{% url remix-detail pk=remix.pk %}">
-                    <img src="{% url remix-resource pk=remix.pk res_name="pack.png" %}" alt="" class="pack-png" />
+                    <img src="{% url remix-resource pk=remix.pk resource_name="pack.png" %}" alt="" class="pack-png" />
                     <b>{{ remix }}</b>
                     <small>
                         Based on

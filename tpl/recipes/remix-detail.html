@@ -6,7 +6,7 @@
 
 {% block main_sections %}
 <section id="pack-desc">
-    <img class="pack-png" src="{% url remix-resource pk=remix.pk res_name="pack.png" %}" align="left" alt="" />
+    <img class="pack-png" src="{% url remix-resource pk=remix.pk resource_name="pack.png" %}" align="left" alt="" />
 
     <dl>
         {% if remix.pack_args %}
@@ -55,7 +55,7 @@
 <section id="pack-preview">
     <h2>Preview</h2>
     <div id="preview">
-        <img class="pack_terrain" src="{% url remix-resource pk=remix.pk res_name="terrain.png" %}" alt="" />
+        <img class="pack_terrain" src="{% url remix-resource pk=remix.pk resource_name="terrain.png" %}" alt="" />
     </div>
 </section>
 

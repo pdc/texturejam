@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <title>{% block title %}Texturejam{% endblock %}</title>
         <link rel="stylesheet" href="{{ static }}style/base.css">
+        {% block stylesheet %}{% endblock %}
     </head>
     <body>
         {% block banner %}

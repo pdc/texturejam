@@ -6,7 +6,7 @@
 
 {% block main_sections %}
 <section id="pack-desc">
-    <img class="pack-png" src="{% url source-resource pk=source.pk release_pk=release.pk res_name="pack.png" %}" align="left" alt="" />
+    <img class="pack-png" src="{% url source-resource pk=source.pk release_pk=release.pk resource_name="pack.png" %}" align="left" alt="" />
 
     <dl>
         {% if source.home_url %}

@@ -78,10 +78,10 @@ def remix_detail(request, pk):
         'remix': get_object_or_404(Remix, pk=pk)
     }
 
-def remix_resource(request, pk, res_name):
+def remix_resource(request, pk, resource_name):
     """A resource from a recipe pack."""
     remix = get_object_or_404(Remix, pk=int(pk, 10))
-    data = remix.get_pack().get_resource(res_name).get_bytes()
+    data = remix.get_pack().get_resource(resource_name).get_bytes()
     return HttpResponse(data, mimetype='image/png')
 
 @with_template('recipes/remix-cooking.html')
@@ -252,7 +252,6 @@ def beta_upgrade(request):
         'recipes': suitable_recipes,
     }
 
-
 @with_template('recipes/source-detail.html')
 def source_detail(request, pk):
     source = get_object_or_404(Source, pk=pk)
@@ -263,7 +262,6 @@ def source_detail(request, pk):
         'releases': releases,
         'release': releases[0],
     }
-
 
 @with_template('recipes/source-edit.html')
 def source_edit(request, pk):
@@ -366,19 +364,20 @@ def source_edit(request, pk):
         'release': releases[0],
     }
 
-def source_resource(request, pk, release_pk, res_name):
+def source_resource(request, pk, release_pk, resource_name):
     """A resource from a source pack."""
     source_pack = get_object_or_404(Release, pk=int(release_pk, 10))
-    data = source_pack.get_pack().get_resource(res_name).get_bytes()
+    data = source_pack.get_pack().get_resource(resource_name).get_bytes()
     return HttpResponse(data, mimetype='image/png')
 
 @login_required
 @with_template('recipes/recipe-from-maps.html')
 def recipe_from_maps(request, id):
     spec = get_object_or_404(Spec, id=id)
-    atlas = spec.get_atlas()
-    map = atlas.get_map('terrain.png', 'internal:///maps/')
-    alts_list = map.get_alts_list()
+    tiles_list = spec.get_alt_tiles()
+
+    release = spec.release_set.latest('released')
+    src = reverse('source-resource', kwargs={'pk': release.series.id, 'release_pk': release.id, 'resource_name': 'terrain.png'})
 
     # Lets see if I can build my own dynamic form!
     class RecipeFromMapsForm(forms.Form):
@@ -388,16 +387,15 @@ def recipe_from_maps(request, id):
                 required=False, label='Description',
                 help_text='Describes this recipe to other users. Separate paragraphs wth blank lines. Markdown formatting is supporterd.')
 
-        def __init__(self, alts_list, *args, **kwargs):
+        def __init__(self, tiles_list, src, *args, **kwargs):
             super(RecipeFromMapsForm, self).__init__(*args, **kwargs)
-            for name, cellss in alts_list:
-                for cells in cellss:
-                    name = cells[0] # XXX convert
-                    choices = zip(cells, ['Std', 'Alt'] + ['Alt {x}'.format(x=i + 2) for i in range(len(cells) - 2)])
-                    self.fields[name] = forms.ChoiceField(choices=choices, widget=forms.RadioSelect)
+            for name, tiless in tiles_list:
+                for tiles in tiless:
+                    choices = [(x['value'], x['label']) for x in tiles]
+                    self.fields[tile['name']] = forms.ChoiceField(choices=choices, widget=forms.RadioSelect)
 
     if request.method == 'POST':
-        form = RecipeFromMapsForm(alts_list, request.POST)
+        form = RecipeFromMapsForm(alts_list, src, request.POST)
         if form.is_valid():
             label = form.cleaned_data['label']
             desc = form.cleaned_data['desc']
@@ -416,9 +414,9 @@ def recipe_from_maps(request, id):
                         {
                             'file': 'terrain.png',
                             'replace': {
-                                'cells': {cs[0]: form.cleaned_data[cs[0]]
-                                    for (gn, css) in alts_list
-                                    for cs in css
+                                'cells': {ts[0]['name']: form.cleaned_data[ts[0]['name']]
+                                    for (gn, tss) in tiles_list
+                                    for ts in tss
                                 }
                             }
                         }
@@ -455,16 +453,18 @@ def recipe_from_maps(request, id):
             return HttpResponseRedirect(reverse('remix-edit', kwargs={'pk': remix.id}))
     else:
         initial = {'label': '{maps} Alts'.format(maps=spec.label)}
-        for name, cellss in alts_list:
-            for cells in cellss:
+        for name, tiless in tiles_list:
+            for tiles in tiless:
                 try:
-                    name, val = cells[:2]
-                    initial[name] = val
+                    tile = tiles[1]
+                    initial[tile['name']] = tile['value']
                 except ValueError:
                     pass
-        form = RecipeFromMapsForm(alts_list=alts_list, initial=initial)
+        form = RecipeFromMapsForm(tiles_list, src, initial=initial)
 
     return {
         'spec': spec,
         'form': form,
+        'tiles_list': tiles_list,
+        'src': src,
     }

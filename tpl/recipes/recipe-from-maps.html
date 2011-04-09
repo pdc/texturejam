@@ -57,3 +57,26 @@
 </section>
 {% endif %}
 {% endblock %}
+
+{% block stylesheet %}
+<style type="text/css">
+    /* Mighty contrivance to add images to radio buttons */
+    #main form ul input {
+        margin-right: 24px;
+    }
+
+    {% for group_name, group_tiles_list in tiles_list %}
+        {% for tile_list in group_tiles_list %}
+            {% for tile in tile_list %}
+    input[value={{tile.value}}]:after {
+        display: inline-block;
+        margin: 0 0 0 20px;
+        content: " ";
+        {{ tile.style }}
+        background-image: url({{ src }});
+    }
+            {% endfor %}
+        {% endfor %}
+    {% endfor %}
+</style>
+{% endblock %}

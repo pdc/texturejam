@@ -91,8 +91,28 @@ class Spec(models.Model):
         spec = yaml.load(StringIO(self.spec))
         return get_mixer().get_atlas(spec, self.get_internal_url())
 
+    def get_alt_tiles(self):
+        tile_groups = []
+        map = self.get_atlas().get_map('terrain.png', 'internal:///')
+        for group_name, cellss in map.get_alts_list():
+            tiless = []
+            for cells in cellss:
+                tiles = []
+                for cell, label in zip(cells, ['Std', 'Alt'] + ['Alt {x}'.format(x=i + 2) for i in range(len(cells) - 2)]):
+                    tile = {
+                        'name': cells[0],
+                        'value': cell,
+                        'label': label,
+                        'style': map.get_css(cell),
+                    }
+                    tiles.append(tile)
+                tiless.append(tiles)
+            tile_groups.append((group_name, tiless))
+        return tile_groups
+
+
 class Source(models.Model):
-    owner = models.ForeignKey(User, related_name='source_series')
+    owner = models.ForeignKey(User)
 
     label = models.CharField(max_length=200, help_text="Not including version number")
     home_url = models.URLField(max_length=255, blank=True,
@@ -287,6 +307,7 @@ def get_mixer():
     mixer = Mixer()
     augment_loader(mixer.loader)
     return mixer
+
 
 
 URL_RE = re.compile("""
