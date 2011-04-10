@@ -18,7 +18,7 @@
     <form method="post">
         {% csrf_token %}
         {% for field in form %}
-        <div>
+        <div{% if field.css_classes %} class="{{ field.css_classes }}"{% endif %}>
             {{ field.label_tag }}
             {{ field }}
             {% for error in field.errors %}
@@ -61,19 +61,17 @@
 {% block stylesheet %}
 <style type="text/css">
     /* Mighty contrivance to add images to radio buttons */
-    #main form ul input {
-        margin-right: 24px;
+
+    #main form ul i {
+        display: inline-block;
+        background-image: url({{ src }});
     }
 
     {% for group_name, group_tiles_list in tiles_list %}
         {% for tile_list in group_tiles_list %}
             {% for tile in tile_list %}
-    input[value={{tile.value}}]:after {
-        display: inline-block;
-        margin: 0 0 0 20px;
-        content: " ";
+    #sample_{{ tile.value }} {
         {{ tile.style }}
-        background-image: url({{ src }});
     }
             {% endfor %}
         {% endfor %}

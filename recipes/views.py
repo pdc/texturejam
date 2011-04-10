@@ -9,6 +9,7 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
+from django.utils.safestring import mark_safe
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
 from django.conf import settings
@@ -383,7 +384,8 @@ def recipe_from_maps(request, id):
     class RecipeFromMapsForm(forms.Form):
         label = forms.CharField(max_length=200,
                 help_text='A name for this recipe. It should be unique.')
-        desc = forms.CharField(max_length=2000, widget=forms.Textarea,
+        desc = forms.CharField(max_length=2000,
+                widget=forms.Textarea(attrs={'rows': 3}),
                 required=False, label='Description',
                 help_text='Describes this recipe to other users. Separate paragraphs wth blank lines. Markdown formatting is supporterd.')
 
@@ -391,7 +393,11 @@ def recipe_from_maps(request, id):
             super(RecipeFromMapsForm, self).__init__(*args, **kwargs)
             for name, tiless in tiles_list:
                 for tiles in tiless:
-                    choices = [(x['value'], x['label']) for x in tiles]
+                    choices = [(x['value'],
+                        mark_safe('<i id="{id}">&nbsp;</i> {label}'.format(
+                            id='sample_{0}'.format(x['value']),
+                            label=x['label']
+                        ))) for x in tiles]
                     self.fields[tiles[0]['name']] = forms.ChoiceField(choices=choices, widget=forms.RadioSelect)
 
     if request.method == 'POST':
