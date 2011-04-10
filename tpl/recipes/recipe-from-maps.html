@@ -41,21 +41,39 @@
 {% endblock %}
 
 {% block more_sections %}
-<section id="instructions">
-
-    <h2>How to use this texture pack</h2>
-
-    <p>
-        Then copy the ZIP file in to your Minecraft texturepacks folder.
-    </p>
-</section>
-
 {% if spec.desc %}
 <section id="maps_desc">
-    <h2>Maps: {{ spec }}</h2>
+    <h2>{{ spec }} maps</h2>
     {{ spec.desc|markdown }}
 </section>
 {% endif %}
+
+<section id="instructions">
+
+    <h2>Alternative textures?</h2>
+
+    <p>
+        Some texture packs artists include alternative versions of some of the
+        tiles in their texture packs. Why? Sometimes because their favourite version is so
+        different from the default texture. Sometimes because their fans insist they
+        like the old versions of that tile better.
+    </p>
+
+    <h2>What about other packs?</h2>
+    <p>
+        Alternative tiles generally go in unused slots in
+        <i>terrain.png</i>.
+        Before Texturejam can use them in a remix it needs to be told where
+        they are—using a texture pack map file.
+        The form on this page is generated automatically from the map.
+    </p>
+    <p>
+        For the present, I am creating those
+        map files myself: there is not yet any way to add create maps via
+        the web site.
+    </p>
+</section>
+
 {% endblock %}
 
 {% block stylesheet %}
