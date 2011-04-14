@@ -49,7 +49,7 @@ def remix_list(request):
     other_remixes = {}
     misc_remixes = []
     for remix in Remix.objects.filter(withdrawn=None).order_by('label'):
-        if remix.recipe.has_tag('beta-14'):
+        if remix.recipe.has_tag('upgrade'):
             beta_remixes.setdefault(remix.recipe.id, []).append(remix)
         else:
             release = remix.get_base_release()
