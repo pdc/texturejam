@@ -176,7 +176,8 @@ def beta_upgrade(request):
     # XXX This function is quite long.
     # Would it be possible to spin it out in to tasg
 
-    suitable_recipes = Tag.objects.get(name='beta-14').spec_set.order_by('label')
+    suitable_recipes = Tag.objects.get(name='upgrade').spec_set.order_by('-label')
+    default_recipe = suitable_recipes[0]
 
     class BetaForm(forms.Form):
         pack_download_url = forms.URLField(max_length=1000, label='Download URL',
@@ -188,8 +189,8 @@ def beta_upgrade(request):
         recipe = forms.ModelChoiceField(
             required=True,
             queryset=suitable_recipes,
-            initial=Spec.objects.get(name='beta-14-13'),
-            help_text='Depends on whether the pack supports Beta 1.3 already')
+            initial=default_recipe,
+            help_text='Depends on the version of Minecraft this pack already supports')
 
     if request.method == 'POST': # If the form has been submitted...
         form = BetaForm(request.POST) # A form bound to the POST data
@@ -199,7 +200,7 @@ def beta_upgrade(request):
                 download_url = form.cleaned_data['pack_download_url']
                 source_pack = get_mixer().get_pack(download_url)
 
-                level = Level.objects.get(label='Beta 1.3')
+                level = Level.objects.get(label='Beta 1.4')
 
                 label = source_pack.label
                 m = LABEL_WITH_VERSION_RE.match(label)
