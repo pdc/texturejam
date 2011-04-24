@@ -290,7 +290,7 @@ class DownloadTask(models.Model):
     problem = models.CharField(max_length=1000, blank=True, help_text='A problem preventing the remix from being created. Blank means it is OK')
 
     def is_finished(self):
-        return self.remix.id
+        return self.remix and self.remix.id
 
     def get_progress(self):
         """Return a list of dicts describing progress so far.
