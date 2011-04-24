@@ -194,7 +194,7 @@ def beta_upgrade(request):
                     else:
                         messages.add_message(request, messages.INFO,
                             '{other} has already requested this remix'.format(other=task_info.user))
-                except DowqnloadTask.DoesNotExist:
+                except DownloadTask.DoesNotExist:
                     task_info = request.user.downloadtask_set.create(
                         recipe=recipe,
                         level=level,
