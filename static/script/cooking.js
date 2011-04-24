@@ -12,8 +12,8 @@ $(document).ready(function () {
           var li = $('#' + step.name);
           if (step.percent == 100) {
             li.removeClass('incomplete').addClass('complete');
-          } else {
-            li.removeClass('complete').addClass('incomplete');
+          } else if (step.percent > 0) {
+            li.addClass('incomplete');
           }
         }
 

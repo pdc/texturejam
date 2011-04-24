@@ -9,11 +9,12 @@ urlpatterns = patterns('recipes.views',
     (r'^$', 'remix_list', {}, 'home'),
 
     (r'^remixes/(?P<pk>\d+)/$', 'remix_detail', {}, 'remix-detail'),
-    (r'^remixes/(?P<pk>\d+)/cooking$', 'remix_cooking', {}, 'remix-cooking'),
-    (r'^remixes/(?P<pk>\d+)/progress$', 'remix_progress', {}, 'remix-progress'),
     (r'^remixes/(?P<pk>\d+)/edit$', 'remix_edit', {}, 'remix-edit'),
     (r'^remixes/(?P<pk>\d+)/resources/(?P<resource_name>.*)$', 'remix_resource', {}, 'remix-resource'),
     (r'^remixes/(?P<pk>\d+)/(?P<slug>[\w-]+)\.zip$', 'make_texture_pack', {}, 'tpmake'),
+
+    (r'^mixing/(?P<task_id>\d+)/$', 'remix_cooking', {}, 'remix-cooking'),
+    (r'^mixing/(?P<task_id>\d+)/progress$', 'remix_progress', {}, 'remix-progress'),
 
     (r'^sources/(?P<pk>\d+)/$', 'source_detail', {}, 'source-detail'),
     (r'^sources/(?P<pk>\d+)/edit$', 'source_edit', {}, 'source-edit'),

@@ -18,23 +18,6 @@ from recipes.models import *
 from recipes.tasks import *
 from shortcuts import *
 
-LABEL_WITH_VERSION_RE = re.compile(ur"""
-    ^
-    (?P<series> .*)
-    (?:
-        \s*
-        (?: , | - )?
-        \s+
-        (?P<release>
-            [vr]?
-            \d+
-            (?: \. \d* )*
-            (?: [a-z] \d* )?
-        )
-    )
-    $
-""", re.VERBOSE | re.IGNORECASE)
-
 @with_template('recipes/remix-list.html')
 def remix_list(request):
     """List of remixes, for the home page."""
@@ -86,34 +69,35 @@ def remix_resource(request, pk, resource_name):
     return HttpResponse(data, mimetype='image/png')
 
 @with_template('recipes/remix-cooking.html')
-def remix_cooking(request, pk):
+def remix_cooking(request, task_id):
     """User has requested creation of a texture pack."""
-    remix = get_object_or_404(Remix, pk=int(pk, 10))
-    if all(x.source_pack.is_ready() for x in remix.pack_args.all()):
-        return HttpResponseRedirect(reverse('remix-edit', kwargs={'pk': remix.pk}))
+    task_info = get_object_or_404(DownloadTask, id=task_id)
+    if task_info.is_finished():
+        return HttpResponseRedirect(reverse('remix-edit', kwargs={'pk': task_info.remix.id}))
     return {
-        'remix': remix,
+        'task_info': task_info,
     }
 
 @json_view
-def remix_progress(request, pk):
-    remix = get_object_or_404(Remix, pk=pk)
-    steps = [
-        {
-            'name': 'arg_{0}'.format(arg.name),
-            'label': 'Download {0}'.format(arg.source_pack),
-            'percent': 100 if arg.source_pack.is_ready() else 0,
-        }
-        for arg in remix.pack_args.all()
-    ]
+def remix_progress(request, task_id):
+    task_info = get_object_or_404(DownloadTask, id=task_id)
+    steps = task_info.get_progress()
     return {
+        # Whether this call succeeded: NOT whether the remix is finished!
         'success': True,
+
+        # The steps remaining and overall completedness.
         'steps': steps,
         'percent': sum(x['percent'] for x in steps) / len(steps),
-        'isComplete': all(x['percent'] for x in steps),
-        'milliseconds': 15 * 1000,
-        'href': reverse('remix-detail', kwargs={'pk': remix.pk}),
-        'label': remix.label,
+        'isComplete': all(x['percent'] == 100 for x in steps),
+
+        # Wait this long before asking againb & use this URL next time.
+        'milliseconds': 3 * 1000,
+        'next': reverse('remix-progress', kwargs={'task_id': task_id}),
+
+        # If successful then these will describe the link to the result.
+        'href': task_info.remix and reverse('remix-detail', kwargs={'pk': task_info.remix.id}),
+        'label': task_info.remix and task_info.remix.label,
     }
 
 @with_template('recipes/remix-edit.html')
@@ -198,51 +182,32 @@ def beta_upgrade(request):
             try:
                 recipe = form.cleaned_data['recipe']
                 download_url = form.cleaned_data['pack_download_url']
-                source_pack = get_mixer().get_pack(download_url)
+                home_url = form.cleaned_data['series_home_url']
+                forum_url = form.cleaned_data['series_forum_url']
 
-                level = Level.objects.get(label='Beta 1.4')
-
-                label = source_pack.label
-                m = LABEL_WITH_VERSION_RE.match(label)
-                if m:
-                    series_label = m.group('series')
-                    release_label = m.group('release')
-                else:
-                    series_label = label
-                    release_label = ''
-
+                level = Level.objects.get(label='Beta 1.4') # XXX really depends on the pack
                 try:
-                    source_release = Release.objects.get(download_url=download_url)
-                    messages.add_message(request, messages.INFO,
-                            u'We already have an entry for {pack}'.format(pack=source_pack.label))
-                except Release.DoesNotExist:
-                    series = Source(
-                        owner=request.user,
-                        label=series_label,
-                        home_url=form.cleaned_data['series_home_url'],
-                        forum_url=form.cleaned_data['series_forum_url'])
-                    series.save()
-                    source_release = series.releases.create(
-                        label=release_label,
+                    task_info = DownloadTask.objects.get(download_url=download_url)
+                    if task_info.owner == request.user:
+                        messages.add_message(request, messages.INFO,
+                            'You have already requested this remix')
+                    else:
+                        messages.add_message(request, messages.INFO,
+                            '{other} has already requested this remix'.format(other=task_info.user))
+                except DowqnloadTask.DoesNotExist:
+                    task_info = request.user.downloadtask_set.create(
+                        recipe=recipe,
                         level=level,
-                        download_url=form.cleaned_data['pack_download_url'],
-                        released=source_pack.get_last_modified())
-                ensure_source_pack_is_downloaded.delay(source_release.pk)
-
-                remix = Remix(
-                    owner=request.user,
-                    label='{label} + Beta 1.4'.format(label=source_pack.label),
-                    recipe=recipe)
-                remix.save()
-                remix.pack_args.create(
-                    name='base',
-                    source_pack=source_release)
+                        download_url=download_url,
+                        home_url=home_url,
+                        forum_url=forum_url)
+                download_and_remix.delay(task_info.id)
 
                 messages.add_message(request, messages.INFO,
-                        u'Added {remix} to the queue'.format(remix=remix.label))
+                        u'Download starting …')
 
                 return HttpResponseRedirect(
-                    reverse('remix-cooking', kwargs={'pk': remix.pk})) # Redirect after POST
+                    reverse('remix-cooking', kwargs={'task_id': task_info.id})) # Redirect after POST
             except BadZipfile, err:
                 messages.add_message(request, messages.ERROR,
                         u'The URL was valid but did not reference a texture pack ({err})'.format(err=err))

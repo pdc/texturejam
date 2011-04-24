@@ -9,6 +9,7 @@ from StringIO import StringIO
 from django import forms
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib import messages
 from django.core.cache import cache
 from django.conf import settings
 from texturepacker import Mixer, Atlas, set_http_cache
@@ -181,7 +182,7 @@ class Release(models.Model):
     def get_pack(self, loader=None):
         file_path = self.get_file_path()
         if not self.is_ready():
-            if self.download_url.starts_with(settings.STATIC_URL):
+            if self.download_url.startswith(settings.STATIC_URL):
                 static_path = os.path.join(settings.STATIC_DIR,
                     self.download_url[len(settings.STATIC_URL):].strip('/'))
                 os.symlink(static_path, file_path)
@@ -261,7 +262,6 @@ class Remix(models.Model):
         if candidates:
             return candidates[0].source_pack
 
-
 class PackArg(models.Model):
     class Meta:
         unique_together = [('recipe_pack', 'name')]
@@ -274,6 +274,40 @@ class PackArg(models.Model):
     def __unicode__(self):
         return u'{name}={source_pack}'.format(name=self.name, source_pack=self.source_pack.label)
 
+class DownloadTask(models.Model):
+    owner = models.ForeignKey(User)
+    recipe = models.ForeignKey(Spec, limit_choices_to={'spec_type': 'tprx'})
+    level = models.ForeignKey(Level)
+    remix = models.ForeignKey(Remix, blank=True, null=True, help_text='The remix, created once the resource is downloaded.')
+
+    download_url = models.URLField(max_length=255, unique=True)
+    home_url = models.URLField(max_length=255, blank=True)
+    forum_url = models.URLField(max_length=255, blank=True)
+
+    created = models.DateTimeField(auto_now_add=True, editable=False, help_text='When this pack was added to our list')
+    modified = models.DateTimeField(auto_now=True, editable=False, help_text='When our info about this pack was updated')
+
+    problem = models.CharField(max_length=1000, blank=True, help_text='A problem preventing the remix from being created. Blank means it is OK')
+
+    def is_finished(self):
+        return self.remix.id
+
+    def get_progress(self):
+        """Return a list of dicts describing progress so far.
+
+        This is potentially a list of steps wqith a percentage-done for each.
+        """
+        progress = [{
+            'name': 'download_1',
+            'label': 'Downloads {0}'.format(self.download_url),
+            'percent': 100 if self.is_finished() else 1,
+        },
+        {
+            'name': 'mixing',
+            'label': 'Creates remix',
+            'percent': 100 if self.is_finished() else 0,
+        }]
+        return progress
 
 def get_loader():
     loader = texturepacker.Loader()

@@ -1,26 +1,22 @@
 {% extends "base.html" %}
-{% block title %}Preparing {{ remix.label }} - Texturejam{% endblock %}
-{% block heading %}{{ remix.label }}{% endblock %}
-{% block subheading %}A remixed texture pack{% endblock %}
+{% block title %}Download &amp; remix - Texturejam{% endblock %}
+{% block heading %}Download &amp; remix{% endblock %}
+{% block subheading %}One moment please …{% endblock %}
 {% block content %}
 <section id="main">
     <p>
         Remixing texture packs can take a little while,
-        so the job of building {{ remix.label }} as been added to the queue.
+        so the job of building your remix as been added to the queue.
     </p>
 
-    <div id="progress" data-href="{% url remix-progress pk=remix.pk %}">
-        <p>Please wait while we</p>
+    <div id="progress" data-href="{% url remix-progress task_id=task_info.id %}">
+        <p>Please wait while Texturejam</p>
         <ol>
-            {% if remix.pack_args %}
-                {% for pack_arg in remix.pack_args.all %}
-                    {% with pack_arg.source_pack as p %}
-                    <li id="arg_{{ pack_arg.name }}">
-                        Download <a href="{% firstof p.home_url p.forum_url %}">{{ p }}</a>
-                    </li>
-                    {% endwith %}
-                {% endfor %}
-            {% endif %}
+            {% for step in task_info.get_progress %}
+            <li id="{{ step.name }}">
+                {{ step.label }}
+            </li>
+            {% endfor %}
         <ol>
     </div>
 
@@ -28,10 +24,10 @@
     <script src="{{ static }}script/cooking.js"></script>
 
     <p>
-        <img src="{{ remix.owner.get_profile.get_picture_src }}" alt="" class="userpic" />
-        {{ remix.owner }} requested this remix on {{ remix.created|date }}.
-        {% ifnotequal remix.created|date remix.modified|date %}
-            Last edited on {{ remix.modified|date }}.
+        <img src="{{ task_info.owner.get_profile.get_picture_src }}" alt="" class="userpic" />
+        {{ task_info.owner }} requested this remix on {{ task_info.created|date }}.
+        {% ifnotequal task_info.created|date remix.modified|date %}
+            Last edited on {{ task_info.modified|date }}.
         {% endifnotequal %}
     </p>
 
