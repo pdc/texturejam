@@ -367,7 +367,7 @@ def recipe_from_maps(request, id):
                     self.fields[tiles[0]['name']] = forms.ChoiceField(choices=choices, widget=forms.RadioSelect)
 
     if request.method == 'POST':
-        form = RecipeFromMapsForm(alts_list, src, request.POST)
+        form = RecipeFromMapsForm(tiles_list, src, request.POST)
         if form.is_valid():
             label = form.cleaned_data['label']
             desc = form.cleaned_data['desc']
