@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Sources - Texturejam{% endblock %}
+{% block heading %}{% if tag_names %}{{ tag_names }}{% else %}All{% endif %} Sources{% endblock %}
+{% block trail %}{% endblock %}
+{% block main_sections %}
+
+<div id="sources">
+    <section>
+    <h2>Source Packs</h2>
+        <p>
+            Remixes need source packs. These are the
+            packs created by artists,
+            that we can use in remixes.
+        </p>
+        <p>
+            Click through to see a preview of the pack and links to its web pages.
+        </p>
+    </section>
+</div>
+{% endblock %}
+
+{% block more_sections %}
+    <section class="pack-list">
+        <h2>{{ sources|length }} Source Pack{{ sources|pluralize }}</h2>
+        <ul>
+            {% for source in sources %}
+            <li>
+                <a href="{% url source-detail pk=source.pk %}">
+                    <img src="{% url source-resource source_id=source.id release_id=source.latest_release.id resource_name="pack.png" %}" alt="" class="pack-png" />
+                    <b>{{ source }}</b>
+                    <small>{{ source.latest_release.label }}</small>
+                </a>
+            </li>
+            {% endfor %}
+    </section>
+{% endblock %}

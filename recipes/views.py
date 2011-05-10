@@ -219,6 +219,20 @@ def beta_upgrade(request):
         'recipes': suitable_recipes,
     }
 
+@with_template('recipes/source-list.html')
+def source_list(request, tag_names_plusified):
+    tag_names = [x for x in tag_names_plusified.split('+') if x]
+    sources = Source.objects.all()
+    if tag_names:
+        sources = sources.filter(tags__name__in=tag_names)
+    sources = sources.order_by('label')
+    return {
+        'tag_names_plusified': tag_names_plusified,
+        'tag_names': tag_names,
+        'tags': Tag.objects.filter(name__in=tag_names),
+        'sources': sources,
+    }
+
 @with_template('recipes/source-detail.html')
 def source_detail(request, pk):
     source = get_object_or_404(Source, pk=pk)
@@ -331,10 +345,10 @@ def source_edit(request, pk):
         'release': releases[0],
     }
 
-def source_resource(request, pk, release_pk, resource_name):
+def source_resource(request, source_id, release_id, resource_name):
     """A resource from a source pack."""
-    source_pack = get_object_or_404(Release, pk=int(release_pk, 10))
-    data = source_pack.get_pack().get_resource(resource_name).get_bytes()
+    release = get_object_or_404(Release, series__id=source_id, id=release_id)
+    data = release.get_pack().get_resource(resource_name).get_bytes()
     return HttpResponse(data, mimetype='image/png')
 
 @login_required
@@ -344,7 +358,7 @@ def recipe_from_maps(request, id):
     tiles_list = spec.get_alt_tiles()
 
     release = spec.release_set.latest('released')
-    src = reverse('source-resource', kwargs={'pk': release.series.id, 'release_pk': release.id, 'resource_name': 'terrain.png'})
+    src = reverse('source-resource', kwargs={'source_id': release.series.id, 'release_id': release.id, 'resource_name': 'terrain.png'})
 
     # Lets see if I can build my own dynamic form!
     class RecipeFromMapsForm(forms.Form):

@@ -12,7 +12,7 @@
     </dl>
 
     <div id="preview">
-        <img class="pack_terrain" src="{% url source-resource pk=source.pk release_pk=release.pk resource_name="terrain.png" %}" alt="" />
+        <img class="pack_terrain" src="{% url source-resource source_id=source.id release_id=release.id resource_name="terrain.png" %}" alt="" />
     </div>
     {% endfor %}
 </section>

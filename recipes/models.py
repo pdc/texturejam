@@ -114,6 +114,7 @@ class Spec(models.Model):
 
 class Source(models.Model):
     owner = models.ForeignKey(User)
+    tags = models.ManyToManyField(Tag, blank=True)
 
     label = models.CharField(max_length=200, help_text="Not including version number")
     home_url = models.URLField(max_length=255, blank=True,
@@ -132,6 +133,9 @@ class Source(models.Model):
 
     def truncated_forum_url(self):
         return trunc_url(self.forum_url)
+
+    def latest_release(self):
+        return self.releases.latest()
 
 class Release(models.Model):
     """Represents one release of the source series.

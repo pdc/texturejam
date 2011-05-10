@@ -16,9 +16,11 @@ urlpatterns = patterns('recipes.views',
     (r'^mixing/(?P<task_id>\d+)/$', 'remix_cooking', {}, 'remix-cooking'),
     (r'^mixing/(?P<task_id>\d+)/progress$', 'remix_progress', {}, 'remix-progress'),
 
+    (r'^sources/$', 'source_list', {'tag_names_plusified': ''}, 'source-list'),
+    (r'^sources/bytag/(?P<tag_names_plusified>[\w+-]+)$', 'source_list', {}, 'source-list'),
     (r'^sources/(?P<pk>\d+)/$', 'source_detail', {}, 'source-detail'),
     (r'^sources/(?P<pk>\d+)/edit$', 'source_edit', {}, 'source-edit'),
-    (r'^sources/(?P<pk>\d+)/releases/(?P<release_pk>\d+)/resources/(?P<resource_name>.*)$', 'source_resource', {}, 'source-resource'),
+    (r'^sources/(?P<source_id>\d+)/releases/(?P<release_id>\d+)/resources/(?P<resource_name>.*)$', 'source_resource', {}, 'source-resource'),
 
     (r'^beta-upgrade$', 'beta_upgrade', {}, 'beta_upgrade'),
     (r'^recipe-from-maps/(?P<id>\d+)', 'recipe_from_maps', {}, 'recipe-from-maps'),
