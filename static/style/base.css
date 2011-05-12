@@ -832,6 +832,19 @@ dd small {
   -webkit-box-shadow: rgba(0, 0, 0, 0.5) 1px 1px 1px;
 }
 
+#more section {
+  -webkit-transition: height 2s ease-in
+}
+
+#more section.shown {
+  height: auto;
+}
+
+#more section.hidden {
+  height: 0;
+  overflow: hidden;
+}
+
 aside p {
   margin: 1.25em 10px 0;
 }

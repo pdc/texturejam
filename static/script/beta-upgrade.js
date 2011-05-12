@@ -1,11 +1,17 @@
 
-$(document).ready(function () {
-  var div = $('#more');
+$.domReady(function () {
   function up() {
-    var pk = $('select[name="recipe"]').val();
-    div.find('section[id!="recipe-' + pk + '"]:visible').slideUp();
-    div.find('#recipe-' + pk + ':hidden').slideDown();
+    var recipeID = -1;
+    $('select[name="recipe"] option').each(function (el) {
+      if (el.selected) {
+        recipeID = el.value;
+      }
+    });
+    var sectionID = 'recipe-' + recipeID;
+    $('#more section').each(function (el) {
+        el.className = (el.id == sectionID ? 'shown' : 'hidden');
+    });
   }
-  div.find('section[id!="recipe-' + $('select[name="recipe"]').val() + '"]').hide();
-  $('select[name="recipe"]').change(up);
+  up();
+  $('select[name="recipe"]').bind('change', up);
 });
