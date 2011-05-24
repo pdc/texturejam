@@ -4,6 +4,7 @@ import sys
 import os
 import yaml
 import re
+import hashlib
 from datetime import datetime, timedelta
 from StringIO import StringIO
 from django import forms
@@ -110,6 +111,39 @@ class Spec(models.Model):
                 tiless.append(tiles)
             tile_groups.append((group_name, tiless))
         return tile_groups
+
+    def get_etag(self):
+        return '"{0}"'.format(hashlib.md5(self.spec).hexdigest())
+
+
+def update_specs_from_dir(dir_path):
+    """Update or create spec entities based on files in the specified dir."""
+    counts = [0, 0]
+    staff = User.objects.filter(is_staff=True).order_by('date_joined')[0]
+    def do_eeet(dir_path, suffix, spec_type, counts):
+        for file_name in os.listdir(dir_path):
+            if file_name.endswith(suffix):
+                spec_name = file_name[:-len(suffix)]
+                with open(os.path.join(dir_path, file_name), 'rb') as strm:
+                    data = strm.read()
+                try:
+                    spec = Spec.objects.get(name=spec_name, spec_type=spec_type)
+                    needs_save = False
+                    if spec.spec != data:
+                        spec.spec = data
+                        needs_save = True
+                    if not spec.owner_id:
+                        spec.owner = staff
+                        needs_save = True
+                    if needs_save:
+                        spec.save()
+                        counts[1] += 1
+                except Spec.DoesNotExist:
+                    Spec.objects.create(owner=staff, name=spec_name, label=spec_name.title(), spec_type=spec_type, spec=data)
+                    counts[0] += 1
+    do_eeet(dir_path, '.tprx', 'tprx', counts)
+    do_eeet(os.path.join(dir_path, 'maps'), '.tpmaps', 'tpmaps', counts)
+    return counts
 
 
 class Source(models.Model):

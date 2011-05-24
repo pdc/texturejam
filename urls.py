@@ -25,8 +25,10 @@ urlpatterns = patterns('recipes.views',
     (r'^beta-upgrade$', 'beta_upgrade', {}, 'beta_upgrade'),
     (r'^recipe-from-maps/(?P<id>\d+)', 'recipe_from_maps', {}, 'recipe-from-maps'),
 
-    (r'^rx/(?P<name>[\w-]+)/$', 'recipe', {}, 'tprx'),
-    (r'^rx/maps/(?P<name>[\w-]+)$', 'maps', {}, 'tpmaps'),
+    (r'^rx/(?P<name>[\w-]+)$', 'spec', {'spec_type': 'tprx'}, 'tprx'),
+    (r'^rx/maps/(?P<name>[\w-]+)$', 'spec', {'spec_type': 'tpmaps'}, 'tpmaps'),
+
+    url(r'^api/', include('api.urls')),
 )
 
 urlpatterns += patterns('',

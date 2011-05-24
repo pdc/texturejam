@@ -4,3 +4,4 @@ dev-*.db
 foo
 settings.py
 celeryconfig.py
+test_working/

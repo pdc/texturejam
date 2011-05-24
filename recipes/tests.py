@@ -8,9 +8,13 @@ Replace these with more appropriate tests for your application.
 """
 
 from django.test import TestCase
+from mock import patch
+
+import shutil
+import json
 from textwrap import dedent
 from recipes.models import *
-from mock import patch
+from django.contrib.auth.models import User
 
 class TruncUrlTests(TestCase):
     def test_no_www(self):
@@ -108,3 +112,103 @@ class TextureCellTests(TestCase):
         self.assertEqual('ape_2', tiles[2]['value'])
         self.assertEqual('Alt 2', tiles[2]['label'])
         self.assertEqual('width: 16px; height: 16px; background-position: -16px -16px;', tiles[2]['style'])
+
+class TestUploader(TestCase):
+    TEST_DIR = 'test_working'
+    def setUp(self):
+        if os.path.exists(self.TEST_DIR):
+            shutil.rmtree(self.TEST_DIR)
+        os.mkdir(self.TEST_DIR)
+        os.mkdir(os.path.join(self.TEST_DIR, 'maps'))
+
+        with open(os.path.join(self.TEST_DIR, 'hello.tprx'), 'wb') as strm:
+            json.dump({'hello': 'world'}, strm, indent=True)
+
+        with open(os.path.join(self.TEST_DIR, 'maps/mappemonde.tpmaps'), 'wb') as strm:
+            json.dump({'terrain.png': 'w00t'}, strm, indent=True)
+
+        User.objects.create(username='jak', password='x', is_staff=False)
+        User.objects.create(username='jil', password='x', is_staff=True)
+
+    def test_nothing(self):
+        # This just checks that the setUp routine works!
+        pass
+
+    def test_created_count(self):
+        created_count, modified_count = update_specs_from_dir(self.TEST_DIR)
+        self.assertEqual(2, created_count)
+        self.assertEqual(0, modified_count)
+
+    def test_created_recipe(self):
+        update_specs_from_dir(self.TEST_DIR)
+        recipe = Spec.objects.get(name='hello', spec_type='tprx')
+        self.assertEqual({'hello': 'world'}, json.loads(recipe.spec))
+
+    def test_has_owner(self):
+        update_specs_from_dir(self.TEST_DIR)
+        recipe = Spec.objects.get(name='hello', spec_type='tprx')
+        self.assertEqual('jil', recipe.owner.username)
+
+    def test_created_atlas(self):
+        update_specs_from_dir(self.TEST_DIR)
+        atlas_entity = Spec.objects.get(name='mappemonde', spec_type='tpmaps')
+        self.assertEqual({'terrain.png': 'w00t'}, json.loads(atlas_entity.spec))
+
+    def test_updates_existing_recipe(self):
+        # One of the specs already exists.
+        spec0 = Spec.objects.create(owner=User.objects.get(username='jak'),
+            name='hello', spec_type='tprx', spec=json.dumps({'hello': 'sailor'}))
+
+        created_count, modified_count = update_specs_from_dir(self.TEST_DIR)
+        self.assertEqual(1, created_count)
+        self.assertEqual(1, modified_count)
+
+        recipe = Spec.objects.get(name='hello', spec_type='tprx')
+        self.assertEqual({'hello': 'world'}, json.loads(recipe.spec))
+        self.assertEqual('jak', recipe.owner.username)
+        self.assertTrue(recipe.modified > spec0.modified)
+
+        # Just to be sure we have not accidentally created a spare object.
+        # (In practice the uniquenbess rules will prevent this anyway.)
+        self.assertEqual(2, Spec.objects.count())
+
+    def test_idempotent(self):
+        # This time the old content matches the file content.
+        spec0 = Spec.objects.create(owner=User.objects.get(username='jak'),
+            name='hello', spec_type='tprx', spec=json.dumps({'hello': 'world'}, indent=1))
+
+        created_count, modified_count = update_specs_from_dir(self.TEST_DIR)
+        self.assertEqual(1, created_count)
+        self.assertEqual(0, modified_count)
+
+        recipe = Spec.objects.get(name='hello', spec_type='tprx')
+        self.assertEqual({'hello': 'world'}, json.loads(recipe.spec))
+        self.assertEqual('jak', recipe.owner.username)
+        self.assertEqual(spec0.modified, recipe.modified)
+
+        self.assertEqual(2, Spec.objects.count())
+
+    def test_ersatz_label(self):
+        update_specs_from_dir(self.TEST_DIR)
+        recipe = Spec.objects.get(name='hello', spec_type='tprx')
+        self.assertEqual('Hello', recipe.label)
+
+    def test_preserve_existing_label(self):
+        spec0 = Spec.objects.create(owner=User.objects.get(username='jak'),
+            name='hello', label='GREETINGS', spec_type='tprx', spec=json.dumps({'hello': 'sailor'}))
+
+        update_specs_from_dir(self.TEST_DIR)
+        recipe = Spec.objects.get(name='hello', spec_type='tprx')
+        self.assertEqual('GREETINGS', recipe.label)
+
+
+    def test_repair_missing_owner(self):
+        spec0 = Spec.objects.create(name='hello', label='GREETINGS', spec_type='tprx', spec=json.dumps({'hello': 'sailor'}))
+
+        created_count, modified_count = update_specs_from_dir(self.TEST_DIR)
+        self.assertEqual(1, created_count)
+        self.assertEqual(1, modified_count)
+
+        recipe = Spec.objects.get(name='hello', spec_type='tprx')
+        self.assertEqual('jil', recipe.owner.username)
+

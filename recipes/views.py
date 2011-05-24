@@ -72,7 +72,7 @@ def remix_resource(request, pk, resource_name):
 def remix_cooking(request, task_id):
     """User has requested creation of a texture pack."""
     task_info = get_object_or_404(DownloadTask, id=task_id)
-    if task_info.is_finished():
+    if False and task_info.is_finished():
         return HttpResponseRedirect(reverse('remix-edit', kwargs={'pk': task_info.remix.id}))
     return {
         'task_info': task_info,
@@ -131,16 +131,28 @@ def remix_edit(request, pk):
         'recipes': Spec.objects.filter(spec_type='tprx'),
     }
 
-
-def recipe(request, name):
+def spec(request, name, spec_type):
     """Return the spec for a recipe as YAML or JSON."""
-    recipe = get_object_or_404(Spec, name=name, spec_type='tprx')
-    return HttpResponse(recipe.spec, mimetype="application/x-yaml")
+    spec = get_object_or_404(Spec, name=name, spec_type=spec_type)
+    if request.method == 'PUT':
+        return HttpResponseForbidden()
+        # XXX check is valid YAML
+        # XXX check content-type
 
-def maps(request, name):
-    """Return the spec for a map as YAML or JSON."""
-    recipe = get_object_or_404(Spec, name=name, spec_type='tpmaps')
-    return HttpResponse(recipe.spec, mimetype="application/x-yaml")
+        etag = request.META.get('IF_MATCH')
+        if etag != spec.get_etag():
+            return HttpResponse(status=412,
+                content='Etag did not match', content_type="text/plain")
+
+        spec.spec = request.raw_post_data
+        spec.save()
+        response = HttpResponse(status=204)
+        response['ETag'] = spec.get_etag()
+        return response
+    response = HttpResponse(spec.spec, mimetype="application/x-yaml")
+    response['ETag'] = spec.get_etag()
+    return response
+
 
 def make_texture_pack(request, pk, slug):
     """Generate the ZIP file for a texture pack."""
