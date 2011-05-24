@@ -20,8 +20,13 @@
         <ol>
     </div>
 
-    <script src="{{ static }}script/jquery-1.5.1.min.js"></script>
+    {% comment %}
+    <script src="{{ static }}script/ender.js"></script>
     <script src="{{ static }}script/cooking.js"></script>
+    {% endcomment %}
+    <script src="{{ static }}script/ender.min.js"></script>
+    <script src="{{ static }}script/cooking.min.js"></script>
+    {% comment %}<script src="{{ static }}script/ender-app.js"></script>{% endcomment %}
 
     <p>
         <img src="{{ task_info.owner.get_profile.get_picture_src }}" alt="" class="userpic" />

@@ -3,7 +3,7 @@
   * copyright Dustin Diaz & Jacob Thornton 2011 (@ded @fat)
   * https://ender.no.de
   * License MIT
-  * Build: ender -b jeesh emile
+  * Build: ender -b jeesh emile reqwest
   */
 !function (context) {
 
@@ -1737,3 +1737,691 @@
     }
   }, true);
 }(document);
+
+/*!
+  * Valentine: JavaScript's Sister
+  * copyright Dustin Diaz 2011 (@ded)
+  * https://github.com/ded/valentine
+  * License MIT
+  */
+
+!function (context) {
+
+  var v = function (a, scope) {
+        return new Valentine(a, scope);
+      },
+      ap = [],
+      op = {},
+      slice = ap.slice,
+      nativ = 'map' in ap,
+      nativ18 = 'reduce' in ap,
+      trimReplace = /(^\s*|\s*$)/g;
+
+  var iters = {
+    each: nativ ?
+      function (a, fn, scope) {
+        ap.forEach.call(a, fn, scope);
+      } :
+      function (a, fn, scope) {
+        for (var i = 0, l = a.length; i < l; i++) {
+          i in a && fn.call(scope, a[i], i, a);
+        }
+      },
+    map: nativ ?
+      function (a, fn, scope) {
+        return ap.map.call(a, fn, scope);
+      } :
+      function (a, fn, scope) {
+        var r = [];
+        for (var i = 0, l = a.length; i < l; i++) {
+          i in a && (r[i] = fn.call(scope, a[i], i, a));
+        }
+        return r;
+      },
+    some: nativ ?
+      function (a, fn, scope) {
+        return a.some(fn, scope);
+      } :
+      function (a, fn, scope) {
+        for (var i = 0, l = a.length; i < l; i++) {
+          if (i in a && fn.call(scope, a[i], i, a)) {
+            return true;
+          }
+        }
+        return false;
+      },
+    every: nativ ?
+      function (a, fn, scope) {
+        return a.every(fn, scope);
+      } :
+      function (a, fn, scope) {
+        for (var i = 0, l = a.length; i < l; i++) {
+          if (i in a && !fn.call(scope, a[i], i, a)) {
+            return false;
+          }
+        }
+        return true;
+      },
+    filter: nativ ?
+      function (a, fn, scope) {
+        return a.filter(fn, scope);
+      } :
+      function (a, fn, scope) {
+        var r = [];
+        for (var i = 0, j = 0, l = a.length; i < l; i++) {
+          if (i in a) {
+            if (!fn.call(scope, a[i], i, a)) {
+              continue;
+            }
+            r[j++] = a[i];
+          }
+        }
+        return r;
+      },
+    indexOf: nativ ?
+      function (a, el, start) {
+        return a.indexOf(el, isFinite(start) ? start : 0);
+      } :
+      function (a, el, start) {
+        start = start || 0;
+        for (var i = 0; i < a.length; i++) {
+          if (i in a && a[i] === el) {
+            return i;
+          }
+        }
+        return -1;
+      },
+
+    lastIndexOf: nativ ?
+      function (a, el, start) {
+        return a.lastIndexOf(el, isFinite(start) ? start : a.length);
+      } :
+      function (a, el, start) {
+        start = start || a.length;
+        start = start >= a.length ? a.length :
+          start < 0 ? a.length + start : start;
+        for (var i = start; i >= 0; --i) {
+          if (i in a && a[i] === el) {
+            return i;
+          }
+        }
+        return -1;
+      },
+
+    reduce: nativ18 ?
+      function (o, i, m, c) {
+        return ap.reduce.call(o, i, m, c);
+      } :
+      function (obj, iterator, memo, context) {
+        !obj && (obj = []);
+        var i = 0, l = obj.length;
+        if (arguments.length < 3) {
+          do {
+            if (i in obj) {
+              memo = obj[i++];
+              break;
+            }
+            if (++i >= l) {
+              throw new TypeError('Empty array');
+            }
+          } while (1);
+        }
+        for (; i < l; i++) {
+          if (i in obj) {
+            memo = iterator.call(context, memo, obj[i], i, obj);
+          }
+        }
+        return memo;
+      },
+
+    reduceRight: nativ18 ?
+      function (o, i, m, c) {
+        return ap.reduceRight.call(o, i, m, c);
+      } :
+      function (obj, iterator, memo, context) {
+        !obj && (obj = []);
+        var l = obj.length, i = l - 1;
+        if (arguments.length < 3) {
+          do {
+            if (i in obj) {
+              memo = obj[i--];
+              break;
+            }
+            if (--i < 0) {
+              throw new TypeError('Empty array');
+            }
+          } while (1);
+        }
+        for (; i >= 0; i--) {
+          if (i in obj) {
+            memo = iterator.call(context, memo, obj[i], i, obj);
+          }
+        }
+        return memo;
+      },
+
+    find: function (obj, iterator, context) {
+      var result;
+      iters.some(obj, function (value, index, list) {
+        if (iterator.call(context, value, index, list)) {
+          result = value;
+          return true;
+        }
+      });
+      return result;
+    },
+
+    reject: function (a, fn, scope) {
+      var r = [];
+      for (var i = 0, j = 0, l = a.length; i < l; i++) {
+        if (i in a) {
+          if (fn.call(scope, a[i], i, a)) {
+            continue;
+          }
+          r[j++] = a[i];
+        }
+      }
+      return r;
+    },
+
+    size: function (a) {
+      return o.toArray(a).length;
+    },
+
+    pluck: function (a, k) {
+      return iters.map(a, function (el) {
+        return el[k];
+      });
+    },
+
+    compact: function (a) {
+      return iters.filter(a, function (value) {
+        return !!value;
+      });
+    },
+
+    flatten: function (a) {
+      return iters.reduce(a, function (memo, value) {
+        if (is.arr(value)) {
+          return memo.concat(iters.flatten(value));
+        }
+        memo[memo.length] = value;
+        return memo;
+      }, []);
+    },
+
+    uniq: function (ar) {
+      var a = [], i, j;
+      label:
+      for (i = 0; i < ar.length; i++) {
+        for (j = 0; j < a.length; j++) {
+          if (a[j] == ar[i]) {
+            continue label;
+          }
+        }
+        a[a.length] = ar[i];
+      }
+      return a;
+    }
+
+  };
+
+  function aug(o, o2) {
+    for (var k in o2) {
+      o[k] = o2[k];
+    }
+  }
+
+  var is = {
+    fun: function (f) {
+      return typeof f === 'function';
+    },
+
+    str: function (s) {
+      return typeof s === 'string';
+    },
+
+    ele: function (el) {
+      !!(el && el.nodeType && el.nodeType == 1);
+    },
+
+    arr: function (ar) {
+      return ar instanceof Array;
+    },
+    
+    arrLike: function (ar) {
+      return (ar && ar.length && isFinite(ar.length));
+    },
+
+    num: function (n) {
+      return typeof n === 'number';
+    },
+
+    bool: function (b) {
+      return (b === true) || (b === false);
+    },
+
+    args: function (a) {
+      return !!(a && op.hasOwnProperty.call(a, 'callee'));
+    },
+
+    emp: function (o) {
+      var i = 0;
+      return is.arr(o) ? o.length === 0 :
+        is.obj(o) ? (function () {
+          for (var k in o) {
+            i++;
+            break;
+          }
+          return (i === 0);
+        }()) :
+        o === '';
+    },
+
+    dat: function (d) {
+      return !!(d && d.getTimezoneOffset && d.setUTCFullYear);
+    },
+
+    reg: function (r) {
+      return !!(r && r.test && r.exec && (r.ignoreCase || r.ignoreCase === false));
+    },
+
+    nan: function (n) {
+      return n !== n;
+    },
+
+    nil: function (o) {
+      return o === null;
+    },
+
+    und: function (o) {
+      return typeof o === 'undefined';
+    },
+
+    obj: function (o) {
+      return o instanceof Object && !is.fun(o) && !is.arr(o);
+    }
+  };
+
+  var o = {
+    each: function (a, fn, scope) {
+      is.arrLike(a) ?
+        iters.each(a, fn, scope) : (function () {
+          for (var k in a) {
+            op.hasOwnProperty.call(a, k) && fn.call(scope, k, a[k], a);
+          }
+        }());
+    },
+
+    map: function (a, fn, scope) {
+      var r = [], i = 0;
+      return is.arr(a) ?
+        iters.map(a, fn, scope) : !function () {
+          for (var k in a) {
+            op.hasOwnProperty.call(a, k) && (r[i++] = fn.call(scope, k, a[k], a));
+          }
+        }() && r;
+    },
+
+    toArray: function (a) {
+      if (!a) {
+        return [];
+      }
+      if (a.toArray) {
+        return a.toArray();
+      }
+      if (is.arr(a)) {
+        return a;
+      }
+      if (is.args(a)) {
+        return slice.call(a);
+      }
+      return iters.map(a, function (k) {
+        return k;
+      });
+    },
+
+    first: function (a) {
+      return a[0];
+    },
+
+    last: function (a) {
+      return a[a.length - 1];
+    },
+
+    keys: Object.keys ?
+      function (o) {
+        return Object.keys(o);
+      } :
+      function (obj) {
+        var keys = [];
+        for (var key in obj) {
+          op.hasOwnProperty.call(obj, key) && (keys[keys.length] = key);
+        }
+        return keys;
+      },
+
+    values: function (ob) {
+      return o.map(ob, function (k, v) {
+        return v;
+      });
+    },
+
+    extend: function (ob) {
+      o.each(slice.call(arguments, 1), function (source) {
+        for (var prop in source) {
+          !is.und(source[prop]) && (ob[prop] = source[prop]);
+        }
+      });
+      return ob;
+    },
+
+    trim: String.prototype.trim ?
+      function (s) {
+        return s.trim();
+      } :
+      function (s) {
+        return s.replace(trimReplace, '');
+      },
+
+    bind: function (scope, fn) {
+      return function () {
+        fn.apply(scope, arguments);
+      };
+    }
+
+  };
+
+  aug(v, iters);
+  aug(v, o);
+  v.is = is;
+
+  // love thyself
+  v.v = v;
+
+  // peoples like the object style
+  var Valentine = function (a, scope) {
+    this.val = a;
+    this._scope = scope || null;
+    this._chained = 0;
+  };
+
+  v.each(v.extend({}, iters, o), function (name, fn) {
+    Valentine.prototype[name] = function () {
+      var a = v.toArray(arguments);
+      a.unshift(this.val);
+      var ret = fn.apply(this._scope, a);
+      this.val = ret;
+      return this._chained ? this : ret;
+    };
+  });
+
+  // back compact to underscore (peoples like chaining)
+  Valentine.prototype.chain = function () {
+    this._chained = 1;
+    return this;
+  };
+
+  Valentine.prototype.value = function () {
+    return this.val;
+  };
+
+  var old = context.v;
+  v.noConflict = function () {
+    context.v = old;
+    return this;
+  };
+
+  (typeof module !== 'undefined') && module.exports ?
+    (module.exports = v) :
+    (context['v'] = v);
+
+}(this);ender.ender(v);
+/*!
+  * Reqwest! A x-browser general purpose XHR connection manager
+  * copyright Dustin Diaz 2011
+  * https://github.com/ded/reqwest
+  * license MIT
+  */
+!function (window) {
+  var twoHundo = /^20\d$/,
+      doc = document,
+      byTag = 'getElementsByTagName',
+      topScript = doc[byTag]('script')[0],
+      head = topScript.parentNode,
+      xhr = ('XMLHttpRequest' in window) ?
+        function () {
+          return new XMLHttpRequest();
+        } :
+        function () {
+          return new ActiveXObject('Microsoft.XMLHTTP');
+        };
+
+  var uniqid = 0;
+
+  function readyState(o, success, error) {
+    return function () {
+      if (o && o.readyState == 4) {
+        if (twoHundo.test(o.status)) {
+          success(o);
+        } else {
+          error(o);
+        }
+      }
+    };
+  }
+
+  function setHeaders(http, options) {
+    var headers = options.headers || {};
+    headers.Accept = 'text/javascript, text/html, application/xml, text/xml, */*';
+    if (options.data) {
+      headers['Content-type'] = 'application/x-www-form-urlencoded';
+      for (var h in headers) {
+        headers.hasOwnProperty(h) && http.setRequestHeader(h, headers[h], false);
+      }
+    }
+  }
+
+  function getCallbackName(o) {
+    var callbackVar = o.jsonpCallback || "callback";
+    if (o.url.substr(-(callbackVar.length + 2)) == (callbackVar + "=?")) {
+      // Generate a guaranteed unique callback name
+      var callbackName = "reqwest_" + uniqid++;
+
+      // Replace the ? in the URL with the generated name
+      o.url = o.url.substr(0, o.url.length - 1) + callbackName;
+      return callbackName;
+    } else {
+      // Find the supplied callback name
+      var regex = new RegExp(callbackVar + "=([\\w]+)");
+      return o.url.match(regex)[1];
+    }
+  }
+
+  function getRequest(o, fn, err) {
+    if (o.type == 'jsonp') {
+      var script = doc.createElement('script');
+
+      // Add the global callback
+      var callbackName = getCallbackName(o);
+      window[callbackName] = function (data) {
+        // Call the success callback
+        o.success && o.success(data);
+      };
+
+      // Setup our script element
+      script.type = "text/javascript";
+      script.src = o.url;
+      script.async = true;
+      script.onload = function () {
+        // Script has been loaded, and thus the user callback has
+        // been called, so lets clean up now.
+        head.removeChild(script);
+        delete window[callbackName];
+      };
+
+      // Add the script to the DOM head
+      head.insertBefore(script, topScript);
+    } else {
+      var http = xhr();
+      http.open(o.method || 'GET', typeof o == 'string' ? o : o.url, true);
+      setHeaders(http, o);
+      http.onreadystatechange = readyState(http, fn, err);
+      o.before && o.before(http);
+      http.send(o.data || null);
+      return http;
+    }
+  }
+
+  function Reqwest(o, fn) {
+    this.o = o;
+    this.fn = fn;
+    init.apply(this, arguments);
+  }
+
+  function setType(url) {
+    if (/\.json$/.test(url)) {
+      return 'json';
+    }
+    if (/\.jsonp$/.test(url)) {
+      return 'jsonp';
+    }
+    if (/\.js$/.test(url)) {
+      return 'js';
+    }
+    if (/\.html?$/.test(url)) {
+      return 'html';
+    }
+    if (/\.xml$/.test(url)) {
+      return 'xml';
+    }
+    return 'js';
+  }
+
+  function init(o, fn) {
+    this.url = typeof o == 'string' ? o : o.url;
+    this.timeout = null;
+    var type = o.type || setType(this.url), self = this;
+    fn = fn || function () {};
+
+    if (o.timeout) {
+      this.timeout = setTimeout(function () {
+        self.abort();
+        error();
+      }, o.timeout);
+    }
+
+    function complete(resp) {
+      o.complete && o.complete(resp);
+    }
+
+    function success(resp) {
+      o.timeout && clearTimeout(self.timeout) && (self.timeout = null);
+      var r = resp.responseText;
+
+      switch (type) {
+      case 'json':
+        resp = eval('(' + r + ')');
+        break;
+      case 'js':
+        resp = eval(r);
+        break;
+      case 'html':
+        resp = r;
+        break;
+      // default is the response from server
+      }
+
+      fn(resp);
+      o.success && o.success(resp);
+      complete(resp);
+    }
+
+    function error(resp) {
+      o.error && o.error(resp);
+      complete(resp);
+    }
+
+    this.request = getRequest(o, success, error);
+  }
+
+  Reqwest.prototype = {
+    abort: function () {
+      this.request.abort();
+    },
+
+    retry: function () {
+      init.call(this, this.o, this.fn);
+    }
+  };
+
+  function reqwest(o, fn) {
+    return new Reqwest(o, fn);
+  }
+
+  function enc(v) {
+    return encodeURIComponent(v);
+  }
+
+  function serial(el) {
+    var n = el.name;
+    // don't serialize elements that are disabled or without a name
+    if (el.disabled || !n) {
+      return '';
+    }
+    n = enc(n);
+    switch (el.tagName.toLowerCase()) {
+    case 'input':
+      switch (el.type) {
+      // silly wabbit
+      case 'reset':
+      case 'button':
+      case 'image':
+      case 'file':
+        return '';
+      case 'checkbox':
+      case 'radio':
+        return el.checked ? n + '=' + (el.value ? enc(el.value) : true) + '&' : '';
+      default: // text hidden password submit
+        return n + '=' + (el.value ? enc(el.value) : true) + '&';
+      }
+      break;
+    case 'textarea':
+      return n + '=' + enc(el.value) + '&';
+    case 'select':
+      // @todo refactor beyond basic single selected value case
+      return n + '=' + enc(el.options[el.selectedIndex].value) + '&';
+    }
+    return '';
+  }
+
+  reqwest.serialize = function (form) {
+    var inputs = form[byTag]('input'),
+        selects = form[byTag]('select'),
+        texts = form[byTag]('textarea');
+    return (v(inputs).chain().toArray().map(serial).value().join('') +
+    v(selects).chain().toArray().map(serial).value().join('') +
+    v(texts).chain().toArray().map(serial).value().join('')).replace(/&$/, '');
+  };
+
+  reqwest.serializeArray = function (f) {
+    for (var pairs = this.serialize(f).split('&'), i = 0, l = pairs.length, r = [], o; i < l; i++) {
+      pairs[i] && (o = pairs[i].split('=')) && r.push({name: o[0], value: o[1]});
+    }
+    return r;
+  };
+
+  var old = window.reqwest;
+  reqwest.noConflict = function () {
+    window.reqwest = old;
+    return this;
+  };
+
+  // defined as extern for Closure Compilation
+  // do not change to (dot) '.' syntax
+  window['reqwest'] = reqwest;
+
+}(this);ender.ender({
+  ajax: reqwest
+});
+ender.ender(reqwest, true);

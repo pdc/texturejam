@@ -788,7 +788,6 @@ dd small {
 
 #progress .complete {
   color: rgba(0, 0, 0, 0.5);
-  text-decoration: line-through;
 }
 
 #progress .complete a {
@@ -796,14 +795,17 @@ dd small {
 }
 
 #progress li.complete:after {
-  background-image: url(info-24.png);
+  background-image: none;
 }
 
 #progress .next {
   margin: 0.613em 0;
-  padding: 1.25em 10px;
+  padding: 1.2em 9px 1.2em 49px;
 
-  background-color: #9C3;
+  background: rgba(153, 204, 51, 0.25) url(info-24.png) 1.25em 10px no-repeat;
+  border: 1px solid rgba(153, 204, 51, 0.75);
+  border-radius: 10px;
+  box-shadow: rgba(0, 0, 0, 0.25) 2px 2px 3px;
   font-weight: bolder;
 }
 

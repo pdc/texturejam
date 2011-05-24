@@ -2,6 +2,7 @@
 
 import yaml
 import re
+import errno
 from datetime import datetime, timedelta
 from zipfile import BadZipfile
 from django.http import HttpResponse, HttpResponseRedirect
@@ -72,7 +73,7 @@ def remix_resource(request, pk, resource_name):
 def remix_cooking(request, task_id):
     """User has requested creation of a texture pack."""
     task_info = get_object_or_404(DownloadTask, id=task_id)
-    if False and task_info.is_finished():
+    if task_info.is_finished():
         return HttpResponseRedirect(reverse('remix-edit', kwargs={'pk': task_info.remix.id}))
     return {
         'task_info': task_info,
@@ -214,7 +215,6 @@ def beta_upgrade(request):
                         home_url=home_url,
                         forum_url=forum_url)
                 download_and_remix.delay(task_info.id)
-
                 messages.add_message(request, messages.INFO,
                         u'Download starting …')
 
@@ -223,6 +223,15 @@ def beta_upgrade(request):
             except BadZipfile, err:
                 messages.add_message(request, messages.ERROR,
                         u'The URL was valid but did not reference a texture pack ({err})'.format(err=err))
+            except IOError, err:
+                if err.errno == errno.ECONNREFUSED:
+                    messages.add_message(request, messages.ERROR,
+                            u'Could not queue your request (it seems the AMQP service is down)')
+                else:
+                    messages.add_message(request, messages.ERROR,
+                            u'Could not queue your request ({cls}: {msg})'.format(
+                            cls=err.__class__.__name__, msg=err))
+
     else:
         form = BetaForm() # An unbound form
 

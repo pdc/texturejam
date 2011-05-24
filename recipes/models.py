@@ -337,7 +337,7 @@ class DownloadTask(models.Model):
         """
         progress = [{
             'name': 'download_1',
-            'label': 'Downloads {0}'.format(self.download_url),
+            'label': u'Downloads {0}'.format(trunc_url(self.download_url)),
             'percent': 100 if self.is_finished() else 1,
         },
         {
