@@ -28,7 +28,12 @@
                 <a href="{% url source-detail pk=source.pk %}">
                     <img src="{% url source-resource source_id=source.id release_id=source.latest_release.id resource_name="pack.png" %}" alt="" class="pack-png" />
                     <b>{{ source }}</b>
-                    <small>{{ source.latest_release.label }}</small>
+                    <small>
+                        {% with source.latest_release as release %}
+                        {{ release.label }}
+                        / {{ release.level.label }}
+                        {% endwith %}
+                    </small>
                 </a>
             </li>
             {% endfor %}
