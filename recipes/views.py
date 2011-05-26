@@ -57,15 +57,15 @@ def remix_list(request):
     }
 
 @with_template('recipes/remix-detail.html')
-def remix_detail(request, pk):
+def remix_detail(request, remix_id):
     """Info about one remix."""
     return {
-        'remix': get_object_or_404(Remix, pk=pk)
+        'remix': get_object_or_404(Remix, id=remix_id)
     }
 
-def remix_resource(request, pk, resource_name):
+def remix_resource(request, remix_id, resource_name):
     """A resource from a recipe pack."""
-    remix = get_object_or_404(Remix, pk=int(pk, 10))
+    remix = get_object_or_404(Remix, id=remix_id)
     data = remix.get_pack().get_resource(resource_name).get_bytes()
     return HttpResponse(data, mimetype='image/png')
 
@@ -74,7 +74,7 @@ def remix_cooking(request, task_id):
     """User has requested creation of a texture pack."""
     task_info = get_object_or_404(DownloadTask, id=task_id)
     if task_info.is_finished():
-        return HttpResponseRedirect(reverse('remix-edit', kwargs={'pk': task_info.remix.id}))
+        return HttpResponseRedirect(reverse('remix-edit', kwargs={'remix_id': task_info.remix.id}))
     return {
         'task_info': task_info,
     }
@@ -97,18 +97,18 @@ def remix_progress(request, task_id):
         'next': reverse('remix-progress', kwargs={'task_id': task_id}),
 
         # If successful then these will describe the link to the result.
-        'href': task_info.remix and reverse('remix-detail', kwargs={'pk': task_info.remix.id}),
+        'href': task_info.remix and reverse('remix-detail', kwargs={'remix_id': task_info.remix.id}),
         'label': task_info.remix and task_info.remix.label,
     }
 
 @with_template('recipes/remix-edit.html')
-def remix_edit(request, pk):
-    remix = get_object_or_404(Remix, pk=pk)
+def remix_edit(request, remix_id):
+    remix = get_object_or_404(Remix, id=remix_id)
 
     if remix.owner.id != request.user.id:
         messages.add_message(request, messages.ERROR,
             u'You can’t edit {remix}, because you are not its maintainer'.format(remix=remix.label))
-        return HttpResponseRedirect(reverse('remix-detail', kwargs={'pk': remix.pk}))
+        return HttpResponseRedirect(reverse('remix-detail', kwargs={'remix_id': remix.id}))
 
     class RemixEditForm(forms.ModelForm):
         class Meta:
@@ -122,7 +122,7 @@ def remix_edit(request, pk):
 
             messages.add_message(request, messages.INFO,
                     u'Updated description of {remix}'.format(remix=remix2.label))
-            return HttpResponseRedirect(reverse('remix-detail', kwargs={'pk': remix2.pk}))
+            return HttpResponseRedirect(reverse('remix-detail', kwargs={'remix_id': remix2.id}))
     else:
         form = RemixEditForm(instance=remix)
 
@@ -155,9 +155,9 @@ def spec(request, name, spec_type):
     return response
 
 
-def make_texture_pack(request, pk, slug):
+def make_texture_pack(request, remix_id, slug):
     """Generate the ZIP file for a texture pack."""
-    remix = get_object_or_404(Remix, pk=pk)
+    remix = get_object_or_404(Remix, id=remix_id)
     pack = remix.get_pack()
 
     response = HttpResponse(mimetype="application/zip")
@@ -255,8 +255,8 @@ def source_list(request, tag_names_plusified):
     }
 
 @with_template('recipes/source-detail.html')
-def source_detail(request, pk):
-    source = get_object_or_404(Source, pk=pk)
+def source_detail(request, source_id):
+    source = get_object_or_404(Source, id=source_id)
     releases = source.releases.order_by('-released')
     release = releases[0]
     return {
@@ -266,13 +266,13 @@ def source_detail(request, pk):
     }
 
 @with_template('recipes/source-edit.html')
-def source_edit(request, pk):
-    source = get_object_or_404(Source, pk=pk)
+def source_edit(request, source_id):
+    source = get_object_or_404(Source, id=source_id)
 
     if source.owner.id != request.user.id:
         messages.add_message(request, messages.ERROR,
             u'You can’t edit {source} because you are not its maintainer'.format(source=source.label))
-        return HttpResponseRedirect(reverse('source-detail', kwargs={'pk': source.pk}))
+        return HttpResponseRedirect(reverse('source-detail', kwargs={'source_id': source.id}))
 
     releases = source.releases.order_by('-released')
     release = releases[0]
@@ -330,7 +330,7 @@ def source_edit(request, pk):
                     release.full_clean(exclude=['released', 'last_download_attempt'])
                     release.save()
                     release.invalidate_downloaded_data()
-                    ensure_source_pack_is_downloaded.delay(release.pk)
+                    ensure_source_pack_is_downloaded.delay(release.id)
                     messages.add_message(request, messages.INFO,
                         u'Updated description of release {release}'.format(release=release.label))
             else:
@@ -341,14 +341,14 @@ def source_edit(request, pk):
                     level=release_level,
                     download_url=release_download_url,
                     released=datetime.now())
-                ensure_source_pack_is_downloaded.delay(release.pk)
+                ensure_source_pack_is_downloaded.delay(release.id)
                 for arg in PackArg.objects.filter(source_pack=old_release):
                     arg.source_pack = release
                     arg.save()
                 messages.add_message(request, messages.INFO,
                     u'Added new release {release}'.format(release=release.label))
 
-            return HttpResponseRedirect(reverse('source-detail', kwargs={'pk': source.pk}))
+            return HttpResponseRedirect(reverse('source-detail', kwargs={'source_id': source.id}))
     else:
         form = SourceEditForm(initial={
             'source_label': source.label,
@@ -457,7 +457,7 @@ def recipe_from_maps(request, id):
                     u'{created} remix {label}'.format(
                         created='Created' if was_created else 'Updated',
                         label=remix.label))
-            return HttpResponseRedirect(reverse('remix-edit', kwargs={'pk': remix.id}))
+            return HttpResponseRedirect(reverse('remix-edit', kwargs={'remix_id': remix.id}))
     else:
         initial = {'label': '{maps} Alts'.format(maps=spec.label)}
         for name, tiless in tiles_list:

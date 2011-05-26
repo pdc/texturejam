@@ -39,7 +39,7 @@
 
 {% block more_sections %}
 {% for recipe in recipes %}
-<section id="recipe-{{ recipe.pk }}">
+<section id="recipe-{{ recipe.id }}">
     <h2>Recipe: {{ recipe.label }}</h2>
     {{ recipe.desc|markdown }}
 </section>

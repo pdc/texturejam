@@ -6,8 +6,8 @@
             <ul>
                 {% for arg in rr.active_occurrences %}
                 <li>
-                    <a href="{% url remix-detail pk=arg.recipe_pack.pk %}">
-                        <img src="{% url remix-resource pk=arg.recipe_pack.pk resource_name="pack.png" %}" alt="" class="pack-png" />
+                    <a href="{% url remix-detail remix_id=arg.recipe_pack.id %}">
+                        <img src="{% url remix-resource remix_id=arg.recipe_pack.id resource_name="pack.png" %}" alt="" class="pack-png" />
                         <b>{{ arg.recipe_pack }}</b>
                         <small>
                             Using recipe

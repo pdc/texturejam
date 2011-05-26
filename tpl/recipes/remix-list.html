@@ -62,14 +62,14 @@
 
 {% block more_sections %}
 <div id="beta-remixes">
+    <section class="pack-list">
+        <h2>Packs Upgraded for Beta 1.6</h2>
     {% for grouper, list in beta_remixes %}
-    <section id="{{ grouper|slugify }}" class="pack-list">
-        <h2>{{ grouper }} Remix{{ list|pluralize:"es" }}</h2>
         <ul>
             {% for remix in list %}
             <li>
-                <a href="{% url remix-detail pk=remix.pk %}">
-                    <img src="{% url remix-resource pk=remix.pk resource_name="pack.png" %}" alt="" class="pack-png" />
+                <a href="{% url remix-detail remix_id=remix.id %}">
+                    <img src="{% url remix-resource remix_id=remix.id resource_name="pack.png" %}" alt="" class="pack-png" />
                     <b>{{ remix }}</b>
                     <small>
                         Based on
@@ -80,8 +80,8 @@
                 </a>
             </li>
             {% endfor %}
-    </section>
     {% endfor %}
+    </section>
 </div>
 
 <div id="other-remixes">
@@ -91,8 +91,8 @@
         <ul>
             {% for remix in list %}
             <li>
-                <a href="{% url remix-detail pk=remix.pk %}">
-                    <img src="{% url remix-resource pk=remix.pk resource_name="pack.png" %}" alt="" class="pack-png" />
+                <a href="{% url remix-detail remix_id=remix.id %}">
+                    <img src="{% url remix-resource remix_id=remix.id resource_name="pack.png" %}" alt="" class="pack-png" />
                     <b>{{ remix }}</b>
                     <small>
                         Based on

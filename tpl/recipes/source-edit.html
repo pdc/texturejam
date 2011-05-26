@@ -25,7 +25,7 @@
         {% endfor %}
         <div class="buttons">
             <input type="submit" value="Save changes" />
-            or, <a href="{% url source-detail pk=source.pk %}">Cancel</a>
+            or, <a href="{% url source-detail source_id=source.id %}">Cancel</a>
         </div>
     </form>
 </section>

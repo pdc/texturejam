@@ -25,7 +25,7 @@
         {% endfor %}
         <div class="buttons">
             <input type="submit" value="Save changes" />
-            or, <a href="{% url remix-detail pk=remix.pk %}">Cancel</a>
+            or, <a href="{% url remix-detail remix_id=remix.id %}">Cancel</a>
         </div>
     </form>
 </section>
@@ -33,14 +33,14 @@
 <section id="pack-preview">
     <h2>Preview</h2>
     <div id="preview">
-        <img class="pack_terrain" src="{% url remix-resource pk=remix.pk resource_name="terrain.png" %}" alt="" />
+        <img class="pack_terrain" src="{% url remix-resource remix_id=remix.id resource_name="terrain.png" %}" alt="" />
     </div>
 </section>
 {% endblock %}
 
 {% block more_sections %}
 {% for recipe in recipes %}
-<section id="recipe-{{ recipe.pk }}">
+<section id="recipe-{{ recipe.id }}">
     <h2>Recipe: {{ recipe.label }}</h2>
     {{ recipe.desc|markdown }}
 </section>

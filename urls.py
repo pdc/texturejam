@@ -8,18 +8,18 @@ admin.autodiscover()
 urlpatterns = patterns('recipes.views',
     (r'^$', 'remix_list', {}, 'home'),
 
-    (r'^remixes/(?P<pk>\d+)/$', 'remix_detail', {}, 'remix-detail'),
-    (r'^remixes/(?P<pk>\d+)/edit$', 'remix_edit', {}, 'remix-edit'),
-    (r'^remixes/(?P<pk>\d+)/resources/(?P<resource_name>.*)$', 'remix_resource', {}, 'remix-resource'),
-    (r'^remixes/(?P<pk>\d+)/(?P<slug>[\w-]+)\.zip$', 'make_texture_pack', {}, 'tpmake'),
+    (r'^remixes/(?P<remix_id>\d+)/$', 'remix_detail', {}, 'remix-detail'),
+    (r'^remixes/(?P<remix_id>\d+)/edit$', 'remix_edit', {}, 'remix-edit'),
+    (r'^remixes/(?P<remix_id>\d+)/resources/(?P<resource_name>.*)$', 'remix_resource', {}, 'remix-resource'),
+    (r'^remixes/(?P<remix_id>\d+)/(?P<slug>[\w-]+)\.zip$', 'make_texture_pack', {}, 'tpmake'),
 
     (r'^mixing/(?P<task_id>\d+)/$', 'remix_cooking', {}, 'remix-cooking'),
     (r'^mixing/(?P<task_id>\d+)/progress$', 'remix_progress', {}, 'remix-progress'),
 
     (r'^sources/$', 'source_list', {'tag_names_plusified': ''}, 'source-list'),
     (r'^sources/bytag/(?P<tag_names_plusified>[\w+-]+)$', 'source_list', {}, 'source-list'),
-    (r'^sources/(?P<pk>\d+)/$', 'source_detail', {}, 'source-detail'),
-    (r'^sources/(?P<pk>\d+)/edit$', 'source_edit', {}, 'source-edit'),
+    (r'^sources/(?P<source_id>\d+)/$', 'source_detail', {}, 'source-detail'),
+    (r'^sources/(?P<source_id>\d+)/edit$', 'source_edit', {}, 'source-edit'),
     (r'^sources/(?P<source_id>\d+)/releases/(?P<release_id>\d+)/resources/(?P<resource_name>.*)$', 'source_resource', {}, 'source-resource'),
 
     (r'^beta-upgrade$', 'beta_upgrade', {}, 'beta_upgrade'),
@@ -50,5 +50,5 @@ urlpatterns += patterns('',
 
 # Old URLs redirected to new ones.
 urlpatterns += patterns('django.views.generic.simple',
-    (r'^packs/(?P<pk>\d+)/$', 'redirect_to', {'url': '/remixes/%(pk)s/'}),
+    (r'^packs/(?P<remix_id>\d+)/$', 'redirect_to', {'url': '/remixes/%(remix_id)s/'}),
 )

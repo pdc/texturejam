@@ -28,7 +28,7 @@
         {% if source.owner.id == user.id %}
         <dt>Edit</dt>
         <dd>
-            <a href="{% url source-edit pk=source.pk %}">Edit description</a>
+            <a href="{% url source-edit source_id=source.id %}">Edit description</a>
         </dd>
         {% endif %}
     </dl>

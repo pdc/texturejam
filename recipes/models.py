@@ -33,6 +33,8 @@ class Level(models.Model):
         get_latest_by = 'released'
         ordering = ['-released'] # Reverse chronological order
 
+    upgrade_recipe = models.OneToOneField('Spec', blank=True, null=True)
+
     label = models.CharField(max_length=200)
     desc = models.TextField()
     released = models.DateTimeField(help_text='When the curresponding version of Minecraft was released')
@@ -239,6 +241,25 @@ class Release(models.Model):
 
     def active_occurrences(self):
         return self.occurrences.filter(recipe_pack__withdrawn=None)
+
+
+    def is_upgrade_remix_needed(self):
+        """Does this release need to e augmented to supprot the current Minecraft beta?"""
+        return self.level.upgrade_recipe
+
+    def upgrade_remix(self):
+        """Find a remix pack that upgrades this release to current Minecraft
+
+        Returns (needs_upgrade, remix)
+        where needs_upgrade is bool
+        and remix is None if no remix has been created yet.
+        """
+        recipe = self.level.upgrade_recipe
+        if recipe:
+            try:
+                return Remix.objects.get(recipe=recipe, pack_args__source_pack=self)
+            except Remix.DoesNotExist:
+                pass
 
 
 class Remix(models.Model):

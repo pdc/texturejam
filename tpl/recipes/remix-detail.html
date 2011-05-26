@@ -6,7 +6,7 @@
 
 {% block main_sections %}
 <section id="pack-desc">
-    <img class="pack-png" src="{% url remix-resource pk=remix.pk resource_name="pack.png" %}" align="left" alt="" />
+    <img class="pack-png" src="{% url remix-resource remix_id=remix.id resource_name="pack.png" %}" align="left" alt="" />
 
     <dl>
         {% if remix.pack_args %}
@@ -14,7 +14,7 @@
         <dd>
             {% for pack_arg in remix.pack_args.all %}
                 {% if not forloop.first %}{% if forloop.last %}and{% endif %}{% endif %}
-                <a href="{% url source-detail pk=pack_arg.source_pack.series.pk %}"
+                <a href="{% url source-detail source_id=pack_arg.source_pack.series.id %}"
                 >{{ pack_arg.source_pack }}</a>{% if not forloop.last %},{% else %}.{% endif %}
             {% endfor %}
         </dd>
@@ -43,10 +43,10 @@
         </dd>
         {% endif %}
 
-        {% if remix.owner.pk == user.pk %}
+        {% if remix.owner.id == user.id %}
         <dt>Edit</dt>
         <dd>
-            <a href="{% url remix-edit pk=remix.pk %}">Edit description</a>
+            <a href="{% url remix-edit remix_id=remix.id %}">Edit description</a>
         </dd>
         {% endif %}
     </dl>
@@ -55,7 +55,7 @@
 <section id="pack-preview">
     <h2>Preview</h2>
     <div id="preview">
-        <img class="pack_terrain" src="{% url remix-resource pk=remix.pk resource_name="terrain.png" %}" alt="" />
+        <img class="pack_terrain" src="{% url remix-resource remix_id=remix.id resource_name="terrain.png" %}" alt="" />
     </div>
 </section>
 
@@ -70,7 +70,7 @@
     <h2>How to use this texture pack</h2>
 
     <p class="big_link">
-        <strong><a href="{% url tpmake pk=remix.pk slug=remix.label|slugify %}">Download the ZIP file</a></strong>
+        <strong><a href="{% url tpmake remix_id=remix.id slug=remix.label|slugify %}">Download the ZIP file</a></strong>
     </p>
 
     <p>
