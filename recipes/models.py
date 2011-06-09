@@ -28,6 +28,17 @@ import texturepacker
 #     ./manage.py migrate recipes
 #
 
+def get_anonymous():
+    try:
+        return User.objects.get(username='anonymous')
+    except User.DoesNotExist:
+        pass
+
+    result = User.objects.create(username='anonymous')
+    result.set_unusable_password()
+    return result
+
+
 class Level(models.Model):
     class Meta:
         get_latest_by = 'released'
@@ -173,6 +184,16 @@ class Source(models.Model):
     def latest_release(self):
         return self.releases.latest()
 
+    def get_instant_upgrade(self, user=None):
+        if user is None:
+            user = get_anonymous()
+        release = self.latest_release()
+        recipe = release.level.upgrade_recipe
+        result = Remix.objects.create(recipe=recipe, owner=user)
+        result.pack_args.create(source_pack=release, name='base')
+        return result
+
+
 class Release(models.Model):
     """Represents one release of the source series.
 
@@ -202,7 +223,8 @@ class Release(models.Model):
         return u'{series} {label}'.format(series=self.series.label, label=self.label)
 
     def get_file_path(self):
-        return os.path.join(settings.RECIPES_SOURCE_PACKS_DIR, str(self.pk) + '.zip')
+        return os.path.join(settings.RECIPES_SOURCE_PACKS_DIR,
+            'source{0}-release{1}.zip'.format(self.series.id, self.id))
 
     def is_ready(self):
         """Is this pack ready to be used in recipes?
@@ -281,7 +303,11 @@ class Remix(models.Model):
         return self.label
 
     def get_cache_key(self):
-        return 'entity-Remix-{pk}'.format(pk=self.pk)
+        return 'entity-remix-{pk}'.format(pk=self.pk)
+
+    def is_ready(self):
+        """Check whether all the downloadable assets have been downloaded yet."""
+        return all(x.source_pack.is_ready() for x in self.pack_args)
 
     def get_pack(self):
         """Get the pack object represented by this entity.
@@ -314,9 +340,11 @@ class Remix(models.Model):
         return pack
 
     def invalidate():
+        """Force the ZIP file to be rebuilt."""
         cache.delete(self.get_cache_key())
 
     def get_base_release(self):
+        """Return the pack argument named ‘base’, or None."""
         candidates = self.pack_args.filter(name='base')
         if candidates:
             return candidates[0].source_pack

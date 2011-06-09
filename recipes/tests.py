@@ -8,13 +8,14 @@ Replace these with more appropriate tests for your application.
 """
 
 from django.test import TestCase
-from mock import patch
+from mock import patch, Mock
 
 import shutil
 import json
 from textwrap import dedent
 from recipes.models import *
 from django.contrib.auth.models import User
+from django.conf import settings
 
 class TruncUrlTests(TestCase):
     def test_no_www(self):
@@ -201,7 +202,6 @@ class TestUploader(TestCase):
         recipe = Spec.objects.get(name='hello', spec_type='tprx')
         self.assertEqual('GREETINGS', recipe.label)
 
-
     def test_repair_missing_owner(self):
         spec0 = Spec.objects.create(name='hello', label='GREETINGS', spec_type='tprx', spec=json.dumps({'hello': 'sailor'}))
 
@@ -211,4 +211,106 @@ class TestUploader(TestCase):
 
         recipe = Spec.objects.get(name='hello', spec_type='tprx')
         self.assertEqual('jil', recipe.owner.username)
+
+class TestAnonymous(TestCase):
+    def test_anonymous_created(self):
+        user = get_anonymous()
+        self.assertTrue(user)
+        self.assertTrue(isinstance(user, User))
+
+        self.assertEqual('anonymous', user.username)
+        self.assertFalse(user.has_usable_password())
+        self.assertTrue(user.id)
+
+    def test_anonymous_created_only_once(self):
+        user1 = get_anonymous()
+        user2 = get_anonymous()
+
+        self.assertEqual(user1, user2)
+        self.assertEqual(1, User.objects.count())
+
+class TestInstantUgrade(TestCase):
+    def setUp(self):
+        # Create a recipe and a source to apply it to.
+        level = Level.objects.create(label='One')
+        recipe = Spec.objects.create(name='foo', label='Foo', spec='foo', spec_type='tprx')
+        level.upgrade_recipe = recipe
+        level.save()
+
+        source = Source.objects.create(label='Bar', owner=get_anonymous())
+        source.releases.create(download_url='http://example.org/bar.zip', level=level, label='1.0')
+
+        self.source = source
+        self.recipe = recipe
+        self.level = level
+
+    def test_get_instant_upgrade(self):
+        # If not user supplied, replace with the anonymous user.
+        upgrade = self.source.get_instant_upgrade(None)
+        self.assertTrue(isinstance(upgrade, Remix))
+        self.assertEqual(self.recipe, upgrade.recipe)
+        for arg in upgrade.pack_args.all():
+            self.assertEqual(self.source.latest_release(), arg.source_pack)
+            self.assertEqual('base', arg.name)
+        self.assertEqual(get_anonymous(), upgrade.owner)
+
+    def test_instant_owned_upgrade(self):
+        # If someone is logged in, ownership of the instant upgrade goes to them.
+        user = User.objects.create(username='quux')
+        upgrade = self.source.get_instant_upgrade(user)
+        self.assertEqual(user, upgrade.owner)
+
+
+class SourceTests(TestCase):
+    def setUp(self):
+        self.dir = 'test_working'
+        if os.path.exists(self.dir):
+            shutil.rmtree(self.dir)
+        os.mkdir(self.dir)
+
+
+        self.user = User.objects.create(username='bob')
+        self.source = self.user.source_set.create(label='foo', )
+        self.release = self.source.releases.create(download_url='http://example.com/foo.zip',
+            released=datetime.now() + timedelta(days=-1))
+
+    @patch.object(settings, 'RECIPES_SOURCE_PACKS_DIR', '/foo/bar')
+    def test_file_name(self):
+        # Each release has a file to store its cached copy in.
+        self.assertEqual('/foo/bar/source1-release1.zip', self.release.get_file_path())
+
+    def test_is_not_ready_if_no_file(self):
+        with patch.object(settings, 'RECIPES_SOURCE_PACKS_DIR', self.dir):
+            self.assertFalse(self.release.is_ready())
+
+    def test_is_not_ready_if_file_is_stale(self):
+        with open(self.release.get_file_path(), 'w') as strm:
+            strm.write('foo')
+        with patch.object(settings, 'RECIPES_SOURCE_PACKS_DIR', self.dir):
+            self.assertFalse(self.release.is_ready())
+
+    @patch('texturepacker.SourcePack')
+    def test_get_pack(self, mock_cls):
+        with patch.object(settings, 'RECIPES_SOURCE_PACKS_DIR', self.dir):
+            # Using mock loader & siurce pack class
+            loader = Mock(name='loader')
+            loader.get_bytes.return_value = 'woot'
+            pack = self.release.get_pack(loader=loader)
+            pack2 = self.release.get_pack(loader=loader)
+
+            # Check that the pack was downloaded.
+            loader.get_bytes.assert_once_called_with('http://example.com/foo.zip', 'internal:///')
+            with open(self.release.get_file_path(), 'rb') as strm:
+                self.assertEqual('woot', strm.read())
+
+            # Check it was used to create source pack.
+            for i in range(2):
+                self.assertEqual(self.release.get_file_path(), mock_cls.call_args_list[i][0][0])
+                self.assertTrue(isinstance(mock_cls.call_args_list[i][0][1], texturepacker.Atlas))
+
+            # Finally, the entity knows it is loaded.
+            self.assertTrue(self.release.is_ready())
+
+
+
 
