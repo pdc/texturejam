@@ -307,9 +307,9 @@ class Remix(models.Model):
 
     def is_ready(self):
         """Check whether all the downloadable assets have been downloaded yet."""
-        return all(x.source_pack.is_ready() for x in self.pack_args)
+        return all(x.source_pack.is_ready() for x in self.pack_args.all())
 
-    def get_pack(self):
+    def get_pack(self, loader=None):
         """Get the pack object represented by this entity.
 
         Pack is cached to try to avoid rebuilding it too often.
@@ -326,6 +326,8 @@ class Remix(models.Model):
         if not pack:
             set_http_cache(settings.HTTPLIB2_CACHE_DIR)
             mixer = get_mixer()
+            if loader:
+                mixer.loader = loader
             for arg in self.pack_args.all():
                 mixer.add_pack(arg.name, arg.source_pack.get_pack(mixer.loader))
             spec = yaml.load(StringIO(self.recipe.spec))
@@ -348,6 +350,18 @@ class Remix(models.Model):
         candidates = self.pack_args.filter(name='base')
         if candidates:
             return candidates[0].source_pack
+
+    def get_progress(self):
+        """Information about preparing this remix.
+
+        Returns a list of dicts with at least 'name', 'label', and 'percent'
+        amongst their keys.
+        """
+        steps = [{
+            'name': 'download_{0}'.format(x.name),
+            'label': 'Download {0}'.format(trunc_url(x.source_pack.download_url)),
+            'percent': (100 if x.source_pack.is_ready() else 0)} for x in self.pack_args.all()]
+        return steps
 
 class PackArg(models.Model):
     class Meta:
@@ -382,7 +396,7 @@ class DownloadTask(models.Model):
     def get_progress(self):
         """Return a list of dicts describing progress so far.
 
-        This is potentially a list of steps wqith a percentage-done for each.
+        This is a list of steps wqith a percentage-done for each.
         """
         progress = [{
             'name': 'download_1',
@@ -391,7 +405,7 @@ class DownloadTask(models.Model):
         },
         {
             'name': 'mixing',
-            'label': 'Creates remix',
+            'label': 'Create remix',
             'percent': 100 if self.is_finished() else 0,
         }]
         return progress

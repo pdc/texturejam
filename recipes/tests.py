@@ -14,6 +14,7 @@ import shutil
 import json
 from textwrap import dedent
 from recipes.models import *
+import recipes.models as recipe_models_module
 from django.contrib.auth.models import User
 from django.conf import settings
 
@@ -262,6 +263,8 @@ class TestInstantUgrade(TestCase):
 
 
 class SourceTests(TestCase):
+    dir = 'test_working'
+
     def setUp(self):
         self.dir = 'test_working'
         if os.path.exists(self.dir):
@@ -279,38 +282,101 @@ class SourceTests(TestCase):
         # Each release has a file to store its cached copy in.
         self.assertEqual('/foo/bar/source1-release1.zip', self.release.get_file_path())
 
+    @patch.object(settings, 'RECIPES_SOURCE_PACKS_DIR', dir)
     def test_is_not_ready_if_no_file(self):
-        with patch.object(settings, 'RECIPES_SOURCE_PACKS_DIR', self.dir):
-            self.assertFalse(self.release.is_ready())
+        self.assertFalse(self.release.is_ready())
 
+    @patch.object(settings, 'RECIPES_SOURCE_PACKS_DIR', dir)
     def test_is_not_ready_if_file_is_stale(self):
         with open(self.release.get_file_path(), 'w') as strm:
             strm.write('foo')
-        with patch.object(settings, 'RECIPES_SOURCE_PACKS_DIR', self.dir):
-            self.assertFalse(self.release.is_ready())
+        self.assertFalse(self.release.is_ready())
 
+    @patch.object(settings, 'RECIPES_SOURCE_PACKS_DIR', dir)
     @patch('texturepacker.SourcePack')
     def test_get_pack(self, mock_cls):
-        with patch.object(settings, 'RECIPES_SOURCE_PACKS_DIR', self.dir):
-            # Using mock loader & siurce pack class
-            loader = Mock(name='loader')
-            loader.get_bytes.return_value = 'woot'
-            pack = self.release.get_pack(loader=loader)
-            pack2 = self.release.get_pack(loader=loader)
+        # Using mock loader & source pack class
+        loader = Mock(name='loader')
+        loader.get_bytes.return_value = 'woot'
+        pack = self.release.get_pack(loader=loader)
+        pack2 = self.release.get_pack(loader=loader)
 
-            # Check that the pack was downloaded.
-            loader.get_bytes.assert_once_called_with('http://example.com/foo.zip', 'internal:///')
-            with open(self.release.get_file_path(), 'rb') as strm:
-                self.assertEqual('woot', strm.read())
+        # Check that the pack was downloaded.
+        loader.get_bytes.assert_once_called_with('http://example.com/foo.zip', 'internal:///')
+        with open(self.release.get_file_path(), 'rb') as strm:
+            self.assertEqual('woot', strm.read())
 
-            # Check it was used to create source pack.
-            for i in range(2):
-                self.assertEqual(self.release.get_file_path(), mock_cls.call_args_list[i][0][0])
-                self.assertTrue(isinstance(mock_cls.call_args_list[i][0][1], texturepacker.Atlas))
+        # Check it was used to create source pack.
+        for i in range(2):
+            self.assertEqual(self.release.get_file_path(), mock_cls.call_args_list[i][0][0])
+            self.assertTrue(isinstance(mock_cls.call_args_list[i][0][1], texturepacker.Atlas))
 
-            # Finally, the entity knows it is loaded.
-            self.assertTrue(self.release.is_ready())
+        # Finally, the entity knows it is loaded.
+        self.assertTrue(self.release.is_ready())
 
+class RemixDownloadingTests(TestCase):
+    dir = 'test_working'
 
+    def setUp(self):
+        if os.path.exists(self.dir):
+            shutil.rmtree(self.dir)
+        os.mkdir(self.dir)
 
+        # Create a source pack ...
+        self.user = User.objects.create(username='bob')
+        self.source = self.user.source_set.create(label='foo')
+        self.release = self.source.releases.create(download_url='http://example.com/foo.zip',
+            released=datetime.now() + timedelta(days=-1))
+
+        # ... and a remix that uses it.
+        self.recipe_spec = {
+            'label': 'herp',
+            'desc': 'derp'
+        }
+        self.recipe = Spec.objects.create(spec=json.dumps(self.recipe_spec), name='herp', spec_type='tprx')
+        self.remix = self.user.remix_set.create(recipe=self.recipe)
+        self.remix.pack_args.create(name='base', source_pack=self.release)
+
+    def test_fixture(self):
+        pass
+
+    @patch.object(settings, 'RECIPES_SOURCE_PACKS_DIR', dir)
+    def test_unready(self):
+        self.assertFalse(self.remix.is_ready())
+
+    @patch.object(settings, 'RECIPES_SOURCE_PACKS_DIR', dir)
+    def test_progress_before_download(self):
+        progress = self.remix.get_progress()
+
+        self.assertDictContainsSubset({
+            'label': 'Download example.com/foo.zip',
+            'percent': 0}, progress[0])
+        self.assertTrue(progress[0]['name'])
+
+    @patch.object(settings, 'RECIPES_SOURCE_PACKS_DIR', dir)
+    @patch.object(recipe_models_module, 'get_mixer')
+    @patch('texturepacker.SourcePack')
+    def test_progress_after_download(self, MockSourcePack, mock_get_mixer):
+        # So muck mocking!
+        loader = Mock()
+        loader.get_bytes.return_value = 'foo'
+        pack = Mock()
+        mock_mixer = Mock()
+        mock_get_mixer.return_value = mock_mixer
+        mock_mixer.make.return_value = pack
+
+        # Finally ready to push the button!
+        result = self.remix.get_pack(loader)
+        self.assertEqual(1, len(MockSourcePack.call_args_list))
+        self.assertEqual('test_working/source1-release1.zip', MockSourcePack.call_args_list[0][0][0])
+        mock_mixer.make.assert_called_once_with(self.recipe_spec, base='internal:///')
+        self.assertEqual(pack, result)
+
+        # Should now report 100% progress.
+        progress = self.remix.get_progress()
+
+        self.assertDictContainsSubset({
+            'label': 'Download example.com/foo.zip',
+            'percent': 100}, progress[0])
+        self.assertTrue(progress[0]['name'])
 
