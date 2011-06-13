@@ -82,3 +82,11 @@ def download_and_remix(task_info_id):
 
     task_info.remix = remix
     task_info.save()
+
+@task(ignore_result=True)
+def prepare_remix(remix_id):
+    remix = Remix.objects.get(id=remix_id)
+    if remix.is_ready():
+        return
+
+    remix.get_pack()

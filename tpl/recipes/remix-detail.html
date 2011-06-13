@@ -6,7 +6,16 @@
 
 {% block main_sections %}
 <section id="pack-desc">
+    {% if remix.is_ready %}
     <img class="pack-png" src="{% url remix-resource remix_id=remix.id resource_name="pack.png" %}" align="left" alt="" />
+    {% else %}
+    <p id="sorry">
+        Sorry! This remix is not ready yet.
+        Please refresh in a little while to see the images.
+    </p>
+    {% include "recipes/parts/progress.html" %}
+
+    {% endif %}
 
     <dl>
         {% if remix.pack_args %}
@@ -27,8 +36,7 @@
             <small>{{ remix.created|date }}</small>
         </dd>
 
-
-        {% if remix.created|date == remix.modified|date %}
+        {% if remix.created|date != remix.modified|date %}
         <dt>Edited</dt>
         <dd>
             {{ remix.modified|date }}
@@ -52,12 +60,14 @@
     </dl>
 </section>
 
+{% if remix.is_ready %}
 <section id="pack-preview">
     <h2>Preview</h2>
     <div id="preview">
         <img class="pack_terrain" src="{% url remix-resource remix_id=remix.id resource_name="terrain.png" %}" alt="" />
     </div>
 </section>
+{% endif %}
 
 <section id="tweet-this">
     <a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="texturejamorguk">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
@@ -65,8 +75,8 @@
 {% endblock %}
 
 {% block more_sections %}
+{% if remix.is_ready %}
 <section id="instructions">
-
     <h2>How to use this texture pack</h2>
 
     <p class="big_link">
@@ -77,6 +87,7 @@
         Then copy the ZIP file in to your Minecraft texturepacks folder.
     </p>
 </section>
+{% endif %}
 
 {% if remix.recipe.desc %}
 <section id="recipe_desc">

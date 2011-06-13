@@ -42,6 +42,20 @@
 {% endblock %}
 
 {% block more_sections %}
+{% with release=source.latest_release %}
+<pre>{{ release.is_upgrade_needed }}</pre>
+    {% if release.is_upgrade_remix_needed and not release.upgrade_remix %}
+    <h2>Create an upgraded pack</h2>
+    <p>
+        This pack does not support the latest Minecraft release.
+    </p>
+    <form action="{% url instant-upgrade source_id=source.id %}" method="POST">
+        {% csrf_token %}
+        <input type="submit" value="Create upgraded texture pack" />
+    </form>
+    {% endif %}
+{% endwith %}
+
 {% include "recipes/parts/source-recipe-links.html" %}
 
 <section id="remixes" class="pack-list">

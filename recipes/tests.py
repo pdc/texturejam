@@ -254,6 +254,7 @@ class TestInstantUgrade(TestCase):
             self.assertEqual(self.source.latest_release(), arg.source_pack)
             self.assertEqual('base', arg.name)
         self.assertEqual(get_anonymous(), upgrade.owner)
+        self.assertTrue(upgrade.label)
 
     def test_instant_owned_upgrade(self):
         # If someone is logged in, ownership of the instant upgrade goes to them.

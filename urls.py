@@ -9,12 +9,13 @@ urlpatterns = patterns('recipes.views',
     (r'^$', 'remix_list', {}, 'home'),
 
     (r'^remixes/(?P<remix_id>\d+)/$', 'remix_detail', {}, 'remix-detail'),
+    (r'^remixes/(?P<remix_id>\d+)/progress$', 'remix_progress_json', {}, 'remix-progress-json'),
     (r'^remixes/(?P<remix_id>\d+)/edit$', 'remix_edit', {}, 'remix-edit'),
     (r'^remixes/(?P<remix_id>\d+)/resources/(?P<resource_name>.*)$', 'remix_resource', {}, 'remix-resource'),
     (r'^remixes/(?P<remix_id>\d+)/(?P<slug>[\w-]+)\.zip$', 'make_texture_pack', {}, 'tpmake'),
 
-    (r'^mixing/(?P<task_id>\d+)/$', 'remix_cooking', {}, 'remix-cooking'),
-    (r'^mixing/(?P<task_id>\d+)/progress$', 'remix_progress', {}, 'remix-progress'),
+    (r'^mixing/download-and-upgrade/(?P<task_id>\d+)/$', 'download_task_progress', {}, 'download-task-progress'),
+    (r'^mixing/download-and-upgrade/(?P<task_id>\d+)/progress$', 'download_task_progress_json', {}, 'download-task-progress-json'),
 
     (r'^sources/$', 'source_list', {'tag_names_plusified': ''}, 'source-list'),
     (r'^sources/bytag/(?P<tag_names_plusified>[\w+-]+)$', 'source_list', {}, 'source-list'),
@@ -24,6 +25,7 @@ urlpatterns = patterns('recipes.views',
 
     (r'^beta-upgrade$', 'beta_upgrade', {}, 'beta_upgrade'),
     (r'^recipe-from-maps/(?P<id>\d+)', 'recipe_from_maps', {}, 'recipe-from-maps'),
+    (r'^instant-upgrade/(?P<source_id>\d+)', 'instant_upgrade', {}, 'instant-upgrade'),
 
     (r'^rx/(?P<name>[\w-]+)$', 'spec', {'spec_type': 'tprx'}, 'tprx'),
     (r'^rx/maps/(?P<name>[\w-]+)$', 'spec', {'spec_type': 'tpmaps'}, 'tpmaps'),

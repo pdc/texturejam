@@ -8,26 +8,7 @@
         Remixing texture packs can take a little while,
         so the job of building your remix as been added to the queue.
     </p>
-
-    <div id="progress" data-href="{% url remix-progress task_id=task_info.id %}">
-        <p>Please wait while Texturejam</p>
-        <ol>
-            {% for step in task_info.get_progress %}
-            <li id="{{ step.name }}">
-                {{ step.label }}
-            </li>
-            {% endfor %}
-        <ol>
-    </div>
-
-    {% comment %}
-    <script src="{{ static }}script/ender.js"></script>
-    <script src="{{ static }}script/cooking.js"></script>
-    {% endcomment %}
-    <script src="{{ static }}script/ender.min.js"></script>
-    <script src="{{ static }}script/cooking.min.js"></script>
-    {% comment %}<script src="{{ static }}script/ender-app.js"></script>{% endcomment %}
-
+    {% include "recipes/parts/progress.html" %}
     <p>
         <img src="{{ task_info.owner.get_profile.get_picture_src }}" alt="" class="userpic" />
         {{ task_info.owner }} requested this remix on {{ task_info.created|date }}.

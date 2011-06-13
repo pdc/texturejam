@@ -184,12 +184,25 @@ class Source(models.Model):
     def latest_release(self):
         return self.releases.latest()
 
+    def is_upgrade_remix_needed(self):
+        """Does this release need to e augmented to supprot the current Minecraft beta?"""
+        return self.latest_release().is_upgrade_remix_needed()
+
+    def upgrade_remix(self):
+        """Find a remix pack that upgrades this release to current Minecraft
+
+        Returns (needs_upgrade, remix)
+        where needs_upgrade is bool
+        and remix is None if no remix has been created yet.
+        """
+        return self.latest_release().upgrade_remix()
+
     def get_instant_upgrade(self, user=None):
         if user is None:
             user = get_anonymous()
         release = self.latest_release()
         recipe = release.level.upgrade_recipe
-        result = Remix.objects.create(recipe=recipe, owner=user)
+        result = Remix.objects.create(label='{source} + patches'.format(source=self.label), recipe=recipe, owner=user)
         result.pack_args.create(source_pack=release, name='base')
         return result
 
@@ -264,7 +277,6 @@ class Release(models.Model):
     def active_occurrences(self):
         return self.occurrences.filter(recipe_pack__withdrawn=None)
 
-
     def is_upgrade_remix_needed(self):
         """Does this release need to e augmented to supprot the current Minecraft beta?"""
         return self.level.upgrade_recipe
@@ -295,6 +307,7 @@ class Remix(models.Model):
 
     created = models.DateTimeField(auto_now_add=True, editable=False, help_text='When this pack was added to our list')
     modified = models.DateTimeField(auto_now=True, editable=False, help_text='When our info about this pack was updated')
+    queued = models.DateTimeField(blank=True, null=True, help_text='When we last attempted to download sources and build this pack')
 
     withdrawn_reason = models.CharField(max_length=200, blank=True, default='', help_text='One-line description of why this remix was withdrawn, or (more commonly) empty if is has not been withdrawn')
     withdrawn = models.DateTimeField(null=True, blank=True, help_text='When this remix was withdrawn, or (more commonly) blank if it has not been withdrawn')
@@ -358,10 +371,17 @@ class Remix(models.Model):
         amongst their keys.
         """
         steps = [{
-            'name': 'download_{0}'.format(x.name),
-            'label': 'Download {0}'.format(trunc_url(x.source_pack.download_url)),
-            'percent': (100 if x.source_pack.is_ready() else 0)} for x in self.pack_args.all()]
+            'name': u'download_{0}'.format(x.name),
+            'label': u'Download {0}'.format(trunc_url(x.source_pack.download_url)),
+            'percent': (100 if x.source_pack.is_ready() else 1),
+        } for x in self.pack_args.all()]
+        steps.append({
+            'name': 'mixing',
+            'label': 'Create remix',
+            'percent': 100 if self.is_ready() else 0,
+        })
         return steps
+
 
 class PackArg(models.Model):
     class Meta:

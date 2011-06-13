@@ -5,7 +5,7 @@ import re
 import errno
 from datetime import datetime, timedelta
 from zipfile import BadZipfile
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllowed
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.core.urlresolvers import reverse
@@ -59,9 +59,49 @@ def remix_list(request):
 @with_template('recipes/remix-detail.html')
 def remix_detail(request, remix_id):
     """Info about one remix."""
+    remix = get_object_or_404(Remix, id=remix_id)
+    if not remix.is_ready() and (not remix.queued or remix.queued < datetime.now() + timedelta(seconds=-300)):
+        try:
+            prepare_remix.delay(remix.id)
+            messages.add_message(request, messages.INFO,
+                u'Added {remix} to the queue.'.format(remix=remix.label))
+        except IOError, e:
+            msg = e
+            if e.errno == 61: # Connection refused
+                msg = 'The AMQP server is not running'
+            messages.add_message(request, messages.ERROR,
+                u'Could not add {remix} to the queue: {msg}'.format(
+                    remix=remix,
+                    msg=msg,
+                ))
     return {
-        'remix': get_object_or_404(Remix, id=remix_id)
+        'remix': remix,
+        'task_info': remix,
+        'progress_json': reverse('remix-progress-json', kwargs={'remix_id': remix.id}),
     }
+
+@json_view
+def remix_progress_json(request, remix_id):
+    remix = get_object_or_404(Remix, id=remix_id)
+    steps = remix.get_progress()
+    return {
+        # Whether this call succeeded: NOT whether the remix is finished!
+        'success': True,
+
+        # The steps remaining and overall completedness.
+        'steps': steps,
+        'percent': sum(x['percent'] for x in steps) / len(steps),
+        'isComplete': all(x['percent'] == 100 for x in steps),
+
+        # Wait this long before asking againb & use this URL next time.
+        'milliseconds': 3 * 1000,
+        'next': reverse('remix-progress-json', kwargs={'remix_id': remix.id}),
+
+        # If successful then these will describe the link to the result.
+        'href': remix.is_ready and reverse('remix-detail', kwargs={'remix_id': remix.id}),
+        'label': remix.is_ready and remix.label,
+    }
+
 
 def remix_resource(request, remix_id, resource_name):
     """A resource from a recipe pack."""
@@ -69,18 +109,35 @@ def remix_resource(request, remix_id, resource_name):
     data = remix.get_pack().get_resource(resource_name).get_bytes()
     return HttpResponse(data, mimetype='image/png')
 
-@with_template('recipes/remix-cooking.html')
-def remix_cooking(request, task_id):
+def instant_upgrade(request, source_id):
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+    source = get_object_or_404(Source, id=source_id)
+    remix = source.upgrade_remix()
+    if remix:
+        messages.add_message(request, messages.INFO,
+            u'That remix has already been created')
+        return HttpResponseRedirect(reverse('remix-detail', kwargs={'remix_id': remix.id}))
+    if not source.is_upgrade_remix_needed:
+        messages.add_message(request, messages.INFO,
+            u'We don’t need to create an pgraded remix of {source}.'.format(source=source))
+        return HttpResponseRedirect(reverse('source-detail', kwargs={'source_id': source.id}))
+    remix = source.get_instant_upgrade(request.user)
+    return HttpResponseRedirect(reverse('remix-detail', kwargs={'remix_id': remix.id}))
+
+@with_template('recipes/download-task-progress.html')
+def download_task_progress(request, task_id):
     """User has requested creation of a texture pack."""
     task_info = get_object_or_404(DownloadTask, id=task_id)
     if task_info.is_finished():
         return HttpResponseRedirect(reverse('remix-edit', kwargs={'remix_id': task_info.remix.id}))
     return {
         'task_info': task_info,
+        'progress_json': reverse('download-task-progress-json', kwargs={'task_id': task_info.id}),
     }
 
 @json_view
-def remix_progress(request, task_id):
+def download_task_progress_json(request, task_id):
     task_info = get_object_or_404(DownloadTask, id=task_id)
     steps = task_info.get_progress()
     return {
@@ -94,7 +151,7 @@ def remix_progress(request, task_id):
 
         # Wait this long before asking againb & use this URL next time.
         'milliseconds': 3 * 1000,
-        'next': reverse('remix-progress', kwargs={'task_id': task_id}),
+        'next': reverse('download-task-progress-json', kwargs={'task_id': task_id}),
 
         # If successful then these will describe the link to the result.
         'href': task_info.remix and reverse('remix-detail', kwargs={'remix_id': task_info.remix.id}),
@@ -198,7 +255,7 @@ def beta_upgrade(request):
                 home_url = form.cleaned_data['series_home_url']
                 forum_url = form.cleaned_data['series_forum_url']
 
-                level = Level.objects.get(label='Beta 1.4') # XXX really depends on the pack
+                level = recipe.level
                 try:
                     task_info = DownloadTask.objects.get(download_url=download_url)
                     if task_info.owner == request.user:
@@ -219,7 +276,7 @@ def beta_upgrade(request):
                         u'Download starting …')
 
                 return HttpResponseRedirect(
-                    reverse('remix-cooking', kwargs={'task_id': task_info.id})) # Redirect after POST
+                    reverse('download-task-progress', kwargs={'task_id': task_info.id})) # Redirect after POST
             except BadZipfile, err:
                 messages.add_message(request, messages.ERROR,
                         u'The URL was valid but did not reference a texture pack ({err})'.format(err=err))
@@ -321,12 +378,12 @@ def source_edit(request, source_id):
             release_download_url = form.cleaned_data['release_download_url']
             release_level = form.cleaned_data['release_level']
             if release_download_url == release.download_url:
-                # Same release; might still want to edit label
+                # Same release; might still want to edit label or level
                 needs_save = (release_label != release.label
                         or release_level.id != release.level.id)
                 if needs_save:
                     release.label = release_label
-                    release.level = release.level
+                    release.level = release_level
                     release.full_clean(exclude=['released', 'last_download_attempt'])
                     release.save()
                     release.invalidate_downloaded_data()

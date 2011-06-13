@@ -1,0 +1,20 @@
+
+
+    <div id="progress" data-href="{{ progress_json }}">
+        <p>Please wait while Texturejam does the following:</p>
+        <ol>
+            {% for step in task_info.get_progress %}
+            <li id="{{ step.name }}">
+                {{ step.label }}
+            </li>
+            {% endfor %}
+        </ol>
+    </div>
+
+    {% comment %}
+    <script src="{{ static }}script/ender.js"></script>
+    <script src="{{ static }}script/cooking.js"></script>
+    {% endcomment %}
+    <script src="{{ static }}script/ender.min.js"></script>
+    <script src="{{ static }}script/cooking.min.js"></script>
+    {% comment %}<script src="{{ static }}script/ender-app.js"></script>{% endcomment %}
