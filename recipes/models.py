@@ -202,7 +202,7 @@ class Source(models.Model):
             user = get_anonymous()
         release = self.latest_release()
         recipe = release.level.upgrade_recipe
-        result = Remix.objects.create(label='{source} + patches'.format(source=self.label), recipe=recipe, owner=user)
+        result = Remix.objects.create(label=u'{source} + patches'.format(source=self.label), recipe=recipe, owner=user)
         result.pack_args.create(source_pack=release, name='base')
         return result
 
