@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Could not log in - Texturejam{% endblock %}
+{% block heading %}Oh, dear{% endblock %}
+{% block main_sections %}
+<section id="please-log-in">
+    <p>
+        Something went wrong when you tried to log in.
+    </p>
+    <p>
+        Please <a href="{% url hello_please_log_in %}">try again</a>, or
+        return to <a href="{% url home %}">home page</a>.
+    </p>
+</section>
+{% endblock %}
+
+{% block more_sections %}
+<section id="why-twitter">
+    <h2>Why Log in?</h2>
+    <p>
+        I only use your login to keep track of
+        who adds what to the database
+        so you can go back and edit things you added.
+    </p>
+</section>
+{% endblock %}
+{% block who %}{% endblock %}
