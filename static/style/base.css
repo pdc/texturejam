@@ -46,7 +46,8 @@ Some of these selectors will be used below to control fonts etc.
 #asides:after,
 section:after,
 .big_link:after,
-dl:after {
+dl:after,
+.pack-list:after {
     content: ".";
     display: block;
     height: 0;
@@ -404,36 +405,46 @@ section p+p {
 	color: inherit;
   border-radius: 0.5em;
 }
+.pack-list.compact li a {
+  width: 180px; /* 2.5u -- oops */
+}
 
 #main.wide .pack-list a {
 	width: 300px; /* 4u */
 }
 
 @media only all and (min-width: 1460px) {
-  /* Then more section gets split in to 2 columns. */
+  /* The more section gets split in to 2 columns. */
   .pack-list li a {
     width: 300px; /* 4u */
+  }
+  .pack-list.compact li a {
+    width: 140px; /* 2u */
   }
   #main.wide .pack-list a {
   	width: 380px; /* 5u */
   }
 }
 @media only all and (max-width: 980px) {
-  /* Then more section gets split in to 2 columns. */
   .pack-list li a {
     width: 300px; /* 4u */
   }
+  .pack-list.compact li a {
+    width: 140px; /* 2u */
+  }
 }
 @media only all and (max-width: 740px) {
-  /* Then more section gets split in to 2 columns. */
-  .pack-list li a {
+  .pack-list li a,
+  .pack-list.compact li a {
     width: 220px; /* 3u */
   }
 }
 @media only all and (max-width: 500px) {
-  /* Then more section gets split in to 2 columns. */
   .pack-list li a {
     width: 300px; /* 4u */
+  }
+  .pack-list.compact li a {
+    width: 140px; /* 2u */
   }
 }
 
@@ -448,6 +459,9 @@ section p+p {
 
 .pack-list li b {
 	display: block;
+}
+.pack-list.compact li b {
+  font-weight: normal;
 }
 
 .pack-list li a:hover b,

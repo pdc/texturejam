@@ -116,4 +116,37 @@
     </section>
     {% endfor %}
 </div>
+
+
+<div id="upgrade-remixes">
+    <section id="upgraded" class="pack-list compact">
+        <h2>Old Texture Packs Upgraded to Current Beta</h2>
+        <ul>
+            {% for source in upgraded_sources %}
+            <li>
+                <a href="{% url remix-detail remix_id=source.upgrade_remix.id %}">
+                    <img src="{% url remix-resource remix_id=source.upgrade_remix.id resource_name="pack.png" %}" alt="" class="pack-png" />
+                    <b>{{ source }}</b>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% if upgradable_sources %}
+    <section id="upgraded" class="pack-list compact">
+        <h2>Old Texture Packs Upgradable to Current Beta</h2>
+        <ul>
+            {% for source in upgradable_sources %}
+            <li>
+                <a href="{% url source-detail source_id=source.id %}">
+                    <img src="{% url source-resource remix_id=source.id resource_name="pack.png" %}" alt="" class="pack-png" />
+                    <b>{{ source }}</b>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endif %}
+</div>
+
 {% endblock %}

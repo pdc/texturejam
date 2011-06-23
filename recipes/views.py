@@ -56,9 +56,9 @@ def remix_list(request):
     upgraded = []
     upgradeable = []
     for source in Source.objects.all().order_by('label'):
-        if source.upgrade_remix:
+        if source.upgrade_remix():
             upgraded.append(source)
-        elif source.is_upgrade_remix_needed:
+        elif source.is_upgrade_remix_needed():
             upgradeable.append(source)
 
     return {
