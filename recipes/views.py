@@ -24,9 +24,9 @@ def remix_list(request):
     """List of remixes, for the home page."""
     try:
         alts_tag = Tag.objects.get(name='alts')
-        recipes = alts_tag.spec_set.filter(spec_type='tpmaps').order_by('label')
+        maps_for_alts = alts_tag.spec_set.filter(spec_type='tpmaps').order_by('label')
     except Tag.DoesNotExist:
-        recipes = None
+        maps_for_alts = None
 
     # Can't work out how to do this with filters, so:
     beta_remixes = {}
@@ -42,18 +42,31 @@ def remix_list(request):
             else:
                 misc_remixes.append(remix)
 
-    beta_remixes_1 = [(xs[0].recipe, xs) for (k, xs) in beta_remixes.items()]
-    beta_remixes_1.sort(key=lambda (r, xs): r.label, reverse=True)
+    #beta_remixes_1 = [(xs[0].recipe, xs) for (k, xs) in beta_remixes.items()]
+    #beta_remixes_1.sort(key=lambda (r, xs): r.label, reverse=True)
 
-    other_remixes_1 = [(xs[0].get_base_release(), xs) for (k, xs) in other_remixes.items()]
+    other_remixes_1 = [(xs[0].get_base_release(), xs) for (k, xs) in other_remixes.items() if len(xs) > 1]
     other_remixes_1.sort(key=lambda (r, xs): r.series.created, reverse=True)
 
-    misc_remixes_1 = [('More remixes', misc_remixes)]
+    for xs in other_remixes.values():
+        if len(xs) == 1:
+            misc_remixes.extend(xs)
+    misc_remixes_1 = [('More' if len(misc_remixes) > 1 else 'One more', misc_remixes)] if misc_remixes else []
+
+    upgraded = []
+    upgradeable = []
+    for source in Source.objects.all().order_by('label'):
+        if source.upgrade_remix:
+            upgraded.append(source)
+        elif source.is_upgrade_remix_needed:
+            upgradeable.append(source)
 
     return {
-        'beta_remixes': beta_remixes_1,
+        #'beta_remixes': beta_remixes_1,
         'other_remixes': other_remixes_1 + misc_remixes_1,
-        'recipes': recipes,
+        'maps_for_alts': maps_for_alts,
+        'upgraded_sources': upgraded,
+        'upgradeable_sources': upgradeable,
     }
 
 @with_template('recipes/remix-detail.html')

@@ -4,7 +4,29 @@
 {% block trail %}{% endblock %}
 {% block main_sections %}
 <section id="why_remix">
-    <h2>Why Remix Texture Packs?</h2>
+
+
+    {% if maps_for_alts %}
+    <h2>Customise texture packs</h2>
+    <p>
+        These  packs contain alternative imagery for some
+        textures. You can create a recipe that mixes in alternatives:
+    </p>
+    <ul class="pack-list">
+        {% for spec in maps_for_alts %}
+        <li>
+            <a href="{% url recipe-from-maps id=spec.id %}">
+                {% with release=spec.release_set.latest %}
+                <img src="{% url source-resource source_id=release.series.id release_id=release.id resource_name="pack.png" %}" alt="" class="pack-png" />
+                {% endwith %}
+            <b>{{ spec }}</b>
+            <small>{{ spec.desc }}</small></a>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <h2>Use old texture packs</h2>
     <p>
         When Mojang add new objects to Minecraft
         you have to stop using your favourite texture pack
@@ -20,22 +42,8 @@
     <p>
         This service is still experimental.
     </p>
-    {% if recipes %}
-    <h2>Texturepacks with Alternatives</h2>
-    <p>
-        These texture packs contain alternative imagery for some
-        textures. You can create a recipe that mixes in alternatives:
-    </p>
-    <ul>
-        {% for spec in recipes %}
-        <li>
-            <a href="{% url recipe-from-maps id=spec.id %}"><b>{{ spec }}</b>
-            <small>{{ spec.desc }}</small></a>
-        </li>
-        {% endfor %}
-    </ul>
-    {% endif %}
 </section>
+
 <section id="what_is">
     <h2>Wait, what is a texture pack anyway?</h2>
     <p>
@@ -61,6 +69,7 @@
 {% endblock %}
 
 {% block more_sections %}
+    {% if beta_remixes %}
 <div id="beta-remixes">
     <section class="pack-list">
         <h2>Packs Upgraded for Beta 1.6</h2>
@@ -83,6 +92,7 @@
     {% endfor %}
     </section>
 </div>
+    {% endif %}
 
 <div id="other-remixes">
     {% for grouper, list in other_remixes %}
