@@ -158,6 +158,29 @@ def update_specs_from_dir(dir_path):
     do_eeet(os.path.join(dir_path, 'maps'), '.tpmaps', 'tpmaps', counts)
     return counts
 
+def alt_code_from_form_data(alts, form_data):
+    """Create a code that can be used to get a recipe fragment"""
+    letters = []
+    for _, xss in alts:
+        for xs in xss:
+            value = form_data[xs[0]]
+            index = xs.index(value)
+            letters.append(chr(96 + index) if index else '_')
+    return ''.join(letters)
+
+def recipe_fragment_from_alt_code(alts, code):
+    """Given an alts_tiles list and code saying which to use, return recipe fragment.
+
+    Returns a recipe fragment suitable to be a 'replace' clause
+    for terrain.png.
+    """
+    cells = {}
+    flattened = [xs for (n, xss) in alts for xs in xss]
+    for c, xs in zip(code, flattened):
+        if c != '_':
+            cells[xs[0]] = xs[ord(c) - 96]
+    return {'cells': cells}
+
 
 class Source(models.Model):
     owner = models.ForeignKey(User)

@@ -351,7 +351,7 @@ class RemixDownloadingTests(TestCase):
 
         self.assertDictContainsSubset({
             'label': 'Download example.com/foo.zip',
-            'percent': 0}, progress[0])
+            'percent': 1}, progress[0])
         self.assertTrue(progress[0]['name'])
 
     @patch.object(settings, 'RECIPES_SOURCE_PACKS_DIR', dir)
@@ -381,3 +381,14 @@ class RemixDownloadingTests(TestCase):
             'percent': 100}, progress[0])
         self.assertTrue(progress[0]['name'])
 
+class InstantAlternatesRecipeTests(TestCase):
+    def test_recipe_from_alts(self):
+        alts = [('cat', [['cat_front', 'cat_front_1'], ['cat_side', 'cat_side_1'], ['cat_top', 'cat_top_1']])]
+        code = 'a_a'
+        self.assertEqual({'cells': {'cat_front': 'cat_front_1', 'cat_top': 'cat_top_1'}},
+            recipe_fragment_from_alt_code(alts, code))
+
+    def test_code_from_from_data(self):
+        alt_tiles = [('cat', [['cat', 'cat1']]), ('dog', [['dog', 'dog1']])]
+        form_data = {'cat': 'cat1', 'dog': 'dog'}
+        self.assertEqual('a_', alt_code_from_form_data(alt_tiles, form_data))
