@@ -105,10 +105,17 @@ class Spec(models.Model):
         spec = yaml.load(StringIO(self.spec))
         return get_mixer().get_atlas(spec, self.get_internal_url())
 
+    def _get_alts(self):
+        atlas = self.get_atlas()
+        terrain_map = atlas.get_map('terrain.png', 'internal:///')
+        return terrain_map.get_alts_list()
+
     def get_alt_tiles(self):
+        """Get the list of alts augomented with labels etc."""
         tile_groups = []
-        map = self.get_atlas().get_map('terrain.png', 'internal:///')
-        for group_name, cellss in map.get_alts_list():
+        terrain_map = self.get_atlas().get_map('terrain.png', 'internal:///')
+        alts = terrain_map.get_alts_list()
+        for group_name, cellss in alts:
             tiless = []
             for cells in cellss:
                 tiles = []
@@ -117,18 +124,19 @@ class Spec(models.Model):
                         'name': cells[0],
                         'value': cell,
                         'label': label,
-                        'style': map.get_css(cell),
+                        'style': terrain_map.get_css(cell),
                     }
                     tiles.append(tile)
                 tiless.append(tiles)
             tile_groups.append((group_name, tiless))
         return tile_groups
 
+    def alt_code_from_form_data(self, form_data):
+        return alt_code_from_form_data(self._get_alts(), form_data)
+
     def get_remix_from_code(self, release, code, loader=None):
         """Generate a texture pack with this source as base and a recipe specified by code"""
-        atlas = self.get_atlas()
-        terrain_map = atlas.get_map('terrain.png', 'internal:///')
-        alts = terrain_map.get_alts_list()
+        alts = self._get_alts()
         recipe = {
             'label': u'{source} {release} (Alt)'.format(
                     source=release.series.label,
@@ -152,7 +160,6 @@ class Spec(models.Model):
         mixer = get_mixer()
         mixer.add_pack('base', release.get_pack())
         return mixer.make(recipe)
-
 
     def get_etag(self):
         return '"{0}"'.format(hashlib.md5(self.spec).hexdigest())
@@ -402,7 +409,7 @@ class Remix(models.Model):
         if pr:
             last_modified, pack_bytes = pr
             if last_modified >= self.modified:
-                pack = texturepacker.SourcePack(StringIO(pack_bytes), Atlas())
+                pack = texturepacker.SourcePack(StringIO(pack_bytes), texturepacker.Atlas())
 
         if not pack:
             texturepacker.set_http_cache(settings.HTTPLIB2_CACHE_DIR)
@@ -484,7 +491,7 @@ class DownloadTask(models.Model):
     def get_progress(self):
         """Return a list of dicts describing progress so far.
 
-        This is a list of steps wqith a percentage-done for each.
+        This is a list of steps with a percentage-done for each.
         """
         progress = [{
             'name': 'download_1',

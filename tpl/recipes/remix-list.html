@@ -15,7 +15,7 @@
     <ul class="pack-list">
         {% for spec in maps_for_alts %}
         <li>
-            <a href="{% url recipe-from-maps id=spec.id %}">
+            <a href="{% url recipe-from-maps maps_id=spec.id %}">
                 {% with release=spec.release_set.latest %}
                 <img src="{% url source-resource source_id=release.series.id release_id=release.id resource_name="pack.png" %}" alt="" class="pack-png" />
                 {% endwith %}

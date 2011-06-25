@@ -224,18 +224,11 @@ def spec(request, name, spec_type):
     response['ETag'] = spec.get_etag()
     return response
 
-
+@texture_pack_view
 def make_texture_pack(request, remix_id, slug):
     """Generate the ZIP file for a texture pack."""
     remix = get_object_or_404(Remix, id=remix_id)
-    pack = remix.get_pack()
-
-    response = HttpResponse(mimetype="application/zip")
-    response['content-disposition'] = 'attachment; filename={file_name}'.format(
-        file_name=slugify(remix.label) + '.zip'
-    )
-    pack.write_to(response)
-    return response
+    return remix.get_pack()
 
 @login_required
 @with_template('recipes/beta-upgrade.html')
@@ -442,10 +435,9 @@ def source_resource(request, source_id, release_id, resource_name):
     data = release.get_pack().get_resource(resource_name).get_bytes()
     return HttpResponse(data, mimetype='image/png')
 
-@login_required
 @with_template('recipes/recipe-from-maps.html')
-def recipe_from_maps(request, id):
-    spec = get_object_or_404(Spec, id=id)
+def recipe_from_maps(request, maps_id):
+    spec = get_object_or_404(Spec, id=maps_id)
     tiles_list = spec.get_alt_tiles()
 
     release = spec.release_set.latest('released')
@@ -453,13 +445,6 @@ def recipe_from_maps(request, id):
 
     # Lets see if I can build my own dynamic form!
     class RecipeFromMapsForm(forms.Form):
-        label = forms.CharField(max_length=200,
-                help_text='A name for this recipe. It should be unique.')
-        desc = forms.CharField(max_length=2000,
-                widget=forms.Textarea(attrs={'rows': 3}),
-                required=False, label='Description',
-                help_text='Describes this recipe to other users. Separate paragraphs wth blank lines. Markdown formatting is supporterd.')
-
         def __init__(self, tiles_list, src, *args, **kwargs):
             super(RecipeFromMapsForm, self).__init__(*args, **kwargs)
             for name, tiless in tiles_list:
@@ -474,60 +459,16 @@ def recipe_from_maps(request, id):
     if request.method == 'POST':
         form = RecipeFromMapsForm(tiles_list, src, request.POST)
         if form.is_valid():
-            label = form.cleaned_data['label']
-            desc = form.cleaned_data['desc']
-            rx_struct = {
-                'label': label,
-                'desc': desc,
-                'parameters': {
-                    'packs': ['base']
-                },
-                'maps': spec.get_internal_url(),
-                'mix':  {
-                    'pack': '$base',
-                    'files': [
-                        # XXX pack.png?
-                        '*.png',
-                        {
-                            'file': 'terrain.png',
-                            'replace': {
-                                'cells': {ts[0]['name']: form.cleaned_data[ts[0]['name']]
-                                    for (gn, tss) in tiles_list
-                                    for ts in tss
-                                }
-                            }
-                        }
-                    ]
-                }
-            }
-            strm = StringIO()
-            yaml.dump(rx_struct, strm, default_flow_style=False, encoding=None, width=72, indent=4)
-            rx_str = strm.getvalue()
-            rx_spec, was_created = request.user.spec_set.get_or_create(
-                name='{user}/{label}'.format(user=request.user.username, label=slugify(label)),
-                spec_type='tprx')
-            rx_spec.label = label
-            rx_spec.desc = desc
-            rx_spec.spec = rx_str
-            rx_spec.save()
-
-            messages.add_message(request, messages.INFO,
-                u'{created} recipe {label}'.format(created='Created' if was_created else 'Updated', label=label))
-
-            for release in spec.release_set.all():
-                remix, was_created = request.user.remix_set.get_or_create(
-                    recipe=rx_spec,
-                    pack_args__source_pack=release,
-                    defaults={u'label': u'{source} + {recipe}'.format(recipe=label, source=release.series.label)})
-                remix.save()
-                arg, _ = remix.pack_args.get_or_create(name='base', defaults={'source_pack': release})
-                arg.source_pack = release
-                arg.save()
-                messages.add_message(request, messages.INFO,
-                    u'{created} remix {label}'.format(
-                        created='Created' if was_created else 'Updated',
-                        label=remix.label))
-            return HttpResponseRedirect(reverse('remix-edit', kwargs={'remix_id': remix.id}))
+            code = spec.alt_code_from_form_data(form.cleaned_data)
+            release = spec.release_set.all()[0]
+            slug = slugify(u'{source} {release} alt'.format(
+                    source=release.series.label,
+                    release=release.label))
+            return HttpResponseRedirect(reverse('make-alts-pack', kwargs={
+                'maps_id': spec.id,
+                'release_id': release.id,
+                'code': code,
+                'slug': slug}))
     else:
         initial = {'label': '{maps} Alts'.format(maps=spec.label)}
         for name, tiless in tiles_list:
@@ -545,3 +486,9 @@ def recipe_from_maps(request, id):
         'tiles_list': tiles_list,
         'src': src,
     }
+
+@texture_pack_view
+def make_alts_pack(request, maps_id, release_id, slug, code):
+    spec = get_object_or_404(Spec, id=maps_id)
+    release = get_object_or_404(Release, id=release_id)
+    return spec.get_remix_from_code(release, code)

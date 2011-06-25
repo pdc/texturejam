@@ -7,6 +7,7 @@ import httplib2
 from django.http import HttpResponse
 from django.template import RequestContext
 from django.shortcuts import render_to_response
+from django.template.defaultfilters import slugify
 from django.conf import settings
 
 
@@ -36,19 +37,32 @@ def with_template(default_template_name=None):
         return decorated_func
     return decorator
 
-def json_view(func):
+def json_view(view_func):
     """Decorator for view functions retrning JSON.
 
     Thre wrapped function returns a dict that is rendered as JSON.
     """
-    def wrapped_func(request, *args, **kwargs):
-        result = func(request, *args, **kwargs)
+    def wrapped_view(request, *args, **kwargs):
+        result = view_func(request, *args, **kwargs)
         if isinstance(result, HttpResponse):
             return result
         return HttpResponse(json.dumps(result),
                 mimetype='application/json')
-    return wrapped_func
+    return wrapped_view
 
+def texture_pack_view(view_func):
+    """Decorator for view functions return a texture pack."""
+    def wrapped_view(request, *args, **kwargs):
+        result = view_func(request, *args, **kwargs)
+        if isinstance(result, HttpResponse):
+            return result
+        response = HttpResponse(mimetype="application/zip")
+        response['content-disposition'] = 'attachment; filename={file_name}'.format(
+            file_name=slugify(result.label) + '.zip'
+        )
+        result.write_to(response)
+        return response
+    return wrapped_view
 
 
 not_word_re = re.compile(r'\W+')

@@ -24,7 +24,9 @@ urlpatterns = patterns('recipes.views',
     (r'^sources/(?P<source_id>\d+)/releases/(?P<release_id>\d+)/resources/(?P<resource_name>.*)$', 'source_resource', {}, 'source-resource'),
 
     (r'^beta-upgrade$', 'beta_upgrade', {}, 'beta_upgrade'),
-    (r'^recipe-from-maps/(?P<id>\d+)', 'recipe_from_maps', {}, 'recipe-from-maps'),
+    (r'^altpacks/(?P<maps_id>\d+)$', 'recipe_from_maps', {}, 'recipe-from-maps'),
+    (r'^altpacks/(?P<maps_id>\d+)/releases/(?P<release_id>\d+)/(?P<slug>[\w-]+)-(?P<code>[a-z_]+)\.zip$',
+        'make_alts_pack', {}, 'make-alts-pack'),
     (r'^instant-upgrade/(?P<source_id>\d+)', 'instant_upgrade', {}, 'instant-upgrade'),
 
     (r'^rx/(?P<name>[\w-]+)$', 'spec', {'spec_type': 'tprx'}, 'tprx'),
