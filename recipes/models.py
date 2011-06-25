@@ -13,7 +13,6 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.cache import cache
 from django.conf import settings
-from texturepacker import Mixer, Atlas, set_http_cache
 import texturepacker
 
 # Using South to manage migrations.
@@ -125,8 +124,78 @@ class Spec(models.Model):
             tile_groups.append((group_name, tiless))
         return tile_groups
 
+    def get_remix_from_code(self, release, code, loader=None):
+        """Generate a texture pack with this source as base and a recipe specified by code"""
+        atlas = self.get_atlas()
+        terrain_map = atlas.get_map('terrain.png', 'internal:///')
+        alts = terrain_map.get_alts_list()
+        recipe = {
+            'label': u'{source} {release} (Alt)'.format(
+                    source=release.series.label,
+                    release=release.label),
+            'desc': desc_from_alt_code(alts, code),
+            'parameters': {
+                'packs': ['base']},
+            'maps': self.get_internal_url(),
+            'mix':  {
+                'pack': '$base',
+                'files': [
+                    # XXX pack.png?
+                    '*.png',
+                    {
+                        'file': 'terrain.png',
+                        'replace': recipe_fragment_from_alt_code(alts, code)
+                    }
+                ]
+            }
+        }
+        mixer = get_mixer()
+        mixer.add_pack('base', release.get_pack())
+        return mixer.make(recipe)
+
+
     def get_etag(self):
         return '"{0}"'.format(hashlib.md5(self.spec).hexdigest())
+
+def alt_code_from_form_data(alts, form_data):
+    """Create a code that can be used to get a recipe fragment"""
+    letters = []
+    for _, xss in alts:
+        for xs in xss:
+            value = form_data[xs[0]]
+            index = xs.index(value)
+            letters.append(chr(96 + index) if index else '_')
+    return ''.join(letters)
+
+def recipe_fragment_from_alt_code(alts, code):
+    """Given an alts_tiles list and code saying which to use, return recipe fragment.
+
+    Returns a recipe fragment suitable to be a 'replace' clause
+    for terrain.png.
+    """
+    cells = {}
+    flattened = [xs for (n, xss) in alts for xs in xss]
+    for c, xs in zip(code, flattened):
+        if c != '_':
+            cells[xs[0]] = xs[ord(c) - 96]
+    return {'cells': cells}
+
+def desc_from_alt_code(alts, code):
+    """Return a human-readable description of which alts are selected."""
+    descs = []
+    flattened = [xs for (n, xss) in alts for xs in xss]
+    for c, xs in zip(code, flattened):
+        n = xs[0].replace('_', ' ')
+        if c == '_':
+            pass
+        elif c == 'a':
+            descs.append(n)
+        else:
+            descs.append(u'{0} ({1})'.format(n, ord(c) - 96))
+    if len(descs) < 3:
+        return u'Alt {0}'.format(' and '.join(descs))
+    descs[-1] = u'and {0}'.format(descs[-1])
+    return u'Alt {0}'.format(', '.join(descs))
 
 
 def update_specs_from_dir(dir_path):
@@ -157,30 +226,6 @@ def update_specs_from_dir(dir_path):
     do_eeet(dir_path, '.tprx', 'tprx', counts)
     do_eeet(os.path.join(dir_path, 'maps'), '.tpmaps', 'tpmaps', counts)
     return counts
-
-def alt_code_from_form_data(alts, form_data):
-    """Create a code that can be used to get a recipe fragment"""
-    letters = []
-    for _, xss in alts:
-        for xs in xss:
-            value = form_data[xs[0]]
-            index = xs.index(value)
-            letters.append(chr(96 + index) if index else '_')
-    return ''.join(letters)
-
-def recipe_fragment_from_alt_code(alts, code):
-    """Given an alts_tiles list and code saying which to use, return recipe fragment.
-
-    Returns a recipe fragment suitable to be a 'replace' clause
-    for terrain.png.
-    """
-    cells = {}
-    flattened = [xs for (n, xss) in alts for xs in xss]
-    for c, xs in zip(code, flattened):
-        if c != '_':
-            cells[xs[0]] = xs[ord(c) - 96]
-    return {'cells': cells}
-
 
 class Source(models.Model):
     owner = models.ForeignKey(User)
@@ -292,7 +337,7 @@ class Release(models.Model):
                 bytes = loader.get_bytes(self.download_url, base='internal:///')
                 with open(file_path, 'wb') as strm:
                     strm.write(bytes)
-        return texturepacker.SourcePack(file_path, Atlas())
+        return texturepacker.SourcePack(file_path, texturepacker.Atlas())
 
     def truncated_download_url(self):
         return trunc_url(self.download_url)
@@ -360,7 +405,7 @@ class Remix(models.Model):
                 pack = texturepacker.SourcePack(StringIO(pack_bytes), Atlas())
 
         if not pack:
-            set_http_cache(settings.HTTPLIB2_CACHE_DIR)
+            texturepacker.set_http_cache(settings.HTTPLIB2_CACHE_DIR)
             mixer = get_mixer()
             if loader:
                 mixer.loader = loader
@@ -482,7 +527,7 @@ def get_mixer():
     This allows the server to avoid making HTTP
     requests to itself.
     """
-    mixer = Mixer()
+    mixer = texturepacker.Mixer()
     augment_loader(mixer.loader)
     return mixer
 

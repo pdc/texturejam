@@ -389,6 +389,79 @@ class InstantAlternatesRecipeTests(TestCase):
             recipe_fragment_from_alt_code(alts, code))
 
     def test_code_from_from_data(self):
-        alt_tiles = [('cat', [['cat', 'cat1']]), ('dog', [['dog', 'dog1']])]
+        alts = [('cat', [['cat', 'cat1']]), ('dog', [['dog', 'dog1']])]
         form_data = {'cat': 'cat1', 'dog': 'dog'}
-        self.assertEqual('a_', alt_code_from_form_data(alt_tiles, form_data))
+        self.assertEqual('a_', alt_code_from_form_data(alts, form_data))
+
+    def test_alt_desc_from_code_2(self):
+        alts = [('cat', [['cat', 'cat_1']]), ('dog_hog', [['dog_hog', 'dog_hog_1', 'dog_hog_2']]), ('eel_fox', [['eel_fox', 'eel_fox_1', 'eel_fox_2']])]
+        code = 'ab_'
+        self.assertEqual('Alt cat and dog hog (2)', desc_from_alt_code(alts, code))
+
+    def test_alt_desc_from_code_3(self):
+        alts = [('cat', [['cat', 'cat_1']]), ('dog_hog', [['dog_hog', 'dog_hog_1', 'dog_hog_2']]), ('eel_fox', [['eel_fox', 'eel_fox_1', 'eel_fox_2']])]
+        code = 'aba'
+        self.assertEqual('Alt cat, dog hog (2), and eel fox', desc_from_alt_code(alts, code))
+
+    @patch.object(recipe_models_module, 'get_mixer')
+    def test_to_construction(self, mock_get_mixer):
+        # Create some test objects...
+        level = Level.objects.create(label='topmost')
+        maps = Spec.objects.create(name='shazam', spec_type='tpmaps', spec=json.dumps({
+            'terrain.png': {
+                'source_rect': {'width': 16, 'height': 32},
+                'cell_rect': {'width': 8, 'height': 8},
+                'names': [
+                    'ape', 'bee'
+                    'cat', 'cat_1',
+                    'dog_hog', 'dog_hog_1', 'dog_hog_2',
+                    'eel_fox', 'eel_fox_1', 'eel_fox_2']}}))
+        source = Source.objects.create(label=u'Foo’s bar pack (Alt)', owner=get_anonymous())
+        release = source.releases.create(download_url='http://example.org/bar.zip', maps=maps, level=level, label='1.0')
+        code = '_ba'
+
+        # ... and some mock obects ...
+        mock_loader = Mock()
+        mock_loader.maybe_get_spec.return_value = json.loads(maps.spec)
+        mixer = texturepacker.Mixer(loader=mock_loader)
+        mock_get_mixer.return_value = mixer
+        with patch.object(release, 'get_pack') as mock_get_pack:
+            mock_get_pack.return_value = 'JUMP'
+
+            self.assertEqual('JUMP', release.get_pack())
+
+            with patch.object(mixer, 'make') as mock_make:
+                with patch.object(mixer, 'add_pack') as mock_add_pack:
+                    mock_make.return_value = 'THE PACK'
+
+                    # Checking the mocks work as expected
+                    self.assertTrue(isinstance(maps.get_atlas(), texturepacker.Atlas))
+
+                    # ... and the expected recipe.
+                    expected_recipe = {
+                        'label': u'Foo’s bar pack 1.0 (Alt)',
+                        'desc': 'Alt dog hog (2) and eel fox',
+                        'parameters': {
+                            'packs': ['base']},
+                        'maps': 'internal:///maps/shazam',
+                        'mix':  {
+                            'pack': '$base',
+                            'files': [
+                                # XXX pack.png?
+                                '*.png',
+                                {
+                                    'file': 'terrain.png',
+                                    'replace': {
+                                        'cells': {
+                                            'doc_hog': 'dog_hog_2',
+                                            'eel_fox': 'eel_fox_1'}}}]}}
+
+
+                    # Now press the button ...
+                    pack = maps.get_remix_from_code(release, code, loader=mock_loader)
+
+                    # ...and see the machinery all work perfectly.
+                    mock_add_pack.assert_called_once_with_args('base', 'JUMP')
+                    mock_make.assert_called_once_with_args(expected_recipe, None)
+
+                    self.assertEqual('THE PACK', pack)
