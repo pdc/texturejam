@@ -26,22 +26,6 @@
     </ul>
     {% endif %}
 
-    <h2>Use old texture packs</h2>
-    <p>
-        When Mojang add new objects to Minecraft
-        you have to stop using your favourite texture pack
-        while you wait for the designer to design and add  new
-        imagery to the pack.
-        By mixing in elements from another pack we can create
-        an ersatz upgrade that
-        lets you carry on playing until an official upgrade is released.
-    </p>
-    <p class="big_link">
-        <strong><a href="{% url beta_upgrade %}">Upgrade a pack to Beta 1.6</a></strong>
-    </p>
-    <p>
-        This service is still experimental.
-    </p>
 </section>
 
 <section id="what_is">
@@ -72,7 +56,7 @@
     {% if beta_remixes %}
 <div id="beta-remixes">
     <section class="pack-list">
-        <h2>Packs Upgraded for Beta 1.6</h2>
+        <h2>Packs Upgraded for Beta 1.7</h2>
     {% for grouper, list in beta_remixes %}
         <ul>
             {% for remix in list %}
@@ -94,31 +78,24 @@
 </div>
     {% endif %}
 
-<div id="other-remixes">
-    {% for grouper, list in other_remixes %}
-    <section id="{{ grouper|slugify }}" class="pack-list">
-        <h2>{{ grouper }} Remix{{ list|pluralize:"es" }}</h2>
-        <ul>
-            {% for remix in list %}
-            <li>
-                <a href="{% url remix-detail remix_id=remix.id %}">
-                    <img src="{% url remix-resource remix_id=remix.id resource_name="pack.png" %}" alt="" class="pack-png" />
-                    <b>{{ remix }}</b>
-                    <small>
-                        Based on
-                        {% for arg in remix.pack_args.all %}
-                            {{ arg.source_pack }}
-                        {% endfor %}
-                    </small>
-                </a>
-            </li>
-            {% endfor %}
-    </section>
-    {% endfor %}
-</div>
-
 
 <div id="upgrade-remixes">
+    <section>
+        <h2>Use old texture packs</h2>
+        <p>
+            When Mojang add new objects to Minecraft
+            you have to stop using your favourite texture pack
+            while you wait for the artist to draw new textures.
+            By mixing in elements from a patches pack, we
+            can let you carry on playing until then.
+        </p>
+        <p class="big_link">
+            <strong><a href="{% url beta_upgrade %}">Upgrade a pack to Beta 1.6</a></strong>
+        </p>
+        <p>
+            This service is still experimental.
+        </p>
+    </section>
     <section id="upgraded" class="pack-list compact">
         <h2>Old Texture Packs Upgraded to Current Beta</h2>
         <ul>
@@ -148,5 +125,30 @@
     </section>
     {% endif %}
 </div>
+
+
+<div id="other-remixes">
+    {% for grouper, list in other_remixes %}
+    <section id="{{ grouper|slugify }}" class="pack-list">
+        <h2>{{ grouper }} Remix{{ list|pluralize:"es" }}</h2>
+        <ul>
+            {% for remix in list %}
+            <li>
+                <a href="{% url remix-detail remix_id=remix.id %}">
+                    <img src="{% url remix-resource remix_id=remix.id resource_name="pack.png" %}" alt="" class="pack-png" />
+                    <b>{{ remix }}</b>
+                    <small>
+                        Based on
+                        {% for arg in remix.pack_args.all %}
+                            {{ arg.source_pack }}
+                        {% endfor %}
+                    </small>
+                </a>
+            </li>
+            {% endfor %}
+    </section>
+    {% endfor %}
+</div>
+
 
 {% endblock %}

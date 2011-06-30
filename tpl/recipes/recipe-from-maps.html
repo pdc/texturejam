@@ -13,7 +13,7 @@
         {% endfor %}
         {{ spec.release_set.all|pluralize:"supplies,supply" }} alternative
         interpretations of some textures.
-        Create your remix by choosing alternatives in this list:
+        You can create your own remix!
     </p>
     <form method="post">
         {% csrf_token %}
@@ -30,9 +30,13 @@
         </div>
         {% endfor %}
         <div class="buttons">
-            <input type="submit" value="Create recipe" />
+            <input type="submit" value="Download the ZIP File" />
         </div>
     </form>
+    <p>
+        Then copy the ZIP file in to Minecraft’s
+        <code>texturepacks</code> folder.
+    </p>
 </section>
 
 <section id="tweet-this">
