@@ -58,7 +58,7 @@
     {% if beta_remixes %}
 <div id="beta-remixes">
     <section class="pack-list">
-        <h2>Packs Upgraded for Beta 1.7</h2>
+        <h2>Packs Patched for Beta 1.8</h2>
     {% for grouper, list in beta_remixes %}
         <ul>
             {% for remix in list %}
@@ -92,10 +92,11 @@
             can let you carry on playing until then.
         </p>
         <p class="big_link">
-            <strong><a href="{% url beta_upgrade %}">Upgrade a pack to Beta 1.7</a></strong>
+            <strong><a href="{% url beta_upgrade %}">Patch a pack for Beta 1.8</a></strong>
         </p>
         <p>
-            This service is still experimental.
+            Patched packs are for personal use only, and only until
+            an official release of the source pack has been issued.
         </p>
     </section>
     <section id="upgraded" class="pack-list compact">
