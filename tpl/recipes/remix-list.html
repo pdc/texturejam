@@ -4,8 +4,6 @@
 {% block trail %}{% endblock %}
 {% block main_sections %}
 <section id="why_remix">
-
-
     {% if maps_for_alts %}
     <h2>Customise texture packs</h2>
     <p>
@@ -58,7 +56,7 @@
     {% if beta_remixes %}
 <div id="beta-remixes">
     <section class="pack-list">
-        <h2>Packs Patched for Beta 1.8</h2>
+        <h2>Packs Patched for Minecraft 1.0</h2>
     {% for grouper, list in beta_remixes %}
         <ul>
             {% for remix in list %}
@@ -92,7 +90,7 @@
             can let you carry on playing until then.
         </p>
         <p class="big_link">
-            <strong><a href="{% url beta_upgrade %}">Patch a pack for Beta 1.8</a></strong>
+            <strong><a href="{% url beta_upgrade %}">Patch a pack for Release 1.0</a></strong>
         </p>
         <p>
             Patched packs are for personal use only, and only until
@@ -100,7 +98,7 @@
         </p>
     </section>
     <section id="upgraded" class="pack-list compact">
-        <h2>Old Texture Packs Upgraded to Current Beta</h2>
+        <h2>Old Texture Packs Upgraded to Current Release</h2>
         <ul>
             {% for source in upgraded_sources %}
             <li>
