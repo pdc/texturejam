@@ -4,6 +4,28 @@
 {% block trail %}{% endblock %}
 {% block main_sections %}
 <section id="why_remix">
+    <p>
+        Texture packs are fun but sometimes you wish you could tweak the one you’ve downloaded,
+        or maybe your
+        favourite pack has not been updated for Minecraft’s latest release yet. But changing the artwork
+        will be tricky if you don’t have the same editing app they do, and sharing
+        modified versions of someone else’s work is
+        <a href="http://www.minecraftforum.net/topic/307105-solution-to-remix-packs/">likely to offend the original artist</a>.
+        And that is Not Fun.
+    </p>
+    <p>
+        The <a href="http://pdc.github.com/texturepacker/">Texturepacker</a> is
+        a Python library that tries to address this by separating out the recipe for remixing a tetxure pack.
+        The recipe refers to the source texture packs but does not include them. Instead
+        you fetch the source packs yourself remix them with the <i>maketexture</i> command.
+        No need to distribute modified packs.
+    </p>
+    <p>
+        The original idea of this site was to make this a bit easier by hosting recipes. While I was
+        scratching my head over a user interface for writing recipes,
+        I made a simplified system that has a few
+        built in to upgrade old texture packs to work with the new release of Minecraft.
+    </p>
     {% if maps_for_alts %}
     <h2>Customise texture packs</h2>
     <p>
@@ -90,7 +112,7 @@
             can let you carry on playing until then.
         </p>
         <p class="big_link">
-            <strong><a href="{% url beta_upgrade %}">Patch a pack for Release 1.0</a></strong>
+            <strong><a href="{% url beta_upgrade %}">Patch a pack for Release 1.2</a></strong>
         </p>
         <p>
             Patched packs are for personal use only, and only until
