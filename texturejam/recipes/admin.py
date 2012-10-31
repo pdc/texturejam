@@ -1,5 +1,5 @@
 
-from recipes.models import Level, Tag, Source, Release, Spec, Remix, PackArg
+from texturejam.recipes.models import Level, Tag, Source, Release, Spec, Remix, PackArg
 from django.contrib import admin
 
 class TagAdmin(admin.ModelAdmin):

@@ -15,7 +15,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
 from django.conf import settings
 
-from recipes.models import *
+from texturejam.recipes.models import *
 from recipes.tasks import *
 from shortcuts import *
 

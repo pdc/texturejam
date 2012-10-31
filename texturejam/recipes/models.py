@@ -516,7 +516,8 @@ def augment_loader(loader):
     This allows for certain HTTP resources to be
     fetched directly from disc.
     """
-    loader.add_local_knowledge(settings.STATIC_URL, settings.STATIC_DIR)
+    if hasattr(settings, 'STATIC_DIR'):
+        loader.add_local_knowledge(settings.STATIC_URL, settings.STATIC_DIR)
 
     def fetch_spec(path):
         if path.startswith('///maps/'):

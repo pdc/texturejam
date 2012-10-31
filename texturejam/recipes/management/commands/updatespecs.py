@@ -1,7 +1,7 @@
 # Encoding: UTF-8
 
 from django.core.management.base import BaseCommand, CommandError
-from recipes.models import *
+from texturejam.recipes.models import *
 
 class Command(BaseCommand):
     args = '<specs_dir>...'

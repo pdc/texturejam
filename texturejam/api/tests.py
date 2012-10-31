@@ -6,7 +6,7 @@ from mock import patch
 
 import json
 from textwrap import dedent
-from recipes.models import *
+from texturejam.recipes.models import *
 
 class TestApiIndex(TestCase):
     def test_api_index(self):

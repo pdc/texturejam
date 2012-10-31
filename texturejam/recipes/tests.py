@@ -9,12 +9,13 @@ Replace these with more appropriate tests for your application.
 
 from django.test import TestCase
 from mock import patch, Mock
+from unittest import skip
 
 import shutil
 import json
 from textwrap import dedent
-from recipes.models import *
-import recipes.models as recipe_models_module
+from texturejam.recipes.models import *
+import texturejam.recipes.models as recipe_models_module
 from django.contrib.auth.models import User
 from django.conf import settings
 
@@ -74,12 +75,14 @@ class GetMapTests(TestCase):
 
 class SpecTests(TestCase):
     def test_get_internal_url_maps(self):
-        spec = Spec(name='alphonse', spec_type='tpmaps', spec="href: http://example.com/foo.tpmaps")
+        spec = Spec(name='alphonse', spec_type='tpmaps', spec="href: http://example.com/foo.tpmaps",
+                owner=User.objects.create(username='USER'))
         spec.save()
         self.assertEqual('internal:///maps/alphonse', spec.get_internal_url())
 
     def test_get_internal_url_recope(self):
-        spec = Spec(name='bart', spec_type='tprx', spec="label: bunk")
+        spec = Spec(name='bart', spec_type='tprx', spec="label: bunk",
+                owner=User.objects.create(username='USER'))
         spec.save()
         self.assertEqual('internal:///bart', spec.get_internal_url())
 
@@ -89,7 +92,8 @@ class TextureCellTests(TestCase):
         atlas = texturepacker.Atlas()
         atlas.add_map('terrain.png', map)
 
-        spec = Spec()
+        owner = User.objects.create(username='USERNAME')
+        spec = Spec(owner=owner)
         spec.save()
 
         with patch.object(spec, 'get_atlas') as mock_get_atlas:
@@ -203,6 +207,7 @@ class TestUploader(TestCase):
         recipe = Spec.objects.get(name='hello', spec_type='tprx')
         self.assertEqual('GREETINGS', recipe.label)
 
+    @skip('Test for fixing a problem it is now difficult to reproduce')
     def test_repair_missing_owner(self):
         spec0 = Spec.objects.create(name='hello', label='GREETINGS', spec_type='tprx', spec=json.dumps({'hello': 'sailor'}))
 
@@ -233,13 +238,14 @@ class TestAnonymous(TestCase):
 class TestInstantUgrade(TestCase):
     def setUp(self):
         # Create a recipe and a source to apply it to.
-        level = Level.objects.create(label='One')
-        recipe = Spec.objects.create(name='foo', label='Foo', spec='foo', spec_type='tprx')
+        level = Level.objects.create(label='One', released=datetime(2012, 10, 31))
+        owner = User.objects.create(username='USERNAME')
+        recipe = Spec.objects.create(owner=owner, name='foo', label='Foo', spec='foo', spec_type='tprx')
         level.upgrade_recipe = recipe
         level.save()
 
         source = Source.objects.create(label='Bar', owner=get_anonymous())
-        source.releases.create(download_url='http://example.org/bar.zip', level=level, label='1.0')
+        source.releases.create(download_url='http://example.org/bar.zip', level=level, label='1.0', released=datetime(2012,10,31))
 
         self.source = source
         self.recipe = recipe
@@ -272,10 +278,11 @@ class SourceTests(TestCase):
             shutil.rmtree(self.dir)
         os.mkdir(self.dir)
 
-
+        self.level = Level.objects.create(released=datetime(2012, 10, 31))
         self.user = User.objects.create(username='bob')
         self.source = self.user.source_set.create(label='foo', )
         self.release = self.source.releases.create(download_url='http://example.com/foo.zip',
+            level=self.level,
             released=datetime.now() + timedelta(days=-1))
 
     @patch.object(settings, 'RECIPES_SOURCE_PACKS_DIR', '/foo/bar')
@@ -324,17 +331,19 @@ class RemixDownloadingTests(TestCase):
         os.mkdir(self.dir)
 
         # Create a source pack ...
+        self.level = Level.objects.create(released=datetime(2012, 10, 31))
         self.user = User.objects.create(username='bob')
         self.source = self.user.source_set.create(label='foo')
         self.release = self.source.releases.create(download_url='http://example.com/foo.zip',
-            released=datetime.now() + timedelta(days=-1))
+            released=datetime.now() + timedelta(days=-1),
+            level=self.level)
 
         # ... and a remix that uses it.
         self.recipe_spec = {
             'label': 'herp',
             'desc': 'derp'
         }
-        self.recipe = Spec.objects.create(spec=json.dumps(self.recipe_spec), name='herp', spec_type='tprx')
+        self.recipe = Spec.objects.create(owner=self.user, spec=json.dumps(self.recipe_spec), name='herp', spec_type='tprx')
         self.remix = self.user.remix_set.create(recipe=self.recipe)
         self.remix.pack_args.create(name='base', source_pack=self.release)
 
@@ -406,8 +415,9 @@ class InstantAlternatesRecipeTests(TestCase):
     @patch.object(recipe_models_module, 'get_mixer')
     def test_to_construction(self, mock_get_mixer):
         # Create some test objects...
-        level = Level.objects.create(label='topmost')
-        maps = Spec.objects.create(name='shazam', spec_type='tpmaps', spec=json.dumps({
+        level = Level.objects.create(label='topmost', released=datetime(2012, 10, 31))
+        user = User.objects.create(username='USER')
+        maps = Spec.objects.create(owner=user, name='shazam', spec_type='tpmaps', spec=json.dumps({
             'terrain.png': {
                 'source_rect': {'width': 16, 'height': 32},
                 'cell_rect': {'width': 8, 'height': 8},
@@ -417,7 +427,8 @@ class InstantAlternatesRecipeTests(TestCase):
                     'dog_hog', 'dog_hog_1', 'dog_hog_2',
                     'eel_fox', 'eel_fox_1', 'eel_fox_2']}}))
         source = Source.objects.create(label=u'Foo’s bar pack (Alt)', owner=get_anonymous())
-        release = source.releases.create(download_url='http://example.org/bar.zip', maps=maps, level=level, label='1.0')
+        release = source.releases.create(download_url='http://example.org/bar.zip', maps=maps, level=level, label='1.0',
+                released=datetime(2012, 10, 31))
         code = '_ba'
 
         # ... and some mock obects ...

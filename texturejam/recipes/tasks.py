@@ -3,8 +3,8 @@
 from celery.task import task
 
 import re
-from recipes.models import *
-import hello.models
+from texturejam.recipes.models import *
+import texturejam.hello.models
 
 @task
 def add(x, y):
