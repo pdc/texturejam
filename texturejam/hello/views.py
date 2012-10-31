@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from shortcuts import with_template
+from texturejam.shortcuts import with_template
 
 @with_template('hello/callback.html')
 def oauth_callback(request):

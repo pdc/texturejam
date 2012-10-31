@@ -16,8 +16,8 @@ from django.contrib import messages
 from django.conf import settings
 
 from texturejam.recipes.models import *
-from recipes.tasks import *
-from shortcuts import *
+from texturejam.recipes.tasks import *
+from texturejam.shortcuts import *
 
 @with_template('recipes/remix-list.html')
 def remix_list(request):

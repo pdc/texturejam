@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib import admin
 admin.autodiscover()
 
-urlpatterns = patterns('recipes.views',
+urlpatterns = patterns('texturejam.recipes.views',
     (r'^$', 'remix_list', {}, 'home'),
 
     (r'^remixes/(?P<remix_id>\d+)/$', 'remix_detail', {}, 'remix-detail'),
@@ -32,18 +32,18 @@ urlpatterns = patterns('recipes.views',
     (r'^rx/(?P<name>[\w-]+)$', 'spec', {'spec_type': 'tprx'}, 'tprx'),
     (r'^rx/maps/(?P<name>[\w-]+)$', 'spec', {'spec_type': 'tpmaps'}, 'tpmaps'),
 
-    url(r'^api/', include('api.urls')),
+    url(r'^api/', include('texturejam.api.urls')),
 )
 
 urlpatterns += patterns('',
     url(r'', include('social_auth.urls')),
 
-    url(r'^hello/welcome$', 'hello.views.logged_in'),
-    url(r'^hello/oh-dear$', 'hello.views.login_error'),
-    url(r'^hello/callback$', 'hello.views.oauth_callback'),
-    url(r'^hello/log-out$', 'hello.views.log_out', {}, 'hello_log_out'),
-    url(r'^hello/please-log-in$', 'hello.views.login_form', {}, 'hello_please_log_in'),
-    url(r'^hello/test-messages$', 'hello.views.test_messages'),
+    url(r'^hello/welcome$', 'texturejam.hello.views.logged_in'),
+    url(r'^hello/oh-dear$', 'texturejam.hello.views.login_error'),
+    url(r'^hello/callback$', 'texturejam.hello.views.oauth_callback'),
+    url(r'^hello/log-out$', 'texturejam.hello.views.log_out', {}, 'hello_log_out'),
+    url(r'^hello/please-log-in$', 'texturejam.hello.views.login_form', {}, 'hello_please_log_in'),
+    url(r'^hello/test-messages$', 'texturejam.hello.views.test_messages'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # (r'^admin/doc/', include('django.contrib.admindocs.urls')),

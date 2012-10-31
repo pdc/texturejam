@@ -15,8 +15,8 @@ from django.contrib import messages
 from django.conf import settings
 
 from texturejam.recipes.models import *
-from recipes.tasks import *
-from shortcuts import *
+from texturejam.recipes.tasks import *
+from texturejam.shortcuts import *
 
 @json_view
 def index_page(request):

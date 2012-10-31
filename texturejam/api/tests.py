@@ -7,6 +7,7 @@ from mock import patch
 import json
 from textwrap import dedent
 from texturejam.recipes.models import *
+from django.contrib.auth.models import User
 
 class TestApiIndex(TestCase):
     def test_api_index(self):
@@ -27,11 +28,12 @@ def resolve_path_template(base, template, *args, **kwargs):
 
 class TestGetSpec(TestCase):
     def setUp(self):
+        self.owner = User.objects.create(username='OWNER')
         self.data0 = json.dumps({'hello': 'world'})
-        self.spec0 = Spec(name='zero', label='Zero', spec_type='tprx', spec=self.data0)
+        self.spec0 = Spec(name='zero', label='Zero', spec_type='tprx', spec=self.data0, owner=self.owner)
         self.spec0.save()
         self.data1 = json.dumps({'banjo': 'ukelele'})
-        self.spec1 = Spec(name='wan', label='Wan maps', spec_type='tpmaps', spec=self.data1)
+        self.spec1 = Spec(name='wan', label='Wan maps', spec_type='tpmaps', spec=self.data1, owner=self.owner)
         self.spec1.save()
 
         self.index = json.loads(Client().get('/api/').content)
