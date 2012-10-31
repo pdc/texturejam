@@ -63,7 +63,7 @@ MEDIA_URL = 'http://localhost/~pdc/texturejam-uploads/'
 # Where to find CSS, JavaScript etc.
 STATIC_URL = 'http://static.texturejam.org.uk/'
 # Directory where these files are collected
-STATIC_DIR = '/home/texturejam/static'
+STATIC_ROOT = '/home/texturejam/static'
 
 
 #
